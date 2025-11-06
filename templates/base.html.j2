@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang = "en">
+    <head>
+        <title>
+            {% block title %} {% endblock %}
+        </title>
+        <link rel = "stylesheet" href = "static/style.css">
+        <script src = "static/functions.js"></script>
+        <link rel = "icon" href = "static/favicon.gif">
+    </head>
+
+    <body class = "adaptive">
+        <nav id = "navbar">
+            <a href = ".">
+                <img src = "static/favicon.gif" height = 30 alt = "An image of Piplup!">
+            </a>
+            <div id = "navbar-divider"></div>
+            {% if g.user.authenticated %}
+                <a href = "logout">Logout</a>
+                <a href = "." class = "nav-right">
+                    <img id = "profile-picture" src = "{{g.user.picture}}" height = 30 alt = "User Image">
+                </a>   
+            {% else %}
+                <a href = "login">Login</a>
+            {% endif %}
+        </nav> 
+        {% block body %} {% endblock %}
+    </body>
+</html>

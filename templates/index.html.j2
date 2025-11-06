@@ -1,0 +1,35 @@
+{% extends "base.html.j2" %}
+
+{% block title %}
+    Lakeside Clubs
+{% endblock %}
+
+{% block body %}
+    {% set ns = namespace(last_membership_type = None) %}
+    <div id = "clubs-list-container">
+        {% for club in clubs %}
+            {% if ns.last_membership_type != club.membership_type %}
+                {% if club.membership_type == 1 %}
+                    <h2 class = "clubs-list-header">Clubs You Lead</h2>
+                {% elif club.membership_type == 0 %}
+                    <h2 class = "clubs-list-header">Clubs You've Joined</h2>
+                {% elif ns.last_membership_type == None %}
+                    <h2 class = "clubs-list-header">List of All Clubs!</h2>
+                {% else %}
+                    <h2 class = "clubs-list-header">Other Clubs</h2>
+                {% endif %}
+            {% endif %}
+            {% set ns.last_membership_type = club.membership_type %}
+
+            <div class = "club-card">
+                <a href = "club?id={{club.id}}">
+                    <h2>{{club.name}}</h2>
+                </a>
+                <p>{{club.description}}</p>
+                {% if club.membership_type == None %}
+                    <button class = "join-club-button" onclick = "joinClub({{club.id}}, {{g.user.authenticated|tojson}}, this);">Join club!</button>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

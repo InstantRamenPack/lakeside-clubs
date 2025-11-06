@@ -1,0 +1,1 @@
+python3 -m flask run --cert=https.crt --key=https.key

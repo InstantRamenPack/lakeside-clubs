@@ -1,0 +1,120 @@
+html, body {
+    max-width: 100%;
+}
+
+body {
+    font-family: Helvetica;
+    margin: 0;
+    background-color: rgb(255, 255, 255);
+}
+
+/** https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@media/prefers-color-scheme **/
+@media (prefers-color-scheme: dark) { 
+    body.adaptive {
+        color: rgb(255, 255, 255);
+        background-color: rgb(58, 80, 107);
+    }
+}
+
+h1, h2, h3, p {
+    margin: 0;
+    width: 100%;
+}
+
+h1 {
+    font-size: 40px;
+}
+
+p {
+    font-size: 20px;
+}
+
+img {
+    display: block;
+}
+
+#navbar {
+    top: 0;
+    z-index: 100;
+    position: sticky;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+
+    padding: 5px 20px;
+    gap: 20px;
+    height: 50px;
+    background-color: rgb(91, 0, 25);
+    backdrop-filter: blur(25px) saturate(80%);
+}
+
+.navbar a {
+    text-decoration: none;
+    color: white;
+    padding: 10px;
+    transition: all 0.3s ease;
+    font-weight: bold;
+}
+
+.navbar a:hover {
+    color: black;
+    background-color: rgb(0, 0, 0, 0.1);
+    border-radius: 5px;
+}
+
+#navbar-divider {
+    flex: 1 1 0;
+}
+
+#profile-picture {
+    border-radius: 50%;
+}
+
+
+#club-grid {
+    display: grid;
+    
+}
+
+#clubs-list-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    width: 80vw;
+    margin: 0 auto;
+}
+
+.clubs-list-header {
+    grid-column: 1 / -1;
+}
+
+.club-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+
+    padding: 20px;
+    border-radius: 20px;
+    backdrop-filter: blur(12px) saturate(60%);
+    border: 1px solid rgb(0, 0, 0, 0.2);
+    background-color: rgb(0, 0, 0, 0.05);
+}
+
+.club-card a {
+    color: rgb(255, 255, 255)
+}
+
+.join-club-button {
+    align-self: flex-end;
+    margin-top: auto;
+}
+
+#import-user-error {
+    display: none;
+}
+
+#import-user-text {
+    display: none;
+}

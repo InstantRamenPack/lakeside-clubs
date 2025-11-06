@@ -1,0 +1,5 @@
+.flaskenv
+.env
+https.crt
+https.key
+__pycache__

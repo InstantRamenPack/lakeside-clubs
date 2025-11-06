@@ -1,0 +1,33 @@
+{% extends "base.html.j2" %}
+
+{% block title %}
+    {{club.name}}
+{% endblock %}
+
+{% block body %}
+    <div id = "club-grid">
+        <h1>{{club.name}}</h1>
+        <p>{{club.description}}</p>
+
+        {% for leader in club.leaders %}
+            <p>{{leader.name}}</p>
+        {% endfor %}  
+
+        {% if club.membership_type == 1 %}
+            {% for member in club.members %}
+                <p>{{member.email}}</p>
+            {% endfor %}  
+            <div id = "import-user-message"></div>
+            <textarea id = "import-user-text"></textarea>
+            <button id = "import-user-button" onclick = "importUsers({{club.id}});">Import Users</button>
+
+            <button onclick = 'copyUsers({{club.members|tojson}}, this);'>Copy Users</button>         
+        {% endif %}
+
+        {% if club.membership_type == 0 %}
+            <button onclick = "leaveClub({{club.id}}, this);">Leave Club</button>
+        {% elif club.membership_type == None %}
+            <button onclick = "joinClub({{club.id}}, {{g.user.authenticated|tojson}}, this);">Join Club!</button>
+        {% endif %}
+    </div>
+{% endblock %}
