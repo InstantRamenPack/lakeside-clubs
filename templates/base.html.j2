@@ -6,19 +6,19 @@
         </title>
         <link rel = "stylesheet" href = "static/style.css">
         <script src = "static/functions.js"></script>
-        <link rel = "icon" href = "static/favicon.gif">
+        <link rel = "icon" href = "static/favicon.png">
     </head>
 
     <body class = "adaptive">
         <nav id = "navbar">
             <a href = ".">
-                <img src = "static/favicon.gif" height = 30 alt = "An image of Piplup!">
+                <img src = "static/favicon.png" height = 30 alt = "Lakeside student government logo.">
             </a>
             <div id = "navbar-divider"></div>
             {% if g.user.authenticated %}
                 <a href = "logout">Logout</a>
                 <a href = "." class = "nav-right">
-                    <img id = "profile-picture" src = "{{g.user.picture}}" height = 30 alt = "User Image">
+                    <img id = "profile-picture" src = "{{g.user.picture}}" height = 30 alt = "User image.">
                 </a>   
             {% else %}
                 <a href = "login">Login</a>
