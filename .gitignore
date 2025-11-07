@@ -3,4 +3,4 @@
 https.crt
 https.key
 __pycache__
-runflask.bat
+*.bat
