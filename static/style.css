@@ -71,12 +71,6 @@ img {
     border-radius: 50%;
 }
 
-
-#club-grid {
-    display: grid;
-    
-}
-
 #clubs-list-container {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -104,6 +98,44 @@ img {
 
 .club-card a {
     color: rgb(255, 255, 255)
+}
+
+/* https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_grid_layout/Realizing_common_layouts_using_grids */
+
+#club-container {
+    display: grid;
+    gap: 20px;
+    grid-template-areas:
+        "header"
+        "sidebar"
+        "content";
+    width: 80vw;
+    margin: 0 auto;
+}
+
+@media (min-width: 500px) {
+  #club-container {
+    grid-template-columns: 1fr 2fr;
+    grid-template-areas:
+      "header  header"
+      "sidebar content";
+  }
+}
+
+#club-header {
+    grid-area: header;
+}
+
+#club-sidebar {
+    grid-area: sidebar;
+}
+
+#club-meetings-list {
+    grid-area: content;
+
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
 .join-club-button {

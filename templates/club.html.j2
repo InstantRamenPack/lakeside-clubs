@@ -5,33 +5,43 @@
 {% endblock %}
 
 {% block body %}
-    <div id = "club-grid">
-        <h1>{{club.name}}</h1>
-        <p>{{club.description}}</p>
+    <div id = "club-container">
+        <header id = "club-header">
+            <h1>{{club.name}}</h1>
+        </header>
 
-        {% for leader in club.leaders %}
-            <p>{{leader.name}}</p>
-        {% endfor %}  
+        <aside id = "club-sidebar">
+            <p>{{club.description}}</p>
 
-        {% if club.membership_type == 1 %}
-            {% for member in club.members %}
-                <p>{{member.email}}</p>
+            {% for leader in club.leaders %}
+                <p>{{leader.name}}</p>
             {% endfor %}  
-            <div id = "import-user-message"></div>
-            <textarea id = "import-user-text"></textarea>
-            <button id = "import-user-button" onclick = "importUsers({{club.id}});">Import Users</button>
 
-            <button onclick = 'copyUsers({{club.members|tojson}}, this);'>Copy Users</button>         
-        {% endif %}
+            {% if club.membership_type == 1 %}
+                {% for member in club.members %}
+                    <p>{{member.email}}</p>
+                {% endfor %}  
+                <div id = "import-user-message"></div>
+                <textarea id = "import-user-text"></textarea>
+                <button id = "import-user-button" onclick = "importUsers({{club.id}});">Import Users</button>
 
-        {% if club.membership_type == 0 %}
-            <button onclick = "leaveClub({{club.id}}, this);">Leave Club</button>
-        {% elif club.membership_type == None %}
-            <button onclick = "joinClub({{club.id}}, {{g.user.authenticated|tojson}}, this);">Join Club!</button>
-        {% endif %}
+                <button onclick = 'copyUsers({{club.members|tojson}}, this);'>Copy Users</button>         
+            {% endif %}
 
-        {% for meeting in meetings %}
-            <p>{{meeting.title}}</p>
-        {% endfor %}
+            {% if club.membership_type == 0 %}
+                <button onclick = "leaveClub({{club.id}}, this);">Leave Club</button>
+            {% elif club.membership_type == None %}
+                <button onclick = "joinClub({{club.id}}, {{g.user.authenticated|tojson}}, this);">Join Club!</button>
+            {% endif %}
+        </aside>
+
+        <div id = "club-meetings-list">
+            {% for meeting in meetings %}
+                <div class = "meeting-card">
+                    <h2>{{meeting.title}}</h2>
+                    <span class = "material-symbols-outlined">location_on</span>
+                </div>
+            {% endfor %}
+        </div>
     </div>
 {% endblock %}
