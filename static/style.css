@@ -105,6 +105,7 @@ hr {
 /** https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_grid_layout/Realizing_common_layouts_using_grids **/
 #club-container {
     display: grid;
+    align-items: start;
     gap: 30px;
     grid-template-areas:
         "header"
