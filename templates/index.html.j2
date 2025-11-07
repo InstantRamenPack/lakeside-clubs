@@ -5,16 +5,16 @@
 {% endblock %}
 
 {% block body %}
-    {% set ns = namespace(last_membership_type = None) %}
     <div id = "clubs-list-container">
+        <h1 id = "clubs-list-title">Lakeside Clubs</h1>
+
+        {% set ns = namespace(last_membership_type = None) %}
         {% for club in clubs %}
             {% if ns.last_membership_type != club.membership_type %}
                 {% if club.membership_type == 1 %}
                     <h2 class = "clubs-list-header">Clubs You Lead</h2>
                 {% elif club.membership_type == 0 %}
                     <h2 class = "clubs-list-header">Clubs You've Joined</h2>
-                {% elif ns.last_membership_type == None %}
-                    <h2 class = "clubs-list-header">List of All Clubs!</h2>
                 {% else %}
                     <h2 class = "clubs-list-header">Other Clubs</h2>
                 {% endif %}

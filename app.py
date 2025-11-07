@@ -192,6 +192,7 @@ def importUsers():
 
     return emails
 
+# login flow is from https://realpython.com/flask-google-login/
 @app.route("/login")
 def login():
     return redirect(client.prepare_request_uri(

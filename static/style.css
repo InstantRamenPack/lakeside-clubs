@@ -12,7 +12,7 @@ body {
 @media (prefers-color-scheme: dark) { 
     body.adaptive {
         color: rgb(255, 255, 255);
-        background-color: rgb(58, 80, 107);
+        background-color: rgb(24, 24, 24);
     }
 }
 
@@ -43,7 +43,7 @@ hr {
     justify-content: space-evenly;
 
     margin-bottom: 40px;
-    padding: 5px 20px;
+    padding: 0px 20px;
     gap: 20px;
     height: 50px;
     background-color: rgb(91, 0, 25);
@@ -56,12 +56,6 @@ hr {
     padding: 10px;
     transition: all 0.3s ease;
     font-weight: bold;
-}
-
-.navbar a:hover {
-    color: black;
-    background-color: rgb(0, 0, 0, 0.1);
-    border-radius: 5px;
 }
 
 .flex-space {
@@ -77,12 +71,18 @@ hr {
     /** https://css-tricks.com/auto-sizing-columns-css-grid-auto-fill-vs-auto-fit/ **/
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 20px;
-    width: 80vw;
+    width: 85vw;
     margin: 0 auto;
+}
+
+#clubs-list-title {
+    text-align: center;
+    grid-column: 1 / -1;
 }
 
 .clubs-list-header {
     grid-column: 1 / -1;
+    margin-top: 20px;
 }
 
 .club-card {
@@ -94,8 +94,8 @@ hr {
     padding: 20px;
     border-radius: 20px;
     backdrop-filter: blur(12px) saturate(60%);
-    border: 1px solid rgb(0, 0, 0, 0.2);
-    background-color: rgb(0, 0, 0, 0.05);
+    border: 1px solid rgb(255, 255, 255, 0.2);
+    background-color: rgb(255, 255, 255, 0.05);
 }
 
 .club-card a {
@@ -110,7 +110,7 @@ hr {
         "header"
         "sidebar"
         "content";
-    width: 80vw;
+    width: 85vw;
     margin: 0 auto;
 }
 
@@ -138,8 +138,8 @@ hr {
     padding: 20px;
     border-radius: 20px;
     backdrop-filter: blur(12px) saturate(60%);
-    border: 1px solid rgb(0, 0, 0, 0.2);
-    background-color: rgb(0, 0, 0, 0.05);  
+    border: 1px solid rgb(255, 255, 255, 0.2);
+    background-color: rgb(255, 255, 255, 0.05);
 }
 
 .join-club-button {
@@ -172,8 +172,8 @@ hr {
     padding: 20px;
     border-radius: 20px;
     backdrop-filter: blur(12px) saturate(60%);
-    border: 1px solid rgb(0, 0, 0, 0.2);
-    background-color: rgb(0, 0, 0, 0.05);    
+    border: 1px solid rgb(255, 255, 255, 0.2);
+    background-color: rgb(255, 255, 255, 0.05);   
 }
 
 .meeting-info {
