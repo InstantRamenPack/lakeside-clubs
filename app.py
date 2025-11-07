@@ -43,7 +43,9 @@ def index():
 
 @app.route("/club")
 def club():
+    club_id = request.values.get("id")
     cursor = mysql.connection.cursor()
+    # asked ChatGPT how to combine two queries into one
     cursor.execute("""
         SELECT 
             c.*,
@@ -74,11 +76,10 @@ def club():
             raymondz_club_members m ON m.user_id = %s AND m.club_id = %s
         WHERE 
             c.id = %s
-    """, (g.user.user_id, request.values.get("id"), request.values.get("id")))
+    """, (g.user.user_id, club_id, club_id))
     club = cursor.fetchone()
     if not club:
         return "Unknown club", 404
-    
     if club["leaders"]:
         club["leaders"] = json.loads(club["leaders"])
     else:
@@ -88,7 +89,26 @@ def club():
     else:
         club["members"] = []
 
-    return render_template("club.html.j2", club = club)   
+    cursor.execute("""
+        SELECT 
+            m.*,
+            JSON_ARRAYAGG(JSON_OBJECT('id', u.id, 'name', u.name, 'email', u.email)) AS members
+        FROM 
+            raymondz_meetings m 
+        LEFT JOIN
+            raymondz_meeting_members mm ON mm.meeting_id = m.id
+        LEFT JOIN
+            raymondz_users u ON u.id = mm.user_id
+        WHERE 
+            m.club_id = %s
+        GROUP BY 
+            m.id 
+        ORDER BY
+            m.start_time ASC
+    """, (club_id,))
+    meetings = cursor.fetchall()
+
+    return render_template("club.html.j2", club = club, meetings = meetings)   
 
 @app.route("/joinClub", methods = ["GET", "POST"])
 def joinClub():

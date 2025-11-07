@@ -29,5 +29,9 @@
         {% elif club.membership_type == None %}
             <button onclick = "joinClub({{club.id}}, {{g.user.authenticated|tojson}}, this);">Join Club!</button>
         {% endif %}
+
+        {% for meeting in meetings %}
+            <p>{{meeting.title}}</p>
+        {% endfor %}
     </div>
 {% endblock %}
