@@ -1,3 +1,19 @@
+:root {
+    --bg: 255, 255, 255;
+    --text: 0, 0, 0;
+    --accent: 235, 199, 105;
+    --card-bg: 0, 0, 0;
+}
+
+@media (prefers-color-scheme: dark) { 
+    :root {
+        --bg: 28, 33, 54;
+        --text: 255, 255, 255;
+        --accent: 67, 35, 42;
+        --card-bg: 255, 255, 255;
+    }
+}
+
 html, body {
     max-width: 100%;
 }
@@ -5,15 +21,8 @@ html, body {
 body {
     font-family: Helvetica;
     margin: 0;
-    background-color: rgb(255, 255, 255);
-}
-
-/** https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@media/prefers-color-scheme **/
-@media (prefers-color-scheme: dark) { 
-    body.adaptive {
-        color: rgb(255, 255, 255);
-        background-color: rgb(24, 24, 24);
-    }
+    background-color: rgb(var(--bg));
+    color: rgb(var(--text));
 }
 
 h1, h2, h3, p {
@@ -43,18 +52,16 @@ hr {
     justify-content: space-evenly;
 
     margin-bottom: 40px;
-    padding: 0px 20px;
+    padding: 0px 30px;
     gap: 20px;
     height: 50px;
-    background-color: rgb(91, 0, 25);
+    background-color: rgb(var(--accent));
     backdrop-filter: blur(25px) saturate(80%);
 }
 
-.navbar a {
+#navbar a {
     text-decoration: none;
-    color: white;
-    padding: 10px;
-    transition: all 0.3s ease;
+    color: rgb(var(--text));
     font-weight: bold;
 }
 
@@ -94,12 +101,12 @@ hr {
     padding: 20px;
     border-radius: 20px;
     backdrop-filter: blur(12px) saturate(60%);
-    border: 1px solid rgb(255, 255, 255, 0.2);
-    background-color: rgb(255, 255, 255, 0.05);
+    border: 1px solid rgb(var(--card-bg), 0.2);
+    background-color: rgb(var(--card-bg), 0.05);
 }
 
 .club-card a {
-    color: rgb(255, 255, 255)
+    color: rgb(var(--text));
 }
 
 /** https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_grid_layout/Realizing_common_layouts_using_grids **/
@@ -139,8 +146,8 @@ hr {
     padding: 20px;
     border-radius: 20px;
     backdrop-filter: blur(12px) saturate(60%);
-    border: 1px solid rgb(255, 255, 255, 0.2);
-    background-color: rgb(255, 255, 255, 0.05);
+    border: 1px solid rgb(var(--card-bg), 0.2);
+    background-color: rgb(var(--card-bg), 0.05);
 }
 
 .join-club-button {
@@ -173,8 +180,8 @@ hr {
     padding: 20px;
     border-radius: 20px;
     backdrop-filter: blur(12px) saturate(60%);
-    border: 1px solid rgb(255, 255, 255, 0.2);
-    background-color: rgb(255, 255, 255, 0.05);   
+    border: 1px solid rgb(var(--card-bg), 0.2);
+    background-color: rgb(var(--card-bg), 0.05);  
 }
 
 .meeting-info {

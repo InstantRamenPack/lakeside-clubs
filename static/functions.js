@@ -49,6 +49,7 @@ function importUsers(club_id) {
 
     if (textBox.style.display == "none" || textBox.style.display == "") {
         textBox.style.display = "block";
+        message.style.display = "block";
         message.textContent = "Please paste in your club's mailing list.";
         button.textContent = "Submit!";
         return;
