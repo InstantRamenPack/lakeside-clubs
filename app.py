@@ -110,6 +110,8 @@ def club():
     for meeting in meetings:
         if meeting["members"]:
             meeting["members"] = json.loads(meeting["members"])
+        else:
+            meeting["members"] = []
 
     return render_template("club.html.j2", club = club, meetings = meetings)   
 

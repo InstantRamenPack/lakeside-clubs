@@ -25,12 +25,12 @@ h1 {
     font-size: 40px;
 }
 
-p {
-    font-size: 20px;
-}
-
 img {
     display: block;
+}
+
+hr {
+    width: 100%;
 }
 
 #navbar {
@@ -42,6 +42,7 @@ img {
     align-items: center;
     justify-content: space-evenly;
 
+    margin-bottom: 40px;
     padding: 5px 20px;
     gap: 20px;
     height: 50px;
@@ -63,7 +64,7 @@ img {
     border-radius: 5px;
 }
 
-#navbar-divider {
+.flex-space {
     flex: 1 1 0;
 }
 
@@ -73,6 +74,7 @@ img {
 
 #clubs-list-container {
     display: grid;
+    /** https://css-tricks.com/auto-sizing-columns-css-grid-auto-fill-vs-auto-fit/ **/
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 20px;
     width: 80vw;
@@ -100,11 +102,10 @@ img {
     color: rgb(255, 255, 255)
 }
 
-/* https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_grid_layout/Realizing_common_layouts_using_grids */
-
+/** https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_grid_layout/Realizing_common_layouts_using_grids **/
 #club-container {
     display: grid;
-    gap: 20px;
+    gap: 30px;
     grid-template-areas:
         "header"
         "sidebar"
@@ -113,7 +114,7 @@ img {
     margin: 0 auto;
 }
 
-@media (min-width: 500px) {
+@media (min-width: 800px) {
   #club-container {
     grid-template-columns: 1fr 2fr;
     grid-template-areas:
@@ -128,6 +129,30 @@ img {
 
 #club-sidebar {
     grid-area: sidebar;
+    
+    display: flex;
+    flex-direction: column;
+    align-items: justify;
+    gap: 10px;
+
+    padding: 20px;
+    border-radius: 20px;
+    backdrop-filter: blur(12px) saturate(60%);
+    border: 1px solid rgb(0, 0, 0, 0.2);
+    background-color: rgb(0, 0, 0, 0.05);  
+}
+
+.join-club-button {
+    align-self: flex-end;
+    margin-top: auto;
+}
+
+#import-user-message {
+    display: none;
+}
+
+#import-user-text {
+    display: none;
 }
 
 #club-meetings-list {
@@ -138,15 +163,45 @@ img {
     gap: 20px;
 }
 
-.join-club-button {
-    align-self: flex-end;
-    margin-top: auto;
+.meeting-card {
+    display: flex;
+    flex-direction: column;
+    align-items: justify;
+    gap: 10px;
+
+    padding: 20px;
+    border-radius: 20px;
+    backdrop-filter: blur(12px) saturate(60%);
+    border: 1px solid rgb(0, 0, 0, 0.2);
+    background-color: rgb(0, 0, 0, 0.05);    
 }
 
-#import-user-error {
-    display: none;
+.meeting-info {
+    display: flex;
+    flex-direction: horizontal;
+    align-items: justify;
+    gap: 20px;
 }
 
-#import-user-text {
-    display: none;
+.meeting-info-detail {
+    display: flex;
+    flex-direction: horizontal;
+    align-items: center;
+    gap: 3px;
+}
+
+.meeting-info-detail p {
+    position: relative;
+    bottom: -2px;
+}
+
+.meeting-info-detail div {
+    position: relative;
+    bottom: -2px;
+}
+
+@media (max-width: 1200px) {
+    .meeting-info-hide {
+        display: none;
+    }
 }

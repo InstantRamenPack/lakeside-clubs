@@ -12,23 +12,23 @@
 
         <aside id = "club-sidebar">
             <p>{{club.description}}</p>
-
+            <hr>
+            <h2>Leaders</h2>
             {% for leader in club.leaders %}
                 <p>{{leader.name}}</p>
             {% endfor %}  
-
+            <hr>
             {% if club.membership_type == 1 %}
-                {% for member in club.members %}
-                    <p>{{member.email}}</p>
-                {% endfor %}  
                 <div id = "import-user-message"></div>
                 <textarea id = "import-user-text"></textarea>
-                <button id = "import-user-button" onclick = "importUsers({{club.id}});">Import Users</button>
-
-                <button onclick = 'copyUsers({{club.members|tojson}}, this);'>Copy Users</button>         
-            {% endif %}
-
-            {% if club.membership_type == 0 %}
+                <button id = "import-user-button" onclick = 'importUsers({{club.id}});'>Import Members</button>
+                <button onclick = 'copyUsers({{club.members|tojson}}, this);'>Copy Member Emails</button>
+                <hr>
+                <h2>Members</h2>
+                {% for member in club.members %}
+                    <p>{{member.email}}</p>
+                {% endfor %}
+            {% elif club.membership_type == 0 %}
                 <button onclick = "leaveClub({{club.id}}, this);">Leave Club</button>
             {% elif club.membership_type == None %}
                 <button onclick = "joinClub({{club.id}}, {{g.user.authenticated|tojson}}, this);">Join Club!</button>
@@ -39,7 +39,26 @@
             {% for meeting in meetings %}
                 <div class = "meeting-card">
                     <h2>{{meeting.title}}</h2>
-                    <span class = "material-symbols-outlined">location_on</span>
+                    <p>{{meeting.description}}</p>
+                    <hr>
+                    <div class = "meeting-info">
+                        <div class = "meeting-info-detail">
+                            <span class = "material-symbols-outlined">event</span>
+                            <p>{{meeting.start_time.strftime("%A, %b %-d @ %-I:%M")}}</p>
+                        </div>
+                        <div class = "meeting-info-detail">
+                            <span class = "material-symbols-outlined">location_on</span>
+                            <p>{{meeting.location}}</p>
+                        </div>
+                        <div class = "meeting-info-detail">
+                            <span class = "material-symbols-outlined">person</span>
+                            <div>
+                                <span>{{meeting.members|length}}</span> <span class = "meeting-info-hide">attendee{{'' if meeting.members|length == 1 else 's'}}</span>
+                            </div>
+                        </div>
+                        <div class = "flex-space"></div>
+                        <button>Join Meeting</button>
+                    </div>
                 </div>
             {% endfor %}
         </div>
