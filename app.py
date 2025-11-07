@@ -107,6 +107,9 @@ def club():
             m.start_time ASC
     """, (club_id,))
     meetings = cursor.fetchall()
+    for meeting in meetings:
+        if meeting["members"]:
+            meeting["members"] = json.loads(meeting["members"])
 
     return render_template("club.html.j2", club = club, meetings = meetings)   
 
