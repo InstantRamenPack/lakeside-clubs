@@ -50,7 +50,7 @@ function importUsers(club_id) {
     if (textBox.style.display == "none" || textBox.style.display == "") {
         textBox.style.display = "block";
         message.style.display = "block";
-        message.textContent = "Please paste in your club's mailing list.";
+        message.textContent = "Please paste in your club's mailing list with @lakesideschool.org included. (This can be done by copying the To: line on past emails from Outlook.)";
         button.textContent = "Submit!";
         return;
     } else {
@@ -87,4 +87,18 @@ function copyUsers(users, button) {
     );
     navigator.clipboard.writeText(clipboard); // https://developer.mozilla.org/en-US/docs/Web/API/Clipboard/writeText
     button.textContent = "Copied!";
+}
+
+function showMembershipActions(node) {
+    const membershipActions = node.getElementsByTagName("span");
+    Array.from(membershipActions).forEach(span => {
+        span.style.display = "inline";
+    });
+}
+
+function hideMembershipActions(node) {
+    const membershipActions = node.getElementsByTagName("span");
+    Array.from(membershipActions).forEach(span => {
+        span.style.display = "none";
+    });
 }

@@ -14,6 +14,24 @@
     }
 }
 
+.material-symbol {
+    font-family: 'Material Symbols Outlined';
+    font-style: normal;
+    font-weight: normal;
+    font-size: 20px;
+    position: relative;
+    bottom: 1.8px;
+
+    user-select: none;
+    cursor: pointer; 
+
+    font-variation-settings:
+        'FILL' 0,
+        'wght' 400,
+        'GRAD' 0,
+        'opsz' 20
+}
+
 html, body {
     max-width: 100%;
 }
@@ -161,6 +179,45 @@ hr {
 
 #import-user-text {
     display: none;
+    resize: none;
+    min-height: 80px;
+}
+
+#club-user-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+#club-user-list li {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    padding: 2px 4px;
+    margin: -4px -4px;
+    border-radius: 6px;
+    height: 24px;
+}
+
+#club-user-list li:hover {
+    background-color: rgb(var(--card-bg), 0.2);
+}
+
+#club-user-list li p {
+    display: inline;
+    position: relative;
+}
+
+#club-user-list li span {
+    display: none;
+}
+
+#club-user-list li span:hover {
+    font-variation-settings:
+        'FILL' 1,
+        'wght' 400,
+        'GRAD' 0,
+        'opsz' 20
 }
 
 #club-meetings-list {
@@ -196,16 +253,6 @@ hr {
     flex-direction: horizontal;
     align-items: center;
     gap: 3px;
-}
-
-.meeting-info-detail p {
-    position: relative;
-    bottom: -2px;
-}
-
-.meeting-info-detail div {
-    position: relative;
-    bottom: -2px;
 }
 
 @media (max-width: 1200px) {

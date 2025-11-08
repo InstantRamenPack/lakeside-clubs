@@ -25,9 +25,16 @@
                 <button onclick = 'copyUsers({{club.members|tojson}}, this);'>Copy Member Emails</button>
                 <hr>
                 <h2>Members</h2>
-                {% for member in club.members %}
-                    <p>{{member.email}}</p>
-                {% endfor %}
+                <ul id = "club-user-list">
+                    {% for member in club.members %}
+                        <li onmouseover = "showMembershipActions(this);" onmouseout = "hideMembershipActions(this);">
+                            <p>{{member.email[:-19]}}</p>
+                            <div class = "flex-space"></div>
+                            <span class = "material-symbol">add_moderator</span>
+                            <span class = "material-symbol">person_remove</span>
+                        </li>
+                    {% endfor %}
+                </ul>
             {% elif club.membership_type == 0 %}
                 <button onclick = "leaveClub({{club.id}}, this);">Leave Club</button>
             {% elif club.membership_type == None %}
@@ -43,15 +50,15 @@
                     <hr>
                     <div class = "meeting-info">
                         <div class = "meeting-info-detail">
-                            <span class = "material-symbols-outlined">event</span>
+                            <span class = "material-symbol">event</span>
                             <p>{{meeting.start_time.strftime("%A, %b %-d @ %-I:%M")}}</p>
                         </div>
                         <div class = "meeting-info-detail">
-                            <span class = "material-symbols-outlined">location_on</span>
+                            <span class = "material-symbol">location_on</span>
                             <p>{{meeting.location}}</p>
                         </div>
                         <div class = "meeting-info-detail">
-                            <span class = "material-symbols-outlined">person</span>
+                            <span class = "material-symbol">person</span>
                             <div>
                                 <span>{{meeting.members|length}}</span> <span class = "meeting-info-hide">attendee{{'' if meeting.members|length == 1 else 's'}}</span>
                             </div>
