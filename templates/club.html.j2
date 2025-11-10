@@ -68,7 +68,11 @@
                             </div>
                         </div>
                         <div class = "flex-space"></div>
-                        <button>Join Meeting</button>
+                        {% if meeting.is_member %}
+                            <button onclick = "leaveMeeting({{meeting.id}}, this);">Leave Meeting</button>
+                        {% else %}
+                            <button onclick = "joinMeeting({{meeting.id}}, this);">Join Meeting</button>
+                        {% endif %}
                     </div>
                 </div>
             {% endfor %}

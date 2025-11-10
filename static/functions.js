@@ -89,6 +89,46 @@ function copyUsers(users, button) {
     button.textContent = "Copied!";
 }
 
+function joinMeeting(meeting_id, button) {
+	button.textContent = "Joined!"; // illusion of responsiveness
+    button.disabled = true;
+	
+	const xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if (this.readyState == 4) {
+            if (this.status == 200) {
+                button.textContent = "Joined!";
+            } else {
+                button.textContent = "Oops! Try again.";
+            }
+		}
+    };
+	
+	xhttp.open("POST", "/joinMeeting", true);
+    xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded"); 
+    xhttp.send("id=" + encodeURIComponent(meeting_id));
+}
+
+function leaveMeeting(meeting_id, button) {
+	button.textContent = "Meeting left!"; // illusion of responsiveness
+    button.disabled = true;
+	
+	const xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if (this.readyState == 4) {
+            if (this.status == 200) {
+                button.textContent = "Meeting left!";
+            } else {
+                button.textContent = "Oops! Try again.";
+            }
+		}
+    };
+	
+	xhttp.open("POST", "/leaveMeeting", true);
+    xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded"); 
+    xhttp.send("id=" + encodeURIComponent(meeting_id));
+}
+
 function showMembershipActions(node) {
     const membershipActions = node.getElementsByTagName("span");
     Array.from(membershipActions).forEach(span => {

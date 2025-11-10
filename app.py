@@ -92,7 +92,8 @@ def club():
     cursor.execute("""
         SELECT 
             m.*,
-            JSON_ARRAYAGG(JSON_OBJECT('id', u.id, 'name', u.name, 'email', u.email)) AS members
+            JSON_ARRAYAGG(JSON_OBJECT('id', u.id, 'name', u.name, 'email', u.email)) AS members,
+            MAX(u.id = %s) AS is_member
         FROM 
             raymondz_meetings m 
         LEFT JOIN
@@ -105,7 +106,7 @@ def club():
             m.id 
         ORDER BY
             m.start_time ASC
-    """, (club_id,))
+    """, (g.user.user_id, club_id))
     meetings = cursor.fetchall()
     for meeting in meetings:
         if meeting["members"]:
@@ -192,6 +193,30 @@ def importUsers():
 
     return emails
 
+@app.route("/joinMeeting", methods = ["POST"])
+def joinMeeting():    
+    cursor = mysql.connection.cursor()
+    cursor.execute("""                 
+        INSERT IGNORE INTO 
+            raymondz_meeting_members
+            (user_id, meeting_id)
+        VALUES
+            (%s, %s)
+    """, (g.user.user_id, request.values.get("id")))
+    mysql.connection.commit()
+    return "Success!", 200
+
+@app.route("/leaveMeeting", methods = ["POST"])
+def leaveMeeting():
+    cursor = mysql.connection.cursor()
+    cursor.execute("""
+        DELETE FROM 
+            raymondz_meeting_members
+        WHERE 
+            user_id = %s AND meeting_id = %s
+    """, (g.user.user_id, request.values.get("id")))
+    mysql.connection.commit()
+    return "Success!", 200
 
 @app.route("/meetings")
 def meetings():
@@ -208,7 +233,7 @@ def meetings():
                 WHEN mm.user_id IS NOT NULL THEN 2
                 WHEN cm.user_id IS NOT NULL THEN 1
                 ELSE 0
-            END AS meeting_status
+            END AS member_status
         FROM 
             raymondz_meetings m
         JOIN
@@ -219,7 +244,7 @@ def meetings():
             raymondz_club_members cm ON cm.club_id = c.id AND cm.user_id = %s
         ORDER BY
             m.start_time ASC
-    """, (g.user.user_id,))
+    """, (g.user.user_id, g.user.user_id))
     meetings = cursor.fetchall()
 
     return render_template("meetings.html.j2", meetings = meetings)   
