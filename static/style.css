@@ -43,7 +43,7 @@ body {
     color: rgb(var(--text));
 }
 
-h1, h2, h3, p {
+h1, h2, h3, p, ol, ul {
     margin: 0;
     width: 100%;
 }

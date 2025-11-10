@@ -1,6 +1,7 @@
 import math, json, datetime, random, os, requests, re
 from os import environ
 
+import markdown, html5lib
 from flask import Flask, render_template, request, redirect, url_for, g, session
 from oauthlib.oauth2 import WebApplicationClient
 
@@ -113,6 +114,7 @@ def club():
             meeting["members"] = json.loads(meeting["members"])
         else:
             meeting["members"] = []
+        meeting["description"] = html5lib.serialize(html5lib.parse(markdown.markdown(meeting["description"])), sanitize = False)
 
     return render_template("club.html.j2", club = club, meetings = meetings)   
 
@@ -246,6 +248,9 @@ def meetings():
             m.start_time ASC
     """, (g.user.user_id, g.user.user_id))
     meetings = cursor.fetchall()
+
+    for meeting in meetings:
+        meeting["description"] = html5lib.serialize(html5lib.parse(markdown.markdown(meeting["description"])), sanitize = False)
 
     return render_template("meetings.html.j2", meetings = meetings)   
 

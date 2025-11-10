@@ -1,7 +1,7 @@
 {% extends "base.html.j2" %}
 
 {% block title %}
-    My Meetings
+    Upcoming Club Meetings
 {% endblock %}
 
 {% block body %}
@@ -11,7 +11,7 @@
             <div class = "meeting-card meeting-status-{{ meeting.member_status }}">
                 <h2>{{meeting.club_name}}</h2>
                 <h3>{{meeting.title}}</h3>
-                <p>{{meeting.description}}</p>
+                <div>{{meeting.description}}</div>
                 <hr>
                 <div class = "meeting-info">
                     <div>

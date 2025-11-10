@@ -28,6 +28,7 @@
                 <ul id = "club-user-list">
                     {% for member in club.members %}
                         <li onmouseover = "showMembershipActions(this);" onmouseout = "hideMembershipActions(this);">
+                            {# 19 is number of characters in @lakesideschool.org #}
                             <p>{{member.email[:-19]}}</p>
                             <div class = "flex-space"></div>
                             <span class = "material-symbol">add_moderator</span>
@@ -46,7 +47,7 @@
             {% for meeting in meetings %}
                 <div class = "meeting-card">
                     <h2>{{meeting.title}}</h2>
-                    <p>{{meeting.description}}</p>
+                    <div>{{meeting.description}}</div>
                     <hr>
                     <div class = "meeting-info">
                         <div>
