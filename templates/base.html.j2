@@ -18,6 +18,7 @@
             </a>
             <div class = "flex-space"></div>
             {% if g.user.authenticated %}
+                <a href = "meetings">My Meetings</a>
                 <a href = "logout">Logout</a>
                 <a href = "." class = "nav-right">
                     <img id = "profile-picture" src = "{{g.user.picture}}" height = 30 alt = "User image.">

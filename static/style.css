@@ -96,7 +96,7 @@ hr {
     /** https://css-tricks.com/auto-sizing-columns-css-grid-auto-fill-vs-auto-fit/ **/
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 20px;
-    width: 85vw;
+    width: 85%;
     margin: 0 auto;
 }
 
@@ -136,7 +136,7 @@ hr {
         "header"
         "sidebar"
         "content";
-    width: 85vw;
+    width: 85%;
     margin: 0 auto;
 }
 
@@ -258,4 +258,12 @@ hr {
     .meeting-info-hide {
         display: none;
     }
+}
+
+#meetings-list {
+    margin: 0 auto;
+    width: 85%;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }

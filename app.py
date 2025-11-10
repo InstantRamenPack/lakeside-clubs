@@ -192,6 +192,38 @@ def importUsers():
 
     return emails
 
+
+@app.route("/meetings")
+def meetings():
+    if not g.user.authenticated:
+        session["raymondz_next"] = request.url
+        return redirect(url_for("login"))
+    
+    cursor = mysql.connection.cursor()
+    cursor.execute("""
+        SELECT 
+            m.*,
+            c.name AS club_name,
+            CASE
+                WHEN mm.user_id IS NOT NULL THEN 2
+                WHEN cm.user_id IS NOT NULL THEN 1
+                ELSE 0
+            END AS meeting_status
+        FROM 
+            raymondz_meetings m
+        JOIN
+            raymondz_clubs c ON c.id = m.club_id
+        LEFT JOIN
+            raymondz_meeting_members mm ON mm.meeting_id = m.id AND mm.user_id = %s
+        LEFT JOIN
+            raymondz_club_members cm ON cm.club_id = c.id AND cm.user_id = %s
+        ORDER BY
+            m.start_time ASC
+    """, (g.user.user_id,))
+    meetings = cursor.fetchall()
+
+    return render_template("meetings.html.j2", meetings = meetings)   
+
 # login flow is from https://realpython.com/flask-google-login/
 @app.route("/login")
 def login():

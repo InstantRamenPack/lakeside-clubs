@@ -1,0 +1,33 @@
+{% extends "base.html.j2" %}
+
+{% block title %}
+    My Meetings
+{% endblock %}
+
+{% block body %}
+    <div id = "meetings-list">
+        <h1>Upcoming Club Meetings</h1>
+        {% for meeting in meetings %}
+            <div class = "meeting-card">
+                <h2>{{meeting.club_name}}</h2>
+                <h3>{{meeting.title}}</h3>
+                <p>{{meeting.description}}</p>
+                <hr>
+                <div class = "meeting-info">
+                    <div>
+                        <span class = "material-symbol">event</span>
+                        <p>{{meeting.start_time.strftime("%A, %b %-d")}}</p>
+                    </div>
+                    <div>
+                        <span class = "material-symbol">schedule</span>
+                        <p>{{meeting.start_time.strftime("%-I:%M")}} - {{meeting.end_time.strftime("%-I:%M")}}</p>
+                    </div>
+                    <div>
+                        <span class = "material-symbol">location_on</span>
+                        <p>{{meeting.location}}</p>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
