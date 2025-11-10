@@ -92,13 +92,13 @@ function copyUsers(users, button) {
 function showMembershipActions(node) {
     const membershipActions = node.getElementsByTagName("span");
     Array.from(membershipActions).forEach(span => {
-        span.style.display = "inline";
+        span.style.visibility = "visible";
     });
 }
 
 function hideMembershipActions(node) {
     const membershipActions = node.getElementsByTagName("span");
     Array.from(membershipActions).forEach(span => {
-        span.style.display = "none";
+        span.style.visibility = "hidden";
     });
 }

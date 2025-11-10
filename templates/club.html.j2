@@ -49,15 +49,15 @@
                     <p>{{meeting.description}}</p>
                     <hr>
                     <div class = "meeting-info">
-                        <div class = "meeting-info-detail">
+                        <div>
                             <span class = "material-symbol">event</span>
                             <p>{{meeting.start_time.strftime("%A, %b %-d @ %-I:%M")}}</p>
                         </div>
-                        <div class = "meeting-info-detail">
+                        <div>
                             <span class = "material-symbol">location_on</span>
                             <p>{{meeting.location}}</p>
                         </div>
-                        <div class = "meeting-info-detail">
+                        <div>
                             <span class = "material-symbol">person</span>
                             <div>
                                 <span>{{meeting.members|length}}</span> <span class = "meeting-info-hide">attendee{{'' if meeting.members|length == 1 else 's'}}</span>
