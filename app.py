@@ -1,7 +1,7 @@
 import math, json, datetime, random, os, requests, re
 from os import environ
 
-import markdown, html5lib
+import markdown, bleach
 from flask import Flask, render_template, request, redirect, url_for, g, session
 from oauthlib.oauth2 import WebApplicationClient
 
@@ -114,7 +114,7 @@ def club():
             meeting["members"] = json.loads(meeting["members"])
         else:
             meeting["members"] = []
-        meeting["description"] = html5lib.serialize(html5lib.parse(markdown.markdown(meeting["description"])), sanitize = False)
+        meeting["description"] = render_markdown_safe(meeting["description"])
 
     return render_template("club.html.j2", club = club, meetings = meetings)   
 
@@ -250,7 +250,7 @@ def meetings():
     meetings = cursor.fetchall()
 
     for meeting in meetings:
-        meeting["description"] = html5lib.serialize(html5lib.parse(markdown.markdown(meeting["description"])), sanitize = False)
+        meeting["description"] = render_markdown_safe(meeting["description"])
 
     return render_template("meetings.html.j2", meetings = meetings)   
 
@@ -300,3 +300,17 @@ def callback():
 def logout():
     session.clear()
     return redirect(url_for("index"))
+
+# ChatGPT generated
+def render_markdown_safe(markdown_text):
+    html = markdown.markdown(markdown_text, output_format = "html5")
+    clean = bleach.clean(
+        html,
+        tags = app.config["ALLOWED_TAGS"],
+        attributes = app.config["ALLOWED_ATTRS"],
+        protocols = app.config["ALLOWED_PROTOCOLS"],
+        strip = True,
+        strip_comments = True,
+    )
+    clean = bleach.linkify(clean, skip_tags = ["code", "pre"])
+    return clean

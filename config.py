@@ -8,3 +8,19 @@ GOOGLE_CLIENT_ID = environ.get('GOOGLE_CLIENT_ID')
 GOOGLE_CLIENT_SECRET = environ.get('GOOGLE_CLIENT_SECRET')
 GOOGLE_DISCOVERY_URL = 'https://accounts.google.com/.well-known/openid-configuration'
 SECRET_KEY = environ.get('SECRET_KEY')
+
+ALLOWED_TAGS = [
+    "p", "br", "hr", "pre", "code", "blockquote",
+    "ul", "ol", "li", "em", "strong", "b", "i", "u",
+    "h1", "h2", "h3", "h4", "h5", "h6",
+    "table", "thead", "tbody", "tr", "th", "td",
+    "a",
+]
+
+ALLOWED_ATTRS = {
+    "a": ["href", "title", "rel", "target"],
+    "th": ["align"], "td": ["align"],
+    "code": ["class"], "pre": ["class"], "span": ["class"], "div": ["class"],
+}
+
+ALLOWED_PROTOCOLS = ["http", "https", "mailto"]
