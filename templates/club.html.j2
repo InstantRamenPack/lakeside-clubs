@@ -31,8 +31,14 @@
                             {# 19 is number of characters in @lakesideschool.org #}
                             <p>{{member.email[:-19]}}</p>
                             <div class = "flex-space"></div>
-                            <span class = "material-symbol">add_moderator</span>
-                            <span class = "material-symbol">person_remove</span>
+                            <div class = "tooltip membership-action">
+                                <span class = "material-symbol">add_moderator</span>
+                                <span class = "tooltip-text">Add Leader</span>
+                            </div>
+                            <div class = "tooltip membership-action">
+                                <span class = "material-symbol">person_remove</span>
+                                <span class = "tooltip-text">Kick Member</span>
+                            </div>
                         </li>
                     {% endfor %}
                 </ul>
@@ -44,24 +50,26 @@
         </aside>
 
         <div id = "club-meetings-list">
-            <form class = "meeting-card">
-                <input type = "text" name = "title">
-                <input type = "text" name = "description">
-                <hr>
-                <div class = "meeting-info">
-                    <div>
-                        <span class = "material-symbol">event</span>
-                        <input type = "datetime-local" name = "start-time"> - 
-                        <input type = "datetime-local" name = "end-time">
+            {% if club.membership_type == 1 %}
+                <form class = "meeting-card" id = "new-meeting-card">
+                    <input id = "new-meeting-title" type = "text" name = "title" placeholder = "Title">
+                    <input id = "new-meeting-description" type = "text" name = "description" placeholder = "Description">
+                    <hr>
+                    <div class = "meeting-info">
+                        <div id = "new-meeting-time">
+                            <span class = "material-symbol">event</span>
+                            <input type = "datetime-local" name = "start-time"> - 
+                            <input type = "datetime-local" name = "end-time">
+                        </div>
+                        <div id = "new-meeting-location">
+                            <span class = "material-symbol">location_on</span>
+                            <input type = "text" name = "location" placeholder = "Location">
+                        </div>
+                        <div class = "flex-space"></div>
+                        <input type = "submit" value = "Create Meeting">
                     </div>
-                    <div>
-                        <span class = "material-symbol">location_on</span>
-                        <input type = "text" name = "location">
-                    </div>
-                    <div class = "flex-space"></div>
-                    <input type = "submit" name = "Create Meeting">
-                </div>
-            </form>
+                </form>
+            {% endif %}
             {% for meeting in meetings %}
                 <div class = "meeting-card">
                     <h2>{{meeting.title}}</h2>

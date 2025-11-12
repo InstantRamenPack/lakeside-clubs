@@ -130,15 +130,15 @@ function leaveMeeting(meeting_id, button) {
 }
 
 function showMembershipActions(node) {
-    const membershipActions = node.getElementsByTagName("span");
-    Array.from(membershipActions).forEach(span => {
-        span.style.visibility = "visible";
+    const membershipActions = node.getElementsByClassName("membership-action");
+    Array.from(membershipActions).forEach(membership_action => {
+        membership_action.style.visibility = "visible";
     });
 }
 
 function hideMembershipActions(node) {
-    const membershipActions = node.getElementsByTagName("span");
-    Array.from(membershipActions).forEach(span => {
-        span.style.visibility = "hidden";
+    const membershipActions = node.getElementsByClassName("membership-action");
+    Array.from(membershipActions).forEach(membership_action => {
+        membership_action.style.visibility = "hidden";
     });
 }
