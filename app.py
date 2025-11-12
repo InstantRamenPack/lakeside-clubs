@@ -1,8 +1,7 @@
-import math, json, datetime, random, os, requests, re
-from os import environ
+import json, requests, re
 
-import markdown, bleach
 from flask import Flask, render_template, request, redirect, url_for, g, session
+import markdown, bleach
 from oauthlib.oauth2 import WebApplicationClient
 
 from user import User
