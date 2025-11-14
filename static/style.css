@@ -3,7 +3,6 @@
     --text: 0, 0, 0;
     --accent: 235, 199, 105;
     --card-bg: 0, 0, 0;
-    --tooltip: 191, 191, 191;
 }
 
 @media (prefers-color-scheme: dark) { 
@@ -12,7 +11,6 @@
         --text: 255, 255, 255;
         --accent: 67, 35, 42;
         --card-bg: 255, 255, 255;
-        --tooltip: 64, 64, 64;
     }
 }
 
@@ -78,7 +76,7 @@ hr {
     padding: 6px;
     border-radius: 6px;
     backdrop-filter: blur(12px) saturate(60%);
-    background-color: rgba(var(--card-bg), 0.05);
+    background-color: rgb(var(--bg));
     border: 1px solid rgba(var(--card-bg), 0.2);
 }
 
