@@ -156,8 +156,8 @@ def importUsers():
         SELECT club_id FROM raymondz_club_members 
         WHERE user_id = %s AND club_id = %s AND membership_type = 1
     """, (g.user.user_id, club_id))
-    clubs = cursor.fetchone()
-    if not clubs:
+    club = cursor.fetchone()
+    if not club:
         return "Forbidden", 403
 
     data = request.values.get("data") or ""
@@ -211,6 +211,54 @@ def importUsers():
         mysql.connection.commit()
 
     return json.dumps(new_members)
+
+@app.route("/addLeader", methods = ["POST"])
+def addLeader():
+    club_id = request.values.get("club_id")
+    user_id = request.values.get("user_id")
+
+    cursor = mysql.connection.cursor()
+    cursor.execute("""
+        SELECT club_id FROM raymondz_club_members 
+        WHERE user_id = %s AND club_id = %s AND membership_type = 1
+    """, (g.user.user_id, club_id))
+    club = cursor.fetchone()
+    if not club:
+        return "Forbidden", 403
+    
+    cursor.execute("""
+        UPDATE 
+            raymondz_club_members
+        SET 
+            membership_type = 1
+        WHERE
+            user_id = %s AND club_id = %s
+    """, (user_id, club_id))
+    mysql.connection.commit()
+    return "Success!", 200    
+
+@app.route("/kickMember", methods = ["POST"])
+def kickMember():
+    club_id = request.values.get("club_id")
+    user_id = request.values.get("user_id")
+
+    cursor = mysql.connection.cursor()
+    cursor.execute("""
+        SELECT club_id FROM raymondz_club_members 
+        WHERE user_id = %s AND club_id = %s AND membership_type = 1
+    """, (g.user.user_id, club_id))
+    club = cursor.fetchone()
+    if not club:
+        return "Forbidden", 403
+    
+    cursor.execute("""
+        DELETE FROM 
+            raymondz_club_members
+        WHERE
+            user_id = %s AND club_id = %s
+    """, (user_id, club_id))
+    mysql.connection.commit()
+    return "Success!", 200    
 
 @app.route("/joinMeeting", methods = ["POST"])
 def joinMeeting():    

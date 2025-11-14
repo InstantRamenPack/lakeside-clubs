@@ -62,6 +62,7 @@ function importUsers(club_id) {
     xhttp.onreadystatechange = function() {
         if (this.readyState == 4) {
             if (this.status == 200) {
+                newMembers = JSON.parse(this.responseText);
                 message.textContent = "Success!";
                 textBox.value = "";
                 textBox.style.display = "";
@@ -75,7 +76,6 @@ function importUsers(club_id) {
     xhttp.open("POST", "/importUsers", true);
     xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     xhttp.send("data=" + encodeURIComponent(textBox.value) + "&id=" + encodeURIComponent(club_id));
-    // TODO: display new members
 }
 
 function copyUsers(users, button) {
@@ -87,6 +87,40 @@ function copyUsers(users, button) {
     );
     navigator.clipboard.writeText(clipboard); // https://developer.mozilla.org/en-US/docs/Web/API/Clipboard/writeText
     button.textContent = "Copied!";
+}
+
+function addLeader(club_id, member_id, button) {
+    button.parentElement.parentElement.remove()
+
+	const xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if (this.readyState == 4) {
+            if (this.status == 200) {
+                
+            }
+		}
+    };
+	
+	xhttp.open("POST", "/addLeader", true);
+    xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded"); 
+    xhttp.send("club_id=" + encodeURIComponent(club_id) + "&user_id=" + encodeURIComponent(member_id));
+}
+
+function kickMember(club_id, member_id, button) {
+    button.parentElement.parentElement.remove()
+    
+	const xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if (this.readyState == 4) {
+            if (this.status == 200) {
+                
+            }
+		}
+    };
+	
+	xhttp.open("POST", "/kickMember", true);
+    xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded"); 
+    xhttp.send("club_id=" + encodeURIComponent(club_id) + "&user_id=" + encodeURIComponent(member_id));
 }
 
 function joinMeeting(meeting_id, button) {

@@ -32,11 +32,11 @@
                             <p>{{member.email[:-19]}}</p>
                             <div class = "flex-space"></div>
                             <div class = "tooltip membership-action">
-                                <span class = "material-symbol">add_moderator</span>
+                                <span class = "material-symbol" onclick = 'addLeader({{club.id}}, {{member.id}}, this)'>add_moderator</span>
                                 <span class = "tooltip-text">Add Leader</span>
                             </div>
                             <div class = "tooltip membership-action">
-                                <span class = "material-symbol">person_remove</span>
+                                <span class = "material-symbol" onclick = 'kickMember({{club.id}}, {{member.id}}, this)'>person_remove</span>
                                 <span class = "tooltip-text">Kick Member</span>
                             </div>
                         </li>
