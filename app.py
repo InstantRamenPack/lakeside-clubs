@@ -182,8 +182,7 @@ def importUsers():
     # select new members
     cursor.execute(f"""
         SELECT 
-            u.id AS user_id,
-            u.email
+            *
         FROM 
             raymondz_users u
         LEFT JOIN 
@@ -199,7 +198,7 @@ def importUsers():
     if new_members:
         params = []
         for member in new_members:
-            params.append(member["user_id"])
+            params.append(member["id"])
             params.append(club_id)
 
         cursor.execute(f"""
