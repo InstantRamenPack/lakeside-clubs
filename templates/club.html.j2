@@ -20,12 +20,26 @@
             <hr>
             {% if club.membership_type == 1 %}
                 <div id = "import-user-message"></div>
-                <textarea id = "import-user-text"></textarea>
+                <textarea id = "import-user-text" placeholder = "Please paste in your club's mailing list with @lakesideschool.org included. (This can be done by copying the To: line on past emails from Outlook.)"></textarea>
                 <button id = "import-user-button" onclick = 'importUsers({{club.id}});'>Import Members</button>
                 <button onclick = 'copyUsers({{club.members|tojson}}, this);'>Copy Member Emails</button>
                 <hr>
                 <h2>Members</h2>
                 <ul id = "club-user-list">
+                    <template>
+                        <li class = "template" onmouseover = "showMembershipActions(this);" onmouseout = "hideMembershipActions(this);">
+                            <p></p>
+                            <div class = "flex-space"></div>
+                            <div class = "tooltip membership-action">
+                                <span class = "material-symbol" onclick = 'addLeader({{club.id}}, -1, this)'>add_moderator</span>
+                                <span class = "tooltip-text">Add Leader</span>
+                            </div>
+                            <div class = "tooltip membership-action">
+                                <span class = "material-symbol" onclick = 'kickMember({{club.id}}, -1, this)'>person_remove</span>
+                                <span class = "tooltip-text">Kick Member</span>
+                            </div>
+                        </li>
+                    </template>
                     {% for member in club.members %}
                         <li onmouseover = "showMembershipActions(this);" onmouseout = "hideMembershipActions(this);">
                             {# 19 is number of characters in @lakesideschool.org #}
@@ -53,7 +67,7 @@
             {% if club.membership_type == 1 %}
                 <form class = "meeting-card" id = "new-meeting-card">
                     <input id = "new-meeting-title" type = "text" name = "title" placeholder = "Title">
-                    <input id = "new-meeting-description" type = "text" name = "description" placeholder = "Description">
+                    <input id = "new-meeting-description" type = "text" name = "description" placeholder = "Description — supports Markdown! Try *italicized* and **bold** text.">
                     <hr>
                     <div class = "meeting-info">
                         <div id = "new-meeting-time">

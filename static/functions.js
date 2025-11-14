@@ -50,7 +50,6 @@ function importUsers(club_id) {
     if (textBox.style.display == "none" || textBox.style.display == "") {
         textBox.style.display = "block";
         message.style.display = "block";
-        message.textContent = "Please paste in your club's mailing list with @lakesideschool.org included. (This can be done by copying the To: line on past emails from Outlook.)";
         button.textContent = "Submit!";
         return;
     } else {
@@ -63,9 +62,36 @@ function importUsers(club_id) {
         if (this.readyState == 4) {
             if (this.status == 200) {
                 newMembers = JSON.parse(this.responseText);
-                message.textContent = "Success!";
+                if (newMembers.length == 0) {
+                    message.textContent = "No new users imported.";
+                } else {
+                    message.textContent = "Imported " + newMembers[0].email.slice(0, -19);
+                    if (newMembers.length == 1) {
+                        message.textContent += "."
+                    } else if (newMembers.length == 2) {
+                        message.textContent += " and " + newMembers[1].email.slice(0, -19) + ".";
+                    } else {
+                        for (let i = 1; i < newMembers.length - 1; i++) {
+                            message.textContent += ", " + newMembers[i].email.slice(0, -19);
+                        }
+                        message.textContent += ", and " + newMembers[newMembers.length - 1].email.slice(0, -19) + ".";
+                    }
+                }
+
+                const template = document.getElementById("club-user-list").getElementsByTagName("template")[0];
+                newMembers.forEach((user) => {
+                    const copy = template.content.cloneNode(true);
+                    copy.querySelector("p").textContent = user.email.slice(0, -19);
+                    const buttons = Array.from(copy.querySelector(".material-symbol"))
+                    buttons.forEach((button) => {
+                        button.setAttribute("onclick", button.getAttribute("onclick").replace("-1", user.id)) 
+                    });
+                    template.parentNode.appendChild(copy);
+                });
+
                 textBox.value = "";
                 textBox.style.display = "";
+                button.disabled = false;
                 button.textContent = "Import Users";
             } else {
                 message.textContent = "Error, please try again.";
