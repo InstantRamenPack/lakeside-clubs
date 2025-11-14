@@ -148,51 +148,70 @@ def leaveClub():
 
 @app.route("/importUsers", methods = ["POST"])
 def importUsers():
+    club_id = request.values.get("id")
+
     # authorization
     cursor = mysql.connection.cursor()
     cursor.execute("""
         SELECT club_id FROM raymondz_club_members 
         WHERE user_id = %s AND club_id = %s AND membership_type = 1
-    """, (g.user.user_id, request.values.get("id")))
+    """, (g.user.user_id, club_id))
     clubs = cursor.fetchone()
     if not clubs:
         return "Forbidden", 403
 
-    data = request.values.get("data")
-    emails = re.findall("[A-Za-z0-9._%+-]+@lakesideschool\.org", data)
-    for i in range(len(emails)):
-        emails[i] = emails[i].lower()
+    data = request.values.get("data") or ""
 
-    # add users if they don't exist
-    emailQuery = []
-    for email in emails:
-        emailQuery.append((email,))
-    cursor.executemany("""
+    # only @lakesideschool.org emails
+    emails = re.findall(r"[A-Za-z0-9._%+-]+@lakesideschool\.org", data)
+    emails = [e.lower() for e in emails]
+    emails = list(dict.fromkeys(emails)) # deduplicate
+    if not emails:
+            return json.dumps(())
+    
+    # add users in case they don't exist
+    # use of placeholders in batch INSERT by ChatGPT
+    cursor.execute(f"""
         INSERT IGNORE INTO 
-            raymondz_users
-            (email)
-        VALUES
-            (%s)   
-    """, emailQuery)
+            raymondz_users (email)
+        VALUES 
+            {", ".join(["(%s)"] * len(emails))}
+    """, emails)
     mysql.connection.commit()
 
-    emailQuery = []
-    for email in emails:
-        emailQuery.append((request.values.get("id"), email))
-    cursor.executemany("""
-        INSERT IGNORE INTO 
-            raymondz_club_members
-            (user_id, club_id)
-        SELECT
-            u.id, %s
+    # select new members
+    cursor.execute(f"""
+        SELECT 
+            u.id AS user_id,
+            u.email
         FROM 
             raymondz_users u
-        WHERE
-            u.email = %s
-    """, emailQuery)
-    mysql.connection.commit()
+        LEFT JOIN 
+            raymondz_club_members cm
+        ON 
+            cm.user_id = u.id AND cm.club_id = %s
+        WHERE 
+            u.email IN ({", ".join(["%s"] * len(emails))}) AND cm.user_id IS NULL
+    """, (club_id, *emails))
+    new_members = cursor.fetchall()
 
-    return emails
+    # insert memberships for new members
+    if new_members:
+        params = []
+        for member in new_members:
+            params.append(member["user_id"])
+            params.append(club_id)
+
+        cursor.execute(f"""
+            INSERT INTO 
+                raymondz_club_members 
+                (user_id, club_id)
+            VALUES 
+                {", ".join(["(%s, %s)"] * len(new_members))}
+        """, params)
+        mysql.connection.commit()
+
+    return json.dumps(new_members)
 
 @app.route("/joinMeeting", methods = ["POST"])
 def joinMeeting():    
