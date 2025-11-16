@@ -47,45 +47,39 @@ def club():
     cursor = mysql.connection.cursor()
     # asked ChatGPT how to combine two queries into one
     cursor.execute("""
-        SELECT 
+        SELECT
             c.*,
-            (
-                SELECT 
-                   JSON_ARRAYAGG(JSON_OBJECT('id', u.id, 'name', u.name, 'email', u.email))
-                FROM 
-                   raymondz_club_members m
-                JOIN 
-                   raymondz_users u ON u.id = m.user_id
-                WHERE 
-                   m.club_id = c.id AND m.membership_type = 1
+            MAX(CASE WHEN cm.user_id = %s THEN cm.membership_type END) AS membership_type,
+            JSON_ARRAYAGG(
+                CASE
+                    WHEN cm.membership_type = 1 THEN JSON_OBJECT('id', u.id, 'name', u.name, 'email', u.email)
+                END
             ) AS leaders,
-            (
-                SELECT 
-                   JSON_ARRAYAGG(JSON_OBJECT('id', u.id, 'name', u.name, 'email', u.email))
-                FROM 
-                   raymondz_club_members m
-                JOIN 
-                   raymondz_users u ON u.id = m.user_id
-                WHERE 
-                   m.club_id = c.id AND m.membership_type = 0
-            ) AS members,
-            m.membership_type
-        FROM 
+            JSON_ARRAYAGG(
+                CASE
+                    WHEN cm.membership_type = 0 THEN JSON_OBJECT('id', u.id, 'name', u.name, 'email', u.email)
+                END
+            ) AS members
+        FROM
             raymondz_clubs c
-        LEFT JOIN 
-            raymondz_club_members m ON m.user_id = %s AND m.club_id = %s
-        WHERE 
+        LEFT JOIN
+            raymondz_club_members cm ON cm.club_id = c.id
+        LEFT JOIN
+            raymondz_users u ON u.id = cm.user_id
+        WHERE
             c.id = %s
-    """, (g.user.user_id, club_id, club_id))
+        GROUP BY
+            c.id
+    """, (g.user.user_id, club_id))
     club = cursor.fetchone()
     if not club:
         return "Unknown club", 404
     if club["leaders"]:
-        club["leaders"] = json.loads(club["leaders"])
+        club["leaders"] = [leader for leader in json.loads(club["leaders"]) if leader]
     else:
         club["leaders"] = []
     if club["members"]:
-        club["members"] = json.loads(club["members"])
+        club["members"] = [member for member in json.loads(club["members"]) if member]
     else:
         club["members"] = []
 
