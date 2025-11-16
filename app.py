@@ -92,7 +92,11 @@ def club():
     cursor.execute("""
         SELECT 
             m.*,
-            JSON_ARRAYAGG(JSON_OBJECT('id', u.id, 'name', u.name, 'email', u.email)) AS members,
+            JSON_ARRAYAGG(
+                CASE 
+                    WHEN u.id IS NOT NULL THEN JSON_OBJECT('id', u.id, 'name', u.name, 'email', u.email)
+                END
+            ) AS members,
             MAX(u.id = %s) AS is_member
         FROM 
             raymondz_meetings m 
@@ -196,18 +200,13 @@ def importUsers():
 
     # insert memberships for new members
     if new_members:
-        params = []
-        for member in new_members:
-            params.append(member["id"])
-            params.append(club_id)
-
-        cursor.execute(f"""
+        cursor.executemany("""
             INSERT INTO 
                 raymondz_club_members 
                 (user_id, club_id)
             VALUES 
-                {", ".join(["(%s, %s)"] * len(new_members))}
-        """, params)
+                (%s, %s)
+        """, [(member["id"], club_id) for member in new_members])
         mysql.connection.commit()
 
     return json.dumps(new_members)
