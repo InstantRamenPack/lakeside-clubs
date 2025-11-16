@@ -61,7 +61,7 @@ function importUsers(club_id) {
     xhttp.onreadystatechange = function() {
         if (this.readyState == 4) {
             if (this.status == 200) {
-                newMembers = JSON.parse(this.responseText);
+                const newMembers = JSON.parse(this.responseText);
                 if (newMembers.length == 0) {
                     message.textContent = "No new users imported.";
                 } else {
@@ -82,9 +82,9 @@ function importUsers(club_id) {
                 newMembers.forEach((user) => {
                     const copy = template.content.cloneNode(true);
                     copy.querySelector("p").textContent = user.email.slice(0, -19);
-                    const buttons = Array.from(copy.querySelector(".material-symbol"))
-                    buttons.forEach((button) => {
-                        button.setAttribute("onclick", button.getAttribute("onclick").replace("-1", user.id)) 
+                    const actionButtons = copy.querySelectorAll("[data-action]");
+                    actionButtons.forEach((actionButton) => {
+                        actionButton.dataset.memberId = user.id;
                     });
                     template.parentNode.appendChild(copy);
                 });
@@ -104,15 +104,28 @@ function importUsers(club_id) {
     xhttp.send("data=" + encodeURIComponent(textBox.value) + "&id=" + encodeURIComponent(club_id));
 }
 
-function copyUsers(users, button) {
-    clipboard = "";
-    users.forEach(
-        function(user) {
-            clipboard += user.email + "\; ";
-        }
-    );
-    navigator.clipboard.writeText(clipboard); // https://developer.mozilla.org/en-US/docs/Web/API/Clipboard/writeText
+function copyUsers(club_id, button) {
     button.textContent = "Copied!";
+    button.disabled = true;
+
+    const xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if (this.readyState == 4) {
+            if (this.status == 200) {
+                const members = JSON.parse(this.responseText) || [];
+                const clipboard = members.map(member => member.email).join("; ");
+                navigator.clipboard.writeText(clipboard).then(() => {
+                    button.textContent = "Copied!";
+                }).catch(() => {
+                    button.textContent = "Clipboard blocked.";
+                });
+            }
+        }
+    };
+
+    xhttp.open("POST", "/copyUsers", true);
+    xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    xhttp.send("id=" + encodeURIComponent(club_id));
 }
 
 function addLeader(club_id, member_id, button) {
@@ -189,16 +202,60 @@ function leaveMeeting(meeting_id, button) {
     xhttp.send("id=" + encodeURIComponent(meeting_id));
 }
 
-function showMembershipActions(node) {
-    const membershipActions = node.getElementsByClassName("membership-action");
-    Array.from(membershipActions).forEach(membership_action => {
-        membership_action.style.visibility = "visible";
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.join-club-button').forEach((button) => {
+        const clubId = button.dataset.clubId;
+        const authenticated = button.dataset.authenticated === 'True';
+        button.addEventListener('click', () => joinClub(clubId, authenticated, button));
     });
-}
 
-function hideMembershipActions(node) {
-    const membershipActions = node.getElementsByClassName("membership-action");
-    Array.from(membershipActions).forEach(membership_action => {
-        membership_action.style.visibility = "hidden";
+    document.querySelectorAll('.leave-club-button').forEach((button) => {
+        const clubId = button.dataset.clubId;
+        button.addEventListener('click', () => leaveClub(clubId, button));
     });
-}
+
+    document.querySelectorAll('.join-meeting-button').forEach((button) => {
+        const meetingId = button.dataset.meetingId;
+        button.addEventListener('click', () => joinMeeting(meetingId, button));
+    });
+
+    document.querySelectorAll('.leave-meeting-button').forEach((button) => {
+        const meetingId = button.dataset.meetingId;
+        button.addEventListener('click', () => leaveMeeting(meetingId, button));
+    });
+
+    const importUsersButton = document.getElementById('import-user-button');
+    if (importUsersButton) {
+        importUsersButton.addEventListener('click', () => {
+            importUsers(importUsersButton.dataset.clubId);
+        });
+    }
+
+    const copyUserButton = document.getElementById('copy-user-button');
+    if (copyUserButton) {
+        copyUserButton.addEventListener('click', () => {
+            copyUsers(copyUserButton.dataset.clubId, copyUserButton);
+        });
+    }
+
+    const clubUserList = document.getElementById('club-user-list');
+    if (clubUserList) {
+        // utilize click delegation
+        clubUserList.addEventListener('click', (event) => {
+            const actionTarget = event.target.closest('[data-action]');
+            if (!actionTarget || !clubUserList.contains(actionTarget)) {
+                return;
+            }
+            const memberId = actionTarget.dataset.memberId;
+            const clubId = clubUserList.dataset.clubId;
+            if (!clubId || !memberId) {
+                return;
+            }
+            if (actionTarget.dataset.action === 'add-leader') {
+                addLeader(clubId, memberId, actionTarget);
+            } else if (actionTarget.dataset.action === 'kick-member') {
+                kickMember(clubId, memberId, actionTarget);
+            }
+        });
+    }
+});

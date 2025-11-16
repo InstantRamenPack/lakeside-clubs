@@ -27,7 +27,7 @@
                 </a>
                 <p>{{club.description}}</p>
                 {% if club.membership_type == None %}
-                    <button class = "join-club-button" onclick = "joinClub({{club.id}}, {{g.user.authenticated|tojson}}, this);">Join club!</button>
+                    <button class = "join-club-button" data-club-id = "{{club.id}}" data-authenticated = "{{g.user.authenticated}}">Join club!</button>
                 {% endif %}
             </div>
         {% endfor %}

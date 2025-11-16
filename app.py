@@ -212,6 +212,32 @@ def importUsers():
 
     return json.dumps(new_members)
 
+@app.route("/copyUsers", methods = ["POST"])
+def copyUsers():
+    club_id = request.values.get("id")
+
+    cursor = mysql.connection.cursor()
+    cursor.execute("""
+        SELECT club_id FROM raymondz_club_members
+        WHERE user_id = %s AND club_id = %s AND membership_type = 1
+    """, (g.user.user_id, club_id))
+    club = cursor.fetchone()
+    if not club:
+        return "Forbidden", 403
+
+    cursor.execute("""
+        SELECT u.email
+        FROM 
+            raymondz_club_members cm
+        JOIN 
+            raymondz_users u ON u.id = cm.user_id
+        WHERE 
+            cm.club_id = %s
+    """, (club_id,))
+    members = cursor.fetchall()
+
+    return json.dumps(members)
+
 @app.route("/addLeader", methods = ["POST"])
 def addLeader():
     club_id = request.values.get("club_id")

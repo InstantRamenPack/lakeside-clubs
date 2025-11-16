@@ -21,45 +21,45 @@
             {% if club.membership_type == 1 %}
                 <div id = "import-user-message"></div>
                 <textarea id = "import-user-text" placeholder = "Please paste in your club's mailing list with @lakesideschool.org included. (This can be done by copying the To: line on past emails from Outlook.)"></textarea>
-                <button id = "import-user-button" onclick = 'importUsers({{club.id}});'>Import Members</button>
-                <button onclick = 'copyUsers({{club.members|tojson}}, this);'>Copy Member Emails</button>
+                <button id = "import-user-button" data-club-id = "{{club.id}}">Import Members</button>
+                <button id = "copy-user-button" data-club-id = "{{club.id}}">Copy Member Emails</button>
                 <hr>
                 <h2>Members</h2>
-                <ul id = "club-user-list">
+                <ul id = "club-user-list" data-club-id = "{{club.id}}">
                     <template>
-                        <li onmouseover = "showMembershipActions(this);" onmouseout = "hideMembershipActions(this);">
+                        <li class = "membership-entry">
                             <p></p>
                             <div class = "flex-space"></div>
                             <div class = "tooltip membership-action">
-                                <span class = "material-symbol" onclick = 'addLeader({{club.id}}, -1, this)'>add_moderator</span>
+                                <span class = "material-symbol" data-action = "add-leader">add_moderator</span>
                                 <span class = "tooltip-text">Add Leader</span>
                             </div>
                             <div class = "tooltip membership-action">
-                                <span class = "material-symbol" onclick = 'kickMember({{club.id}}, -1, this)'>person_remove</span>
+                                <span class = "material-symbol" data-action = "kick-member">person_remove</span>
                                 <span class = "tooltip-text">Kick Member</span>
                             </div>
                         </li>
                     </template>
                     {% for member in club.members %}
-                        <li onmouseover = "showMembershipActions(this);" onmouseout = "hideMembershipActions(this);">
+                        <li class = "membership-entry">
                             {# 19 is number of characters in @lakesideschool.org #}
                             <p>{{member.email[:-19]}}</p>
                             <div class = "flex-space"></div>
                             <div class = "tooltip membership-action">
-                                <span class = "material-symbol" onclick = 'addLeader({{club.id}}, {{member.id}}, this)'>add_moderator</span>
+                                <span class = "material-symbol" data-action = "add-leader" data-member-id = "{{member.id}}">add_moderator</span>
                                 <span class = "tooltip-text">Add Leader</span>
                             </div>
                             <div class = "tooltip membership-action">
-                                <span class = "material-symbol" onclick = 'kickMember({{club.id}}, {{member.id}}, this)'>person_remove</span>
+                                <span class = "material-symbol" data-action = "kick-member" data-member-id = "{{member.id}}">person_remove</span>
                                 <span class = "tooltip-text">Kick Member</span>
                             </div>
                         </li>
                     {% endfor %}
                 </ul>
             {% elif club.membership_type == 0 %}
-                <button onclick = "leaveClub({{club.id}}, this);">Leave Club</button>
+                <button class = "leave-club-button" data-club-id = "{{club.id}}">Leave Club</button>
             {% elif club.membership_type == None %}
-                <button onclick = "joinClub({{club.id}}, {{g.user.authenticated|tojson}}, this);">Join Club!</button>
+                <button class = "join-club-button" data-club-id = "{{club.id}}" data-authenticated = "{{g.user.authenticated}}">Join Club!</button>
             {% endif %}
         </aside>
 
@@ -110,9 +110,9 @@
                         </div>
                         <div class = "flex-space"></div>
                         {% if meeting.is_member %}
-                            <button onclick = "leaveMeeting({{meeting.id}}, this);">Leave Meeting</button>
+                            <button class = "leave-meeting-button" data-meeting-id = "{{meeting.id}}">Leave Meeting</button>
                         {% else %}
-                            <button onclick = "joinMeeting({{meeting.id}}, this);">Join Meeting</button>
+                            <button class = "join-meeting-button" data-meeting-id = "{{meeting.id}}">Join Meeting</button>
                         {% endif %}
                     </div>
                 </div>
