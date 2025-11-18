@@ -65,29 +65,58 @@
 
         <div id = "club-meetings-list">
             {% if club.membership_type == 1 %}
-                <form class = "meeting-card" id = "new-meeting-card">
-                    <input id = "new-meeting-title" type = "text" name = "title" placeholder = "Title">
-                    <input id = "new-meeting-description" type = "text" name = "description" placeholder = "Description — supports Markdown! Try *italicized* and **bold** text.">
+                <form class = "meeting-card" id = "new-meeting-card" data-club-id = "{{club.id}}">
+                    <input type = "text" name = "title" placeholder = "Title" required>
+                    <textarea name = "description" placeholder = "Description — supports Markdown! Try *italicized* and **bold** text." required></textarea>
                     <hr>
                     <div class = "meeting-info">
-                        <div id = "new-meeting-time">
+                        <div>
                             <span class = "material-symbol">event</span>
-                            <input type = "datetime-local" name = "start-time"> - 
-                            <input type = "datetime-local" name = "end-time">
+                            <input type = "datetime-local" name = "start-time" required> - 
+                            <input type = "datetime-local" name = "end-time" required>
                         </div>
                         <div id = "new-meeting-location">
                             <span class = "material-symbol">location_on</span>
-                            <input type = "text" name = "location" placeholder = "Location">
+                            <input type = "text" name = "location" placeholder = "Location" required>
                         </div>
                         <div class = "flex-space"></div>
                         <input type = "submit" value = "Create Meeting">
                     </div>
                 </form>
             {% endif %}
+            <template>
+                <div class = "meeting-card">
+                    <h2></h2>
+                    <div class = "meeting-description"></div>
+                    <hr>
+                    <div class = "meeting-info">
+                        <div>
+                            <span class = "material-symbol">event</span>
+                            <p></p>
+                        </div>
+                        <div>
+                            <span class = "material-symbol">schedule</span>
+                            <p></p>
+                        </div>
+                        <div>
+                            <span class = "material-symbol">location_on</span>
+                            <p></p>
+                        </div>
+                        <div>
+                            <span class = "material-symbol">person</span>
+                            <div>
+                                <span>0</span> <span class = "meeting-info-hide">attendees</span>
+                            </div>
+                        </div>
+                        <div class = "flex-space"></div>
+                        <button class = "join-meeting-button" data-meeting-id = "">Join Meeting</button>
+                    </div>
+                </div>
+            </template>
             {% for meeting in meetings %}
                 <div class = "meeting-card">
-                    <h2>{{meeting.title}}</h2>
-                    {{meeting.description}}
+                    <h2>{{meeting.title|e}}</h2>
+                    <div class = "meeting-description">{{meeting.description}}</div>
                     <hr>
                     <div class = "meeting-info">
                         <div>

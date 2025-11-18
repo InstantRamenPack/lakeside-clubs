@@ -1,4 +1,5 @@
 import json, requests, re
+from datetime import datetime
 
 from flask import Flask, render_template, request, redirect, url_for, g, session
 import markdown, bleach
@@ -45,7 +46,6 @@ def index():
 def club():
     club_id = request.values.get("id")
     cursor = mysql.connection.cursor()
-    # asked ChatGPT how to combine two queries into one
     cursor.execute("""
         SELECT
             c.*,
@@ -303,6 +303,57 @@ def leaveMeeting():
     """, (g.user.user_id, request.values.get("id")))
     mysql.connection.commit()
     return "Success!", 200
+
+@app.route("/createMeeting", methods = ["POST"])
+def createMeeting():
+    club_id = request.values.get("club_id")
+    title = request.values.get("title")
+    description = request.values.get("description")
+    start_time_value = request.values.get("start-time")
+    end_time_value = request.values.get("end-time")
+    location = request.values.get("location")
+
+    cursor = mysql.connection.cursor()
+    cursor.execute("""
+        SELECT club_id FROM raymondz_club_members 
+        WHERE user_id = %s AND club_id = %s AND membership_type = 1
+    """, (g.user.user_id, club_id))
+    club = cursor.fetchone()
+    if not club:
+        return "Forbidden", 403
+
+    if not title or not description or not start_time_value or not end_time_value or not location:
+        return "Missing required fields.", 400
+
+    try:
+        start_time = datetime.fromisoformat(start_time_value)
+        end_time = datetime.fromisoformat(end_time_value)
+    except (TypeError, ValueError):
+        return "Invalid time values.", 400
+
+    if end_time <= start_time:
+        return "Invalid time values.", 400
+
+    cursor.execute("""
+        INSERT INTO 
+            raymondz_meetings
+            (club_id, title, description, start_time, end_time, location)
+        VALUES 
+            (%s, %s, %s, %s, %s, %s)
+    """, (club_id, title, description, start_time, end_time, location))
+    mysql.connection.commit()
+    meeting_id = cursor.lastrowid
+
+    meeting_data = {
+        "id": meeting_id,
+        "title": title,
+        "description": render_markdown_safe(description),
+        "date": start_time.strftime("%A, %b %-d"),
+        "time_range": f"{start_time.strftime('%-I:%M')} - {end_time.strftime('%-I:%M')}",
+        "location": location
+    }
+
+    return json.dumps(meeting_data)
 
 @app.route("/meetings")
 def meetings():

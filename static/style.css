@@ -273,6 +273,19 @@ hr {
     width: 5vw
 }
 
+#new-meeting-card textarea {
+    width: 100%;
+    min-height: 100px;
+    resize: vertical;
+    box-sizing: border-box;
+}
+
+.meeting-description {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
 .meeting-info {
     display: flex;
     flex-direction: row;

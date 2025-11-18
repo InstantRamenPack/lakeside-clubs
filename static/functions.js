@@ -202,6 +202,57 @@ function leaveMeeting(meeting_id, button) {
     xhttp.send("id=" + encodeURIComponent(meeting_id));
 }
 
+function createMeeting(form) {
+    const submitButton = form.querySelector('input[type="submit"]');
+
+    const payload = new URLSearchParams(new FormData(form));
+    payload.append('club_id', form.dataset.clubId);
+
+    submitButton.value = "Creating...";
+    submitButton.disabled = true;
+
+    const xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if (this.readyState == 4) {
+            submitButton.value = "Create Meeting";
+            submitButton.disabled = false;
+            if (this.status == 200) {
+                const meeting = JSON.parse(this.responseText);
+                insertMeetingCard(meeting);
+                form.reset();
+            } else {
+                submitButton.value = "Oops! Try again.";
+            }
+        }
+    };
+
+    xhttp.open("POST", "/createMeeting", true);
+    xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    xhttp.send(payload.toString());
+}
+
+function insertMeetingCard(meeting) {
+    const meetingsList = document.getElementById('club-meetings-list');
+    const template = meetingsList.querySelector('template');
+
+    const copy = template.content.cloneNode(true);
+    const card = copy.querySelector('.meeting-card');
+
+    card.querySelector('h2').textContent = meeting.title;
+    card.querySelector('.meeting-description').innerHTML = meeting.description;
+
+    const meetingInfo = card.querySelectorAll('.meeting-info > div');
+    meetingInfo[0].querySelector('p').textContent = meeting.date;
+    meetingInfo[1].querySelector('p').textContent = meeting.time_range;
+    meetingInfo[2].querySelector('p').textContent = meeting.location;
+
+    const button = card.querySelector('button');
+    button.dataset.meetingId = meeting.id;
+    button.addEventListener('click', () => joinMeeting(meeting.id, button));
+
+    meetingsList.insertBefore(copy, template.nextSibling);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.join-club-button').forEach((button) => {
         const clubId = button.dataset.clubId;
@@ -256,6 +307,14 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (actionTarget.dataset.action === 'kick-member') {
                 kickMember(clubId, memberId, actionTarget);
             }
+        });
+    }
+
+    const newMeetingForm = document.getElementById('new-meeting-card');
+    if (newMeetingForm) {
+        newMeetingForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            createMeeting(newMeetingForm);
         });
     }
 });
