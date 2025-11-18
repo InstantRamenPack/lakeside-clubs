@@ -438,7 +438,7 @@ def logout():
 
 # ChatGPT generated
 def render_markdown_safe(markdown_text):
-    html = markdown.markdown(markdown_text, output_format = "html5")
+    html = markdown.markdown(markdown_text, extensions = app.config["MD_EXTENSIONS"], output_format = "html5")
     clean = bleach.clean(
         html,
         tags = app.config["ALLOWED_TAGS"],
