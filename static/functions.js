@@ -1,3 +1,8 @@
+function autoGrow(textarea) {
+    textarea.style.height = 'auto';
+    textarea.style.height = `${textarea.scrollHeight}px`;
+}
+
 function joinClub(club_id, authenticated, button) {
     if (!authenticated) {
         window.location.href = "/joinClub?id=" + club_id;
@@ -202,6 +207,7 @@ function leaveMeeting(meeting_id, button) {
     xhttp.send("id=" + encodeURIComponent(meeting_id));
 }
 
+// https://developer.mozilla.org/en-US/docs/Learn_web_development/Extensions/Forms/Sending_forms_through_JavaScript
 function createMeeting(form) {
     const submitButton = form.querySelector('input[type="submit"]');
 
@@ -254,6 +260,11 @@ function insertMeetingCard(meeting) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('textarea').forEach((textarea) => {
+        textarea.addEventListener('input', () => autoGrow(textarea));
+        autoGrow(textarea); // size for initial content
+    });
+
     document.querySelectorAll('.join-club-button').forEach((button) => {
         const clubId = button.dataset.clubId;
         const authenticated = button.dataset.authenticated === 'True';
@@ -313,7 +324,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const newMeetingForm = document.getElementById('new-meeting-card');
     if (newMeetingForm) {
         newMeetingForm.addEventListener('submit', (event) => {
-            event.preventDefault();
+            event.preventDefault(); // prevent sending form regularly
             createMeeting(newMeetingForm);
         });
     }

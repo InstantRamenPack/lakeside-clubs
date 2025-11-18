@@ -60,6 +60,12 @@ hr {
     width: 100%;
 }
 
+textarea {
+    overflow-y: hidden;
+    resize: none;
+    word-wrap: break-word;
+}
+
 .tooltip {
     position: relative;
 }
