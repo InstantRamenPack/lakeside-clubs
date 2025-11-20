@@ -10,7 +10,7 @@
         {% for meeting in meetings %}
             <div class = "meeting-card meeting-status-{{ meeting.member_status }}">
                 <h2>{{meeting.club_name}}</h2>
-                <h3>{{meeting.title}}</h3>
+                <h3>{{meeting.title|e}}</h3>
                 <div>{{meeting.description}}</div>
                 <hr>
                 <div class = "meeting-info">
