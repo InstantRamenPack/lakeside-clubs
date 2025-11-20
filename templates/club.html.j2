@@ -69,7 +69,7 @@
                     <input type = "text" name = "title" placeholder = "Title" required>
                     <textarea name = "description" placeholder = "Description — supports Markdown! Try *italicized*, **bold** text, and !(https://externally-hosted-images.com)." required></textarea>
                     <hr>
-                    <div class = "meeting-info">
+                    <div class = "card-info">
                         <div>
                             <span class = "material-symbol">event</span>
                             <input type = "datetime-local" name = "start-time" required> - 
@@ -89,7 +89,7 @@
                     <h2></h2>
                     <div class = "meeting-description"></div>
                     <hr>
-                    <div class = "meeting-info">
+                    <div class = "card-info">
                         <div>
                             <span class = "material-symbol">event</span>
                             <p></p>
@@ -105,7 +105,7 @@
                         <div>
                             <span class = "material-symbol">person</span>
                             <div>
-                                <span>0</span> <span class = "meeting-info-hide">attendees</span>
+                                <span>0</span> <span class = "card-info-hide">attendees</span>
                             </div>
                         </div>
                         <div class = "flex-space"></div>
@@ -118,7 +118,7 @@
                     <h2>{{meeting.title|e}}</h2>
                     <div class = "meeting-description">{{meeting.description}}</div>
                     <hr>
-                    <div class = "meeting-info">
+                    <div class = "card-info">
                         <div>
                             <span class = "material-symbol">event</span>
                             <p>{{meeting.start_time.strftime("%A, %b %-d")}}</p>
@@ -134,7 +134,7 @@
                         <div>
                             <span class = "material-symbol">person</span>
                             <div>
-                                <span>{{meeting.members|length}}</span> <span class = "meeting-info-hide">attendee{{'' if meeting.members|length == 1 else 's'}}</span>
+                                <span>{{meeting.members|length}}</span> <span class = "card-info-hide">attendee{{'' if meeting.members|length == 1 else 's'}}</span>
                             </div>
                         </div>
                         <div class = "flex-space"></div>

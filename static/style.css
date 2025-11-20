@@ -292,14 +292,14 @@ textarea {
     gap: 10px;
 }
 
-.meeting-info {
+.card-info {
     display: flex;
     flex-direction: row;
     align-items: center;
     gap: 20px;
 }
 
-.meeting-info div {
+.card-info div {
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -307,7 +307,7 @@ textarea {
 }
 
 @media (max-width: 1200px) {
-    .meeting-info-hide {
+    .card-info-hide {
         display: none;
     }
 }

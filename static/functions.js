@@ -248,7 +248,7 @@ function insertMeetingCard(meeting) {
     card.querySelector('h2').textContent = meeting.title;
     card.querySelector('.meeting-description').innerHTML = meeting.description;
 
-    const meetingInfo = card.querySelectorAll('.meeting-info > div');
+    const meetingInfo = card.querySelectorAll('.card-info > div');
     meetingInfo[0].querySelector('p').textContent = meeting.date;
     meetingInfo[1].querySelector('p').textContent = meeting.time_range;
     meetingInfo[2].querySelector('p').textContent = meeting.location;
