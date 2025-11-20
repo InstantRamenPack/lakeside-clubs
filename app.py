@@ -130,7 +130,7 @@ def joinClub():
             (%s, %s)
     """, (g.user.user_id, request.values.get("id")))
     mysql.connection.commit()
-    return redirect(url_for("index")) 
+    return redirect(url_for("club", id = request.values.get("id"))) 
 
 @app.route("/leaveClub", methods = ["POST"])
 def leaveClub():
