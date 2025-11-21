@@ -119,22 +119,24 @@
                     <div class = "meeting-description">{{meeting.description}}</div>
                     <hr>
                     <div class = "card-info">
-                        <div>
-                            <span class = "material-symbol">event</span>
-                            <p>{{meeting.start_time.strftime("%A, %b %-d")}}</p>
-                        </div>
-                        <div>
-                            <span class = "material-symbol">schedule</span>
-                            <p>{{meeting.start_time.strftime("%-I:%M")}} - {{meeting.end_time.strftime("%-I:%M")}}</p>
-                        </div>
-                        <div>
-                            <span class = "material-symbol">location_on</span>
-                            <p>{{meeting.location}}</p>
-                        </div>
-                        <div>
-                            <span class = "material-symbol">person</span>
+                        <div class = "card-info-left">
                             <div>
-                                <span>{{meeting.members|length}}</span> <span class = "card-info-hide">attendee{{'' if meeting.members|length == 1 else 's'}}</span>
+                                <span class = "material-symbol">event</span>
+                                <p>{{meeting.start_time.strftime("%A, %b %-d")}}</p>
+                            </div>
+                            <div>
+                                <span class = "material-symbol">schedule</span>
+                                <p>{{meeting.start_time.strftime("%-I:%M")}} - {{meeting.end_time.strftime("%-I:%M")}}</p>
+                            </div>
+                            <div>
+                                <span class = "material-symbol">location_on</span>
+                                <p>{{meeting.location}}</p>
+                            </div>
+                            <div>
+                                <span class = "material-symbol">person</span>
+                                <div>
+                                    <span>{{meeting.members|length}}</span> <span class = "card-info-hide">attendee{{'' if meeting.members|length == 1 else 's'}}</span>
+                                </div>
                             </div>
                         </div>
                         <div class = "flex-space"></div>
