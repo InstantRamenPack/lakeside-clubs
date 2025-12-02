@@ -51,13 +51,29 @@ def club():
             c.*,
             MAX(CASE WHEN cm.user_id = %s THEN cm.membership_type END) AS membership_type,
             JSON_ARRAYAGG(
-                CASE
-                    WHEN cm.membership_type = 1 THEN JSON_OBJECT('id', u.id, 'name', u.name, 'email', u.email)
+                CASE WHEN 
+                    cm.membership_type = 1 
+                THEN 
+                    JSON_OBJECT(
+                        'id', u.id, 
+                        'first_name', u.first_name,
+                        'last_name', u.last_name,
+                        'name', u.name, 
+                        'email', u.email
+                    )
                 END
             ) AS leaders,
             JSON_ARRAYAGG(
-                CASE
-                    WHEN cm.membership_type = 0 THEN JSON_OBJECT('id', u.id, 'name', u.name, 'email', u.email)
+                CASE WHEN 
+                    cm.membership_type = 0 
+                THEN 
+                    JSON_OBJECT(
+                        'id', u.id, 
+                        'first_name', u.first_name,
+                        'last_name', u.last_name,
+                        'name', u.name, 
+                        'email', u.email
+                    )
                 END
             ) AS members
         FROM

@@ -1,9 +1,3 @@
-// ChatGPT generated
-function autoGrow(textarea) {
-    textarea.style.height = 'auto';
-    textarea.style.height = `${textarea.scrollHeight}px`;
-}
-
 function joinClub(club_id, authenticated, button) {
     if (!authenticated) {
         window.location.href = "/joinClub?id=" + club_id;
@@ -261,11 +255,6 @@ function insertMeetingCard(meeting) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('textarea').forEach((textarea) => {
-        textarea.addEventListener('input', () => autoGrow(textarea));
-        autoGrow(textarea); // size for initial content
-    });
-
     document.querySelectorAll('.join-club-button').forEach((button) => {
         const clubId = button.dataset.clubId;
         const authenticated = button.dataset.authenticated === 'True';

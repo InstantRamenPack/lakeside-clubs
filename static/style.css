@@ -71,23 +71,35 @@ textarea {
 }
 
 .tooltip .tooltip-text {
-    visibility: hidden;
+    display: none; /* content holder only; actual bubble lives in .tooltip-layer */
+}
 
-    white-space: nowrap;
-    transform: translateX(-50%);
+.tooltip-layer {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 2147483647;
+}
+
+.tooltip-layer .tooltip-text {
+    display: inline-block;
     position: absolute;
-    bottom: 100%;
-    left: 50%;
+    width: max-content;
+    max-width: 200px;
+    text-align: center;
+    font-style: italic;
+    white-space: normal;
+    overflow-wrap: break-word;
+    font-size: 10pt;
 
     padding: 6px;
     border-radius: 6px;
     backdrop-filter: blur(12px) saturate(60%);
     background-color: rgb(var(--bg));
     border: 1px solid rgba(var(--card-bg), 0.2);
-}
 
-.tooltip:hover .tooltip-text {
-    visibility: visible;
+    transform: translate(-50%, calc(-100% - 4px));
+    visibility: hidden;
 }
 
 #navbar {

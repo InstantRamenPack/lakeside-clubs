@@ -15,7 +15,21 @@
             <hr>
             <h2>Leaders</h2>
             {% for leader in club.leaders %}
-                <p>{{leader.name}}</p>
+                <div>
+                    {% if leader.name %}
+                        {% if g.user.authenticated %}
+                            <span>{{leader.name}}</span>
+                        {% else %}
+                            <span>{{leader.first_name}} {{leader.last_name[0]}}</span>
+                        {% endif %}
+                    {% else %}
+                        <span>{{leader.email[:-22]|capitalize}} {{leader.email[-22]|capitalize}}</span>
+                        <span class = "tooltip">
+                            <span class = "material-symbol">info</span>
+                            <span class = "tooltip-text">This name may be inaccurate due to not having logged in before.</span>
+                        </span>
+                    {% endif %}
+                </div>
             {% endfor %}  
             <hr>
             {% if club.membership_type == 1 %}
