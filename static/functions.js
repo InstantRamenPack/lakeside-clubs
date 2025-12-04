@@ -78,16 +78,12 @@ function importUsers(club_id) {
                     }
                 }
 
-                const template = document.getElementById("club-user-list").getElementsByTagName("template")[0];
+                const memberList = document.getElementById("club-member-list");
+                const template = memberList.getElementsByTagName("template")[0];
                 newMembers.forEach((user) => {
-                    const copy = template.content.cloneNode(true);
-                    copy.querySelector("p").textContent = user.email.slice(0, -19);
-                    const actionButtons = copy.querySelectorAll("[data-action]");
-                    actionButtons.forEach((actionButton) => {
-                        actionButton.dataset.memberId = user.id;
-                    });
-                    template.parentNode.appendChild(copy);
+                    appendMember(template, user);
                 });
+                attachTooltips();
 
                 textBox.value = "";
                 textBox.style.display = "";
@@ -102,6 +98,57 @@ function importUsers(club_id) {
     xhttp.open("POST", "/importUsers", true);
     xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     xhttp.send("data=" + encodeURIComponent(textBox.value) + "&id=" + encodeURIComponent(club_id));
+}
+
+function appendMember(template, user) {
+    const copy = template.content.cloneNode(true);
+    copy.querySelector(".user-name").textContent = user.email.slice(0, -19);
+    const actionButtons = copy.querySelectorAll("[data-action]");
+    actionButtons.forEach((actionButton) => {
+        if (actionButton.dataset.action === "copy-email") {
+            actionButton.dataset.email = user.email;
+            const tooltipText = actionButton.parentElement.querySelector(".tooltip-text");
+            tooltipText.textContent = user.email;
+            return;
+        }
+    });
+
+    showMemberActions(copy, user.id);
+    template.parentNode.appendChild(copy);
+}
+
+function setActionVisibility(entry, actionName, visible) {
+    const action = entry.querySelector(`[data-action="${actionName}"]`);
+    if (!action) {
+        return;
+    }
+    const wrapper = action.closest('.membership-action');
+    if (wrapper) {
+        wrapper.classList.toggle('action-hidden', !visible);
+    }
+}
+
+function syncMemberIds(entry, member_id) {
+    ['add-leader', 'kick-member', 'demote-leader'].forEach((action) => {
+        const actionNode = entry.querySelector(`[data-action="${action}"]`);
+        if (actionNode) {
+            actionNode.dataset.memberId = member_id;
+        }
+    });
+}
+
+function showLeaderActions(entry, member_id) {
+    syncMemberIds(entry, member_id);
+    setActionVisibility(entry, 'add-leader', false);
+    setActionVisibility(entry, 'kick-member', false);
+    setActionVisibility(entry, 'demote-leader', true);
+}
+
+function showMemberActions(entry, member_id) {
+    syncMemberIds(entry, member_id);
+    setActionVisibility(entry, 'add-leader', true);
+    setActionVisibility(entry, 'kick-member', true);
+    setActionVisibility(entry, 'demote-leader', false);
 }
 
 function copyUsers(club_id, button) {
@@ -129,7 +176,13 @@ function copyUsers(club_id, button) {
 }
 
 function addLeader(club_id, member_id, button) {
-    button.parentElement.parentElement.remove()
+    const entry = button.closest('li');
+    const leaderList = document.getElementById("club-leader-list");
+    if (entry && leaderList) {
+        leaderList.appendChild(entry);
+        showLeaderActions(entry, member_id);
+        attachTooltips();
+    }
 
 	const xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function() {
@@ -141,6 +194,29 @@ function addLeader(club_id, member_id, button) {
     };
 	
 	xhttp.open("POST", "/addLeader", true);
+    xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded"); 
+    xhttp.send("club_id=" + encodeURIComponent(club_id) + "&user_id=" + encodeURIComponent(member_id));
+}
+
+function demoteLeader(club_id, member_id, button) {
+    const entry = button.closest('li');
+    const memberList = document.getElementById("club-member-list");
+    if (entry && memberList) {
+        memberList.appendChild(entry);
+        showMemberActions(entry, member_id);
+        attachTooltips();
+    }
+
+	const xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if (this.readyState == 4) {
+            if (this.status == 200) {
+                
+            }
+		}
+    };
+	
+	xhttp.open("POST", "/demoteLeader", true);
     xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded"); 
     xhttp.send("club_id=" + encodeURIComponent(club_id) + "&user_id=" + encodeURIComponent(member_id));
 }
@@ -290,26 +366,31 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    const clubUserList = document.getElementById('club-user-list');
-    if (clubUserList) {
-        // utilize click delegation
-        clubUserList.addEventListener('click', (event) => {
+    document.querySelectorAll('.club-user-list').forEach((listElement) => {
+        listElement.addEventListener('click', (event) => {
             const actionTarget = event.target.closest('[data-action]');
-            if (!actionTarget || !clubUserList.contains(actionTarget)) {
+            if (!actionTarget || !listElement.contains(actionTarget)) {
                 return;
             }
+            const actionWrapper = actionTarget.closest('.membership-action');
+            if (actionWrapper && actionWrapper.classList.contains('action-hidden')) {
+                return;
+            }
+            const action = actionTarget.dataset.action;   
+            const clubId = listElement.dataset.clubId;
             const memberId = actionTarget.dataset.memberId;
-            const clubId = clubUserList.dataset.clubId;
-            if (!clubId || !memberId) {
-                return;
-            }
-            if (actionTarget.dataset.action === 'add-leader') {
+            if (action === "add-leader") {
                 addLeader(clubId, memberId, actionTarget);
-            } else if (actionTarget.dataset.action === 'kick-member') {
+            } else if (action === "kick-member") {
                 kickMember(clubId, memberId, actionTarget);
+            } else if (action === "demote-leader") {
+                demoteLeader(clubId, memberId, actionTarget);
+            } else if (action === "copy-email") {
+                navigator.clipboard.writeText(actionTarget.dataset.email);
+                return;
             }
         });
-    }
+    });
 
     const newMeetingForm = document.getElementById('new-meeting-card');
     if (newMeetingForm) {

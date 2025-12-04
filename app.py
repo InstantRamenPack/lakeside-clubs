@@ -272,10 +272,41 @@ def addLeader():
     mysql.connection.commit()
     return "Success!", 200    
 
+@app.route("/demoteLeader", methods = ["POST"])
+def demoteLeader():
+    club_id = request.values.get("club_id")
+    user_id = request.values.get("user_id")
+
+    if str(user_id) == str(g.user.user_id):
+        return "Cannot remove yourself", 400
+
+    cursor = mysql.connection.cursor()
+    cursor.execute("""
+        SELECT club_id FROM raymondz_club_members 
+        WHERE user_id = %s AND club_id = %s AND membership_type = 1
+    """, (g.user.user_id, club_id))
+    club = cursor.fetchone()
+    if not club:
+        return "Forbidden", 403
+    
+    cursor.execute("""
+        UPDATE 
+            raymondz_club_members
+        SET 
+            membership_type = 0
+        WHERE
+            user_id = %s AND club_id = %s
+    """, (user_id, club_id))
+    mysql.connection.commit()
+    return "Success!", 200    
+
 @app.route("/kickMember", methods = ["POST"])
 def kickMember():
     club_id = request.values.get("club_id")
     user_id = request.values.get("user_id")
+
+    if str(user_id) == str(g.user.user_id):
+        return "Cannot remove yourself", 400
 
     cursor = mysql.connection.cursor()
     cursor.execute("""

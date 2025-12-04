@@ -14,23 +14,58 @@
             <p>{{club.description}}</p>
             <hr>
             <h2>Leaders</h2>
-            {% for leader in club.leaders %}
-                <div>
-                    {% if leader.name %}
-                        {% if g.user.authenticated %}
-                            <span>{{leader.name}}</span>
-                        {% else %}
-                            <span>{{leader.first_name}} {{leader.last_name[0]}}</span>
+            <ul id = "club-leader-list" class = "club-user-list" data-club-id = "{{club.id}}" data-authenticated = "{{g.user.authenticated}}" data-current-user-id = "{{g.user.user_id}}">
+                {% if club.membership_type == 1 %}
+                    <template>
+                        <li class = "membership-entry">
+                            <p class = "user-name"></p>
+                            <div class = "flex-space"></div>
+                            <div class = "tooltip membership-action action-hidden">
+                                <span class = "material-symbol" data-action = "add-leader">add_moderator</span>
+                                <span class = "tooltip-text">Add Leader</span>
+                            </div>
+                            <div class = "tooltip membership-action action-hidden">
+                                <span class = "material-symbol" data-action = "kick-member">person_remove</span>
+                                <span class = "tooltip-text">Kick Member</span>
+                            </div>
+                            <div class = "tooltip membership-action">
+                                <span class = "material-symbol" data-action = "demote-leader">remove_moderator</span>
+                                <span class = "tooltip-text">Demote Leader</span>
+                            </div>
+                            <div class = "tooltip membership-action">
+                                <span class = "material-symbol" data-action = "copy-email">mail</span>
+                                <span class = "tooltip-text"></span>
+                            </div>
+                        </li>
+                    </template>
+                {% endif %}
+                {% for leader in club.leaders %}
+                    <li class = "membership-entry">
+                        <p class = "user-name">{{macros.display_name(leader)}}</p>
+                        <div class = "flex-space"></div>
+                        <div class = "tooltip membership-action action-hidden">
+                            <span class = "material-symbol" data-action = "add-leader" data-member-id = "{{leader.id}}">add_moderator</span>
+                            <span class = "tooltip-text">Add Leader</span>
+                        </div>
+                        <div class = "tooltip membership-action action-hidden">
+                            <span class = "material-symbol" data-action = "kick-member" data-member-id = "{{leader.id}}">person_remove</span>
+                            <span class = "tooltip-text">Kick Member</span>
+                        </div>
+                        {% if club.membership_type == 1 %}
+                            {% if leader.id != g.user.user_id %}
+                                <div class = "tooltip membership-action">
+                                    <span class = "material-symbol" data-action = "demote-leader" data-member-id = "{{leader.id}}">remove_moderator</span>
+                                    <span class = "tooltip-text">Demote Leader</span>
+                                </div>
+                            {% endif %}
+                            <div class = "tooltip membership-action">
+                                <span class = "material-symbol" data-action = "copy-email" data-email = "{{leader.email}}">mail</span>
+                                <span class = "tooltip-text">{{leader.email}}</span>
+                            </div>
                         {% endif %}
-                    {% else %}
-                        <span>{{leader.email[:-22]|capitalize}} {{leader.email[-22]|capitalize}}</span>
-                        <span class = "tooltip">
-                            <span class = "material-symbol">info</span>
-                            <span class = "tooltip-text">This name may be inaccurate due to not having logged in before.</span>
-                        </span>
-                    {% endif %}
-                </div>
-            {% endfor %}  
+                    </li>
+                {% endfor %}  
+            </ul>
             <hr>
             {% if club.membership_type == 1 %}
                 <div id = "import-user-message"></div>
@@ -39,11 +74,15 @@
                 <button id = "copy-user-button" data-club-id = "{{club.id}}">Copy Member Emails</button>
                 <hr>
                 <h2>Members</h2>
-                <ul id = "club-user-list" data-club-id = "{{club.id}}">
+                <ul id = "club-member-list" class = "club-user-list" data-club-id = "{{club.id}}" data-authenticated = "{{g.user.authenticated}}" data-current-user-id = "{{g.user.user_id}}">
                     <template>
                         <li class = "membership-entry">
-                            <p></p>
+                            <p class = "user-name"></p>
                             <div class = "flex-space"></div>
+                            <div class = "tooltip membership-action action-hidden">
+                                <span class = "material-symbol" data-action = "demote-leader">remove_moderator</span>
+                                <span class = "tooltip-text">Demote Leader</span>
+                            </div>
                             <div class = "tooltip membership-action">
                                 <span class = "material-symbol" data-action = "add-leader">add_moderator</span>
                                 <span class = "tooltip-text">Add Leader</span>
@@ -52,13 +91,20 @@
                                 <span class = "material-symbol" data-action = "kick-member">person_remove</span>
                                 <span class = "tooltip-text">Kick Member</span>
                             </div>
+                            <div class = "tooltip membership-action">
+                                <span class = "material-symbol" data-action = "copy-email">mail</span>
+                                <span class = "tooltip-text"></span>
+                            </div>
                         </li>
                     </template>
                     {% for member in club.members %}
                         <li class = "membership-entry">
-                            {# 19 is number of characters in @lakesideschool.org #}
-                            <p>{{member.email[:-19]}}</p>
+                            <p class = "user-name">{{macros.display_name(member)}}</p>
                             <div class = "flex-space"></div>
+                            <div class = "tooltip membership-action action-hidden">
+                                <span class = "material-symbol" data-action = "demote-leader" data-member-id = "{{member.id}}">remove_moderator</span>
+                                <span class = "tooltip-text">Demote Leader</span>
+                            </div>
                             <div class = "tooltip membership-action">
                                 <span class = "material-symbol" data-action = "add-leader" data-member-id = "{{member.id}}">add_moderator</span>
                                 <span class = "tooltip-text">Add Leader</span>
@@ -66,6 +112,10 @@
                             <div class = "tooltip membership-action">
                                 <span class = "material-symbol" data-action = "kick-member" data-member-id = "{{member.id}}">person_remove</span>
                                 <span class = "tooltip-text">Kick Member</span>
+                            </div>
+                            <div class = "tooltip membership-action">
+                                <span class = "material-symbol" data-action = "copy-email" data-email = "{{member.email}}">mail</span>
+                                <span class = "tooltip-text">{{member.email}}</span>
                             </div>
                         </li>
                     {% endfor %}

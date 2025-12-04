@@ -32,9 +32,10 @@ function attachTooltips() {
 
     document.querySelectorAll('.tooltip').forEach((tooltip) => {
         const text = tooltip.querySelector('.tooltip-text');
-        if (!text) {
+        if (!text || tooltip.dataset.tooltipBound) {
             return;
         }
+        tooltip.dataset.tooltipBound = 'true';
 
         const show = () => {
             const rect = tooltip.getBoundingClientRect();

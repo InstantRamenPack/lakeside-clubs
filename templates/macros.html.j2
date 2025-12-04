@@ -1,0 +1,15 @@
+{% macro display_name(person) %}
+    {% if person.first_name and person.last_name %}
+        {% if g.user.authenticated %}
+            {{person.first_name}} {{person.last_name}}
+        {% else %}
+            {{person.first_name}} {{person.last_name[0]}}.
+        {% endif %}
+    {% elif person.email %}
+        <span>{{person.email[:-22]|capitalize}} {{person.email[-22]|capitalize}}</span>
+        <span class = "tooltip">
+            <span class = "material-symbol">info</span>
+            <span class = "tooltip-text">This name might be inaccurate since this user never logged in.</span>
+        </span>
+    {% endif %}
+{% endmacro %}

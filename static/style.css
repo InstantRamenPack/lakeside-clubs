@@ -23,7 +23,7 @@
     bottom: 1.5px;
 
     user-select: none;
-    cursor: pointer; 
+    cursor: default; 
 
     font-variation-settings:
         'FILL' 0,
@@ -85,8 +85,9 @@ textarea {
     display: inline-block;
     position: absolute;
     width: max-content;
-    max-width: 200px;
+    max-width: 250px;
     text-align: center;
+    text-wrap: balance;
     font-style: italic;
     white-space: normal;
     overflow-wrap: break-word;
@@ -223,13 +224,13 @@ textarea {
     min-height: 80px;
 }
 
-#club-user-list {
+.club-user-list {
     list-style: none;
     padding: 0;
     margin: 0;
 }
 
-#club-user-list li {
+.club-user-list li {
     display: flex;
     gap: 4px;
     align-items: center;
@@ -240,26 +241,30 @@ textarea {
     border-radius: 8px;
 }
 
-#club-user-list li:hover {
+.club-user-list li:hover {
     backdrop-filter: blur(12px) saturate(60%);
     border: 1px solid rgba(var(--card-bg), 0.2);
     background-color: rgba(var(--card-bg), 0.05);
 }
 
-#club-user-list li p {
+.club-user-list li p {
     display: inline;
     position: relative;
 }
 
-#club-user-list li .membership-action {
+.club-user-list li .membership-action {
     visibility: hidden;
 }
 
-#club-user-list li:hover .membership-action {
+.club-user-list li .membership-action.action-hidden {
+    display: none;
+}
+
+.club-user-list li:hover .membership-action {
     visibility: visible;
 }
 
-#club-user-list li .membership-action:hover .material-symbol {
+.club-user-list li .membership-action:hover .material-symbol {
     font-variation-settings:
         'FILL' 1,
         'wght' 400,
