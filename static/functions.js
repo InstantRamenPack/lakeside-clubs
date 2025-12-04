@@ -224,7 +224,7 @@ function demoteLeader(club_id, member_id, button) {
 }
 
 function kickMember(club_id, member_id, button) {
-    button.parentElement.parentElement.remove()
+    button.parentElement.remove()
     
 	const xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function() {
