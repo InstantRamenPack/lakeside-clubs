@@ -20,21 +20,17 @@
                         <li class = "membership-entry">
                             <p class = "user-name"></p>
                             <div class = "flex-space"></div>
-                            <div class = "tooltip membership-action action-hidden">
-                                <span class = "material-symbol" data-action = "add-leader">add_moderator</span>
-                                <span class = "tooltip-text">Add Leader</span>
+                            <div class = "membership-action action-hidden" data-action = "add-leader" data-tooltip = "Add Leader">
+                                <span class = "material-symbol">add_moderator</span>
                             </div>
-                            <div class = "tooltip membership-action action-hidden">
-                                <span class = "material-symbol" data-action = "kick-member">person_remove</span>
-                                <span class = "tooltip-text">Kick Member</span>
+                            <div class = "membership-action action-hidden" data-action = "kick-member" data-tooltip = "Kick Member">
+                                <span class = "material-symbol">person_remove</span>
                             </div>
-                            <div class = "tooltip membership-action">
-                                <span class = "material-symbol" data-action = "demote-leader">remove_moderator</span>
-                                <span class = "tooltip-text">Demote Leader</span>
+                            <div class = "membership-action" data-action = "demote-leader" data-tooltip = "Demote Leader">
+                                <span class = "material-symbol">remove_moderator</span>
                             </div>
-                            <div class = "tooltip membership-action">
-                                <span class = "material-symbol" data-action = "copy-email">mail</span>
-                                <span class = "tooltip-text"></span>
+                            <div class = "membership-action" data-action = "copy-email" data-tooltip = "">
+                                <span class = "material-symbol">mail</span>
                             </div>
                         </li>
                     </template>
@@ -43,24 +39,20 @@
                     <li class = "membership-entry">
                         <p class = "user-name">{{macros.display_name(leader)}}</p>
                         <div class = "flex-space"></div>
-                        <div class = "tooltip membership-action action-hidden">
-                            <span class = "material-symbol" data-action = "add-leader" data-member-id = "{{leader.id}}">add_moderator</span>
-                            <span class = "tooltip-text">Add Leader</span>
+                        <div class = "membership-action action-hidden" data-action = "add-leader" data-member-id = "{{leader.id}}" data-tooltip = "Add Leader">
+                            <span class = "material-symbol">add_moderator</span>
                         </div>
-                        <div class = "tooltip membership-action action-hidden">
-                            <span class = "material-symbol" data-action = "kick-member" data-member-id = "{{leader.id}}">person_remove</span>
-                            <span class = "tooltip-text">Kick Member</span>
+                        <div class = "membership-action action-hidden" data-action = "kick-member" data-member-id = "{{leader.id}}" data-tooltip = "Kick Member">
+                            <span class = "material-symbol">person_remove</span>
                         </div>
                         {% if club.membership_type == 1 %}
                             {% if leader.id != g.user.user_id %}
-                                <div class = "tooltip membership-action">
-                                    <span class = "material-symbol" data-action = "demote-leader" data-member-id = "{{leader.id}}">remove_moderator</span>
-                                    <span class = "tooltip-text">Demote Leader</span>
+                                <div class = "membership-action" data-action = "demote-leader" data-member-id = "{{leader.id}}" data-tooltip = "Demote Leader">
+                                    <span class = "material-symbol">remove_moderator</span>
                                 </div>
                             {% endif %}
-                            <div class = "tooltip membership-action">
-                                <span class = "material-symbol" data-action = "copy-email" data-email = "{{leader.email}}">mail</span>
-                                <span class = "tooltip-text">{{leader.email}}</span>
+                            <div class = "membership-action" data-action = "copy-email" data-email = "{{leader.email}}" data-tooltip = "{{leader.email}}">
+                                <span class = "material-symbol">mail</span>
                             </div>
                         {% endif %}
                     </li>
@@ -79,21 +71,17 @@
                         <li class = "membership-entry">
                             <p class = "user-name"></p>
                             <div class = "flex-space"></div>
-                            <div class = "tooltip membership-action action-hidden">
-                                <span class = "material-symbol" data-action = "demote-leader">remove_moderator</span>
-                                <span class = "tooltip-text">Demote Leader</span>
+                            <div class = "membership-action action-hidden" data-action = "demote-leader" data-tooltip = "Demote Leader">
+                                <span class = "material-symbol">remove_moderator</span>
                             </div>
-                            <div class = "tooltip membership-action">
-                                <span class = "material-symbol" data-action = "add-leader">add_moderator</span>
-                                <span class = "tooltip-text">Add Leader</span>
+                            <div class = "membership-action" data-action = "add-leader" data-tooltip = "Add Leader">
+                                <span class = "material-symbol">add_moderator</span>
                             </div>
-                            <div class = "tooltip membership-action">
-                                <span class = "material-symbol" data-action = "kick-member">person_remove</span>
-                                <span class = "tooltip-text">Kick Member</span>
+                            <div class = "membership-action" data-action = "kick-member" data-tooltip = "Kick Member">
+                                <span class = "material-symbol">person_remove</span>
                             </div>
-                            <div class = "tooltip membership-action">
-                                <span class = "material-symbol" data-action = "copy-email">mail</span>
-                                <span class = "tooltip-text"></span>
+                            <div class = "membership-action" data-action = "copy-email" data-tooltip = "">
+                                <span class = "material-symbol">mail</span>
                             </div>
                         </li>
                     </template>
@@ -101,21 +89,17 @@
                         <li class = "membership-entry">
                             <p class = "user-name">{{macros.display_name(member)}}</p>
                             <div class = "flex-space"></div>
-                            <div class = "tooltip membership-action action-hidden">
-                                <span class = "material-symbol" data-action = "demote-leader" data-member-id = "{{member.id}}">remove_moderator</span>
-                                <span class = "tooltip-text">Demote Leader</span>
+                            <div class = "membership-action action-hidden" data-action = "demote-leader" data-member-id = "{{member.id}}" data-tooltip = "Demote Leader">
+                                <span class = "material-symbol">remove_moderator</span>
                             </div>
-                            <div class = "tooltip membership-action">
-                                <span class = "material-symbol" data-action = "add-leader" data-member-id = "{{member.id}}">add_moderator</span>
-                                <span class = "tooltip-text">Add Leader</span>
+                            <div class = "membership-action" data-action = "add-leader" data-member-id = "{{member.id}}" data-tooltip = "Add Leader">
+                                <span class = "material-symbol">add_moderator</span>
                             </div>
-                            <div class = "tooltip membership-action">
-                                <span class = "material-symbol" data-action = "kick-member" data-member-id = "{{member.id}}">person_remove</span>
-                                <span class = "tooltip-text">Kick Member</span>
+                            <div class = "membership-action" data-action = "kick-member" data-member-id = "{{member.id}}" data-tooltip = "Kick Member">
+                                <span class = "material-symbol">person_remove</span>
                             </div>
-                            <div class = "tooltip membership-action">
-                                <span class = "material-symbol" data-action = "copy-email" data-email = "{{member.email}}">mail</span>
-                                <span class = "tooltip-text">{{member.email}}</span>
+                            <div class = "membership-action" data-action = "copy-email" data-email = "{{member.email}}" data-tooltip = "{{member.email}}">
+                                <span class = "material-symbol">mail</span>
                             </div>
                         </li>
                     {% endfor %}

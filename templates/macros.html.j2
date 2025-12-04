@@ -7,9 +7,8 @@
         {% endif %}
     {% elif person.email %}
         <span>{{person.email[:-22]|capitalize}} {{person.email[-22]|capitalize}}</span>
-        <span class = "tooltip">
+        <span data-tooltip = "This name might be inaccurate since this user never logged in.">
             <span class = "material-symbol">info</span>
-            <span class = "tooltip-text">This name might be inaccurate since this user never logged in.</span>
         </span>
     {% endif %}
 {% endmacro %}

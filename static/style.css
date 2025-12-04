@@ -66,14 +66,6 @@ textarea {
     word-wrap: break-word;
 }
 
-.tooltip {
-    position: relative;
-}
-
-.tooltip .tooltip-text {
-    display: none; /* content holder only; actual bubble lives in .tooltip-layer */
-}
-
 .tooltip-layer {
     position: fixed;
     inset: 0;

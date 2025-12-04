@@ -30,25 +30,29 @@ function attachTooltips() {
         bubble.style.visibility = 'hidden';
     };
 
-    document.querySelectorAll('.tooltip').forEach((tooltip) => {
-        const text = tooltip.querySelector('.tooltip-text');
-        if (!text || tooltip.dataset.tooltipBound) {
+    document.querySelectorAll('[data-tooltip]').forEach((el) => {
+        if (el.dataset.tooltipBound) {
             return;
         }
-        tooltip.dataset.tooltipBound = 'true';
+        el.dataset.tooltipBound = 'true';
 
         const show = () => {
-            const rect = tooltip.getBoundingClientRect();
-            bubble.innerHTML = text.innerHTML;
+            const content = el.dataset.tooltip || '';
+            if (!content) {
+                hide();
+                return;
+            }
+            const rect = el.getBoundingClientRect();
+            bubble.innerHTML = content;
             bubble.style.left = `${rect.left + rect.width / 2}px`;
             bubble.style.top = `${rect.top}px`;
             bubble.style.visibility = 'visible';
         };
 
-        tooltip.addEventListener('mouseenter', show);
-        tooltip.addEventListener('focusin', show);
-        tooltip.addEventListener('mouseleave', hide);
-        tooltip.addEventListener('focusout', hide);
+        el.addEventListener('mouseenter', show);
+        el.addEventListener('focusin', show);
+        el.addEventListener('mouseleave', hide);
+        el.addEventListener('focusout', hide);
     });
 }
 

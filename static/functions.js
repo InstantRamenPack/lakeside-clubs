@@ -107,8 +107,10 @@ function appendMember(template, user) {
     actionButtons.forEach((actionButton) => {
         if (actionButton.dataset.action === "copy-email") {
             actionButton.dataset.email = user.email;
-            const tooltipText = actionButton.parentElement.querySelector(".tooltip-text");
-            tooltipText.textContent = user.email;
+            const tooltipWrapper = actionButton.parentElement;
+            if (tooltipWrapper) {
+                tooltipWrapper.dataset.tooltip = user.email;
+            }
             return;
         }
     });
