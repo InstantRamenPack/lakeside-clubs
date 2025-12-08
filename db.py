@@ -1,7 +1,4 @@
-try:
-    from flask_mysqldb import MySQL
-except ImportError:
-    from flask_pymysql import MySQL
+from flask_pymysql import MySQL
 
 mysql = MySQL()
 
