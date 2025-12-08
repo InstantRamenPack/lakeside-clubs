@@ -1,6 +1,0 @@
-Flask==3.1.2
-Flask-pymysql==0.2.4
-Markdown==3.10
-bleach==6.3.0
-oauthlib==3.3.1
-requests==2.32.5
