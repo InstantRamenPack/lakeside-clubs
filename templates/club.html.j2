@@ -15,29 +15,9 @@
             <hr>
             <h2>Leaders</h2>
             <ul id = "club-leader-list" class = "club-user-list" data-club-id = "{{club.id}}" data-authenticated = "{{g.user.authenticated}}" data-current-user-id = "{{g.user.user_id}}">
-                {% if club.membership_type == 1 %}
-                    <template>
-                        <li class = "membership-entry">
-                            <p class = "user-name"></p>
-                            <div class = "flex-space"></div>
-                            <div class = "membership-action action-hidden" data-action = "add-leader" data-tooltip = "Add Leader">
-                                <span class = "material-symbol">add_moderator</span>
-                            </div>
-                            <div class = "membership-action action-hidden" data-action = "kick-member" data-tooltip = "Kick Member">
-                                <span class = "material-symbol">person_remove</span>
-                            </div>
-                            <div class = "membership-action" data-action = "demote-leader" data-tooltip = "Demote Leader">
-                                <span class = "material-symbol">remove_moderator</span>
-                            </div>
-                            <div class = "membership-action" data-action = "copy-email" data-tooltip = "">
-                                <span class = "material-symbol">mail</span>
-                            </div>
-                        </li>
-                    </template>
-                {% endif %}
                 {% for leader in club.leaders %}
                     <li class = "membership-entry">
-                        <p class = "user-name">{{macros.display_name(leader)}}</p>
+                        <div class = "user-name">{{macros.display_name(leader)}}</div>
                         <div class = "flex-space"></div>
                         <div class = "membership-action action-hidden" data-action = "add-leader" data-member-id = "{{leader.id}}" data-tooltip = "Add Leader">
                             <span class = "material-symbol">add_moderator</span>
@@ -69,7 +49,7 @@
                 <ul id = "club-member-list" class = "club-user-list" data-club-id = "{{club.id}}" data-authenticated = "{{g.user.authenticated}}" data-current-user-id = "{{g.user.user_id}}">
                     <template>
                         <li class = "membership-entry">
-                            <p class = "user-name"></p>
+                            <div class = "user-name"></div>
                             <div class = "flex-space"></div>
                             <div class = "membership-action action-hidden" data-action = "demote-leader" data-tooltip = "Demote Leader">
                                 <span class = "material-symbol">remove_moderator</span>
@@ -87,7 +67,7 @@
                     </template>
                     {% for member in club.members %}
                         <li class = "membership-entry">
-                            <p class = "user-name">{{macros.display_name(member)}}</p>
+                            <div class = "user-name">{{macros.display_name(member)}}</div>
                             <div class = "flex-space"></div>
                             <div class = "membership-action action-hidden" data-action = "demote-leader" data-member-id = "{{member.id}}" data-tooltip = "Demote Leader">
                                 <span class = "material-symbol">remove_moderator</span>

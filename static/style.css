@@ -264,6 +264,12 @@ textarea {
         'opsz' 20
 }
 
+.user-name {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
 #club-meetings-list {
     grid-area: content;
 

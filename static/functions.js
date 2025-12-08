@@ -115,7 +115,7 @@ function appendMember(template, user) {
         }
     });
 
-    showMemberActions(copy, user.id);
+    showMemberActions(copy);
     template.parentNode.appendChild(copy);
 }
 
@@ -130,24 +130,13 @@ function setActionVisibility(entry, actionName, visible) {
     }
 }
 
-function syncMemberIds(entry, member_id) {
-    ['add-leader', 'kick-member', 'demote-leader'].forEach((action) => {
-        const actionNode = entry.querySelector(`[data-action="${action}"]`);
-        if (actionNode) {
-            actionNode.dataset.memberId = member_id;
-        }
-    });
-}
-
-function showLeaderActions(entry, member_id) {
-    syncMemberIds(entry, member_id);
+function showLeaderActions(entry) {
     setActionVisibility(entry, 'add-leader', false);
     setActionVisibility(entry, 'kick-member', false);
     setActionVisibility(entry, 'demote-leader', true);
 }
 
-function showMemberActions(entry, member_id) {
-    syncMemberIds(entry, member_id);
+function showMemberActions(entry) {
     setActionVisibility(entry, 'add-leader', true);
     setActionVisibility(entry, 'kick-member', true);
     setActionVisibility(entry, 'demote-leader', false);
@@ -182,7 +171,7 @@ function addLeader(club_id, member_id, button) {
     const leaderList = document.getElementById("club-leader-list");
     if (entry && leaderList) {
         leaderList.appendChild(entry);
-        showLeaderActions(entry, member_id);
+        showLeaderActions(entry);
         attachTooltips();
     }
 
@@ -204,8 +193,8 @@ function demoteLeader(club_id, member_id, button) {
     const entry = button.closest('li');
     const memberList = document.getElementById("club-member-list");
     if (entry && memberList) {
-        memberList.appendChild(entry);
-        showMemberActions(entry, member_id);
+        memberList.insertBefore(entry, memberList.children[0]);
+        showMemberActions(entry);
         attachTooltips();
     }
 
