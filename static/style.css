@@ -18,7 +18,7 @@
     font-family: 'Material Symbols Outlined';
     font-style: normal;
     font-weight: normal;
-    font-size: 20px;
+    font-size: 16px;
     position: relative;
     bottom: 1.5px;
 
@@ -41,6 +41,7 @@ body {
     margin: 0;
     background-color: rgb(var(--bg));
     color: rgb(var(--text));
+    font-size: 16px;
 }
 
 h1, h2, h3, p, ol, ul {
