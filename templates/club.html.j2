@@ -31,6 +31,8 @@
                                     <span class = "material-symbol">remove_moderator</span>
                                 </div>
                             {% endif %}
+                        {% endif %}
+                        {% if g.user.authenticated %}
                             <div class = "membership-action" data-action = "copy-email" data-email = "{{leader.email}}" data-tooltip = "{{leader.email}}">
                                 <span class = "material-symbol">mail</span>
                             </div>
