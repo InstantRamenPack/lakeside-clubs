@@ -68,7 +68,6 @@ class User:
         mysql.connection.commit()
         self.user_id = cursor.lastrowid
 
-    def load(self):
         session["raymondz_user"] = {
             "user_id": self.user_id,
             "google_id": self.google_id,
