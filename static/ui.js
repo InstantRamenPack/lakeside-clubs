@@ -56,6 +56,13 @@ function attachTooltips() {
     });
 }
 
+function updateTooltip(text, el) {
+    el.dataset.tooltip = text;
+    if (el.matches(':hover')) {
+        el.dispatchEvent(new Event('mouseenter'));
+    }
+}
+
 // attach UI utilities
 document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('textarea').forEach((textarea) => {

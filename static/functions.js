@@ -142,38 +142,38 @@ function showMemberActions(entry) {
     setActionVisibility(entry, 'demote-leader', false);
 }
 
-function copyUsers(club_id, button) {
-    button.textContent = "Copied!";
-    button.disabled = true;
-
-    const xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function() {
-        if (this.readyState == 4) {
-            if (this.status == 200) {
-                const members = JSON.parse(this.responseText) || [];
-                const clipboard = members.map(member => member.email).join("; ");
-                navigator.clipboard.writeText(clipboard).then(() => {
-                    button.textContent = "Copied!";
-                }).catch(() => {
-                    button.textContent = "Clipboard blocked.";
-                });
+function fetchMembers(club_id) {
+    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function
+    return new Promise((resolve) => {
+        const xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+            if (this.readyState === 4) {
+                if (this.status === 200) {
+                    resolve(JSON.parse(this.responseText));
+                }
             }
-        }
-    };
+        };
 
-    xhttp.open("POST", "/copyUsers", true);
-    xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    xhttp.send("id=" + encodeURIComponent(club_id));
+        xhttp.open("POST", "/fetchMembers", true);
+        xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+        xhttp.send("id=" + encodeURIComponent(club_id));
+    });
+}
+
+async function copyUsers(club_id, button) {
+    updateTooltip("Copying...", button);
+    const members = await fetchMembers(club_id);
+    const clipboard = (members || []).map((member) => member.email).join("; ");
+    navigator.clipboard.writeText(clipboard || "");
+    updateTooltip("Copied!", button);
 }
 
 function addLeader(club_id, member_id, button) {
     const entry = button.closest('li');
     const leaderList = document.getElementById("club-leader-list");
-    if (entry && leaderList) {
-        leaderList.appendChild(entry);
-        showLeaderActions(entry);
-        attachTooltips();
-    }
+    leaderList.appendChild(entry);
+    showLeaderActions(entry);
+    attachTooltips();
 
 	const xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function() {
@@ -192,11 +192,9 @@ function addLeader(club_id, member_id, button) {
 function demoteLeader(club_id, member_id, button) {
     const entry = button.closest('li');
     const memberList = document.getElementById("club-member-list");
-    if (entry && memberList) {
-        memberList.insertBefore(entry, memberList.children[0]);
-        showMemberActions(entry);
-        attachTooltips();
-    }
+    memberList.insertBefore(entry, memberList.children[0]);
+    showMemberActions(entry);
+    attachTooltips();
 
 	const xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function() {
@@ -350,12 +348,15 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    const copyUserButton = document.getElementById('copy-user-button');
-    if (copyUserButton) {
-        copyUserButton.addEventListener('click', () => {
-            copyUsers(copyUserButton.dataset.clubId, copyUserButton);
+    document.querySelectorAll('[data-action="copy-users"]').forEach((button) => {
+        const clubId = button.dataset.clubId;
+        button.addEventListener('mouseleave', () => {
+            updateTooltip("Copy Emails", button);
         });
-    }
+        button.addEventListener('click', () => {
+            copyUsers(clubId, button);
+        });
+    });
 
     document.querySelectorAll('.club-user-list').forEach((listElement) => {
         listElement.addEventListener('click', (event) => {

@@ -32,6 +32,14 @@
         'opsz' 20
 }
 
+.material-symbol[data-action]:hover {
+    font-variation-settings:
+        'FILL' 1,
+        'wght' 400,
+        'GRAD' 0,
+        'opsz' 20
+}
+
 html, body {
     max-width: 100%;
 }
@@ -250,14 +258,6 @@ textarea {
 
 .club-user-list li:hover .membership-action {
     visibility: visible;
-}
-
-.club-user-list li .membership-action:hover .material-symbol {
-    font-variation-settings:
-        'FILL' 1,
-        'wght' 400,
-        'GRAD' 0,
-        'opsz' 20
 }
 
 .user-name {

@@ -221,8 +221,8 @@ def importUsers():
 
     return json.dumps(new_members)
 
-@app.route("/copyUsers", methods = ["POST"])
-def copyUsers():
+@app.route("/fetchMembers", methods = ["POST"])
+def fetchMembers():
     club_id = request.values.get("id")
 
     cursor = mysql.connection.cursor()
