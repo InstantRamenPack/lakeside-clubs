@@ -17,7 +17,7 @@ ALLOWED_TAGS = [
     "ul", "ol", "li", "em", "strong", "b", "i", "u",
     "h1", "h2", "h3", "h4", "h5", "h6",
     "table", "thead", "tbody", "tr", "th", "td",
-    "a", "img"
+    "a", "img", "del"
 ]
 ALLOWED_ATTRS = {
     "a": ["href", "title", "rel", "target"],
@@ -29,5 +29,7 @@ ALLOWED_PROTOCOLS = ["http", "https", "mailto"]
 
 MD_EXTENSIONS = [
     "extra",
-    "sane_lists"
+    "sane_lists",
+    "nl2br",
+    "md_extensions"
 ]
