@@ -291,6 +291,27 @@ function leaveMeeting(meeting_id, button) {
     xhttp.send("id=" + encodeURIComponent(meeting_id));
 }
 
+function deleteMeeting(meeting_id, button) {
+    if (!confirm("Are you sure you want to delete this meeting? This action is irreversible, no I cannot resurrect your meeting.")) {
+        return;
+    }
+
+    button.closest('.meeting-card').remove();
+
+	const xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if (this.readyState == 4) {
+            if (this.status == 200) {
+
+            }
+		}
+    };
+	
+	xhttp.open("POST", "/deleteMeeting", true);
+    xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded"); 
+    xhttp.send("id=" + encodeURIComponent(meeting_id));
+}
+
 // https://developer.mozilla.org/en-US/docs/Learn_web_development/Extensions/Forms/Sending_forms_through_JavaScript
 function createMeeting(form) {
     const submitButton = form.querySelector('input[type="submit"]');
@@ -340,6 +361,12 @@ function insertMeetingCard(meeting) {
     button.dataset.meetingId = meeting.id;
     button.addEventListener('click', () => joinMeeting(meeting.id, button));
 
+    const deleteAction = card.querySelector('[data-action="delete-meeting"]');
+    if (deleteAction) {
+        deleteAction.dataset.meetingId = meeting.id;
+        deleteAction.addEventListener('click', () => deleteMeeting(meeting.id, deleteAction));
+    }
+
     meetingsList.insertBefore(copy, template.nextSibling);
 }
 
@@ -363,6 +390,11 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.leave-meeting-button').forEach((button) => {
         const meetingId = button.dataset.meetingId;
         button.addEventListener('click', () => leaveMeeting(meetingId, button));
+    });
+
+    document.querySelectorAll('[data-action="delete-meeting"]').forEach((action) => {
+        const meetingId = action.dataset.meetingId;
+        action.addEventListener('click', () => deleteMeeting(meetingId, action));
     });
 
     const importUsersButton = document.getElementById('import-user-button');

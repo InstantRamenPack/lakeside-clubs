@@ -406,6 +406,35 @@ def createMeeting():
 
     return json.dumps(meeting_data)
 
+@app.route("/deleteMeeting", methods = ["POST"])
+def deleteMeeting():
+    meeting_id = request.values.get("id")
+
+    cursor = mysql.connection.cursor()
+    cursor.execute("""
+        SELECT club_id FROM raymondz_meetings WHERE id = %s
+    """, (meeting_id,))
+    meeting = cursor.fetchone()
+    if not meeting:
+        return "Not found", 404
+
+    cursor.execute("""
+        SELECT club_id FROM raymondz_club_members 
+        WHERE user_id = %s AND club_id = %s AND membership_type = 1
+    """, (g.user.user_id, meeting["club_id"]))
+    club = cursor.fetchone()
+    if not club:
+        return "Forbidden", 403
+
+    cursor.execute("""
+        DELETE FROM 
+            raymondz_meetings
+        WHERE 
+            id = %s
+    """, (meeting_id,))
+    mysql.connection.commit()
+    return "Success!", 200
+
 @app.route("/meetings")
 def meetings():
     if not g.user.authenticated:
