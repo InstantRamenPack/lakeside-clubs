@@ -82,8 +82,12 @@
                     <div class = "card-info">
                         <div>
                             <span class = "material-symbol">event</span>
-                            <input type = "datetime-local" name = "start-time" required> - 
-                            <input type = "datetime-local" name = "end-time" required>
+                            <input type = "date" name = "date" required>
+                        </div>
+                        <div>
+                            <span class = "material-symbol">schedule</span>
+                            <input type = "time" name = "start-time" required> - 
+                            <input type = "time" name = "end-time" required>
                         </div>
                         <div id = "new-meeting-location">
                             <span class = "material-symbol">location_on</span>
@@ -136,11 +140,11 @@
                         <div class = "card-info-left">
                             <div>
                                 <span class = "material-symbol">event</span>
-                                <p>{{meeting.start_time.strftime("%A, %b %-d")}}</p>
+                                <p>{{meeting.date.strftime("%A, %b %-d")}}</p>
                             </div>
                             <div>
                                 <span class = "material-symbol">schedule</span>
-                                <p>{{meeting.start_time.strftime("%-I:%M")}} - {{meeting.end_time.strftime("%-I:%M")}}</p>
+                                <p>{{meeting.start_time}} - {{meeting.end_time}}</p>
                             </div>
                             <div>
                                 <span class = "material-symbol">location_on</span>

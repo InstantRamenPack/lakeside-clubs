@@ -17,11 +17,11 @@
                     <div class = "card-info-left">
                         <div>
                             <span class = "material-symbol">event</span>
-                            <p>{{meeting.start_time.strftime("%A, %b %-d")}}</p>
+                            <p>{{meeting.date.strftime("%A, %b %-d")}}</p>
                         </div>
                         <div>
                             <span class = "material-symbol">schedule</span>
-                            <p>{{meeting.start_time.strftime("%-I:%M")}} - {{meeting.end_time.strftime("%-I:%M")}}</p>
+                            <p>{{meeting.start_time}} - {{meeting.end_time}}</p>
                         </div>
                         <div>
                             <span class = "material-symbol">location_on</span>

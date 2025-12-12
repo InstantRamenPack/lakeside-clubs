@@ -99,6 +99,7 @@ def club():
     else:
         club["members"] = []
 
+    # https://stackoverflow.com/a/1855104 on selecting after today
     cursor.execute("""
         SELECT 
             m.*,
@@ -116,9 +117,12 @@ def club():
             raymondz_users u ON u.id = mm.user_id
         WHERE 
             m.club_id = %s
+        AND
+            m.date >= DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 1 DAY)
         GROUP BY 
             m.id 
         ORDER BY
+            m.date ASC,
             m.start_time ASC
     """, (g.user.user_id, club_id))
     meetings = cursor.fetchall()
@@ -362,8 +366,9 @@ def createMeeting():
     club_id = request.values.get("club_id")
     title = request.values.get("title")
     description = request.values.get("description")
-    start_time_value = request.values.get("start-time")
-    end_time_value = request.values.get("end-time")
+    start_time = request.values.get("start-time")
+    end_time = request.values.get("end-time")
+    date = request.values.get("date")
     location = request.values.get("location")
 
     cursor = mysql.connection.cursor()
@@ -375,30 +380,23 @@ def createMeeting():
     if not club:
         return "Forbidden", 403
 
-    if not title or not description or not start_time_value or not end_time_value or not location:
-        return "Missing required fields.", 400
-
-    try:
-        start_time = datetime.fromisoformat(start_time_value)
-        end_time = datetime.fromisoformat(end_time_value)
-    except (TypeError, ValueError):
-        return "Invalid time values.", 400
-
+    if not title or not description or not start_time or not end_time or not date or not location:
+        return "Missing required fields", 400
     if end_time < start_time:
-        return "Invalid time values.", 400
-
-    description_html = render_markdown_safe(description)
-    description_plain = render_markdown_plain(description)
+        return "Invalid times", 400
 
     cursor.execute("""
         INSERT INTO 
             raymondz_meetings
-            (club_id, title, description, start_time, end_time, location)
+            (club_id, title, description, start_time, end_time, date, location)
         VALUES 
-            (%s, %s, %s, %s, %s, %s)
-    """, (club_id, title, description, start_time, end_time, location))
+            (%s, %s, %s, %s, %s, %s, %s)
+    """, (club_id, title, description, start_time, end_time, date, location))
     mysql.connection.commit()
     meeting_id = cursor.lastrowid
+
+    description_html = render_markdown_safe(description)
+    description_plain = render_markdown_plain(description)
 
     meeting_data = {
         "id": meeting_id,
@@ -406,8 +404,8 @@ def createMeeting():
         "title": title,
         "description": description_html,
         "description_plain": description_plain,
-        "date": start_time.strftime("%A, %b %-d"),
-        "time_range": f"{start_time.strftime('%-I:%M')} - {end_time.strftime('%-I:%M')}",
+        "date": date,
+        "time_range": f"{start_time} - {end_time}",
         "location": location
     }
 
@@ -466,7 +464,10 @@ def meetings():
             raymondz_meeting_members mm ON mm.meeting_id = m.id AND mm.user_id = %s
         LEFT JOIN
             raymondz_club_members cm ON cm.club_id = c.id AND cm.user_id = %s
+        WHERE
+            m.date >= DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 1 DAY)
         ORDER BY
+            m.date ASC,
             m.start_time ASC
     """, (g.user.user_id, g.user.user_id))
     meetings = cursor.fetchall()
@@ -477,6 +478,7 @@ def meetings():
     return render_template("meetings.html.j2", meetings = meetings)   
 
 # login flow is from https://realpython.com/flask-google-login/
+# Google OAuth complains if localhost doesn't have https
 @app.route("/login")
 def login():
     return redirect(client.prepare_request_uri(
