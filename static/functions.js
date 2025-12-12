@@ -186,9 +186,19 @@ async function constructEmail(club_id) {
     return url;
 }
 
-async function sendEmail(club_id, button) {
+async function emailClub(club_id, button) {
     updateTooltip("Opening Outlook...", button);
     const url = await constructEmail(club_id);
+    window.open(url);
+}
+
+async function emailMeeting(button) {
+    updateTooltip("Opening Outlook...", button);
+    clubId = button.dataset.clubId;
+    title = button.dataset.meetingTitle;
+    description = button.dataset.meetingDescription;
+    let url = await constructEmail(clubId);
+    url += "&subject=" + title + "&body=" + description;
     window.open(url);
 }
 
@@ -358,8 +368,20 @@ function insertMeetingCard(meeting) {
     meetingInfo[2].querySelector('p').textContent = meeting.location;
 
     const button = card.querySelector('button');
-    button.dataset.meetingId = meeting.id;
-    button.addEventListener('click', () => joinMeeting(meeting.id, button));
+    if (button) {
+        button.dataset.meetingId = meeting.id;
+        button.addEventListener('click', () => joinMeeting(meeting.id, button));
+    }
+
+    const emailAction = card.querySelector('[data-action="email-meeting"]');
+    emailAction.dataset.meetingId = meeting.id;
+    emailAction.dataset.meetingTitle = meeting.title;
+    emailAction.dataset.meetingDescription = meeting.description_plain;
+    emailAction.dataset.clubId = meeting.club_id;
+    emailAction.addEventListener('mouseleave', () => {
+        updateTooltip("Email Details", emailAction);
+    });
+    emailAction.addEventListener('click', () => emailMeeting(emailAction));
 
     const deleteAction = card.querySelector('[data-action="delete-meeting"]');
     if (deleteAction) {
@@ -420,7 +442,16 @@ document.addEventListener('DOMContentLoaded', () => {
             updateTooltip("Compose in Outlook", button);
         });
         button.addEventListener('click', () => {
-            sendEmail(clubId, button);
+            emailClub(clubId, button);
+        });
+    });
+
+    document.querySelectorAll('[data-action="email-meeting"]').forEach((button) => {
+        button.addEventListener('mouseleave', () => {
+            updateTooltip("Email Details", button);
+        });
+        button.addEventListener('click', () => {
+            emailMeeting(button);
         });
     });
 

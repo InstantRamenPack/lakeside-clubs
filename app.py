@@ -127,7 +127,9 @@ def club():
             meeting["members"] = json.loads(meeting["members"])
         else:
             meeting["members"] = []
-        meeting["description"] = render_markdown_safe(meeting["description"])
+        raw_description = meeting["description"]
+        meeting["description"] = render_markdown_safe(raw_description)
+        meeting["description_plain"] = render_markdown_plain(raw_description)
 
     return render_template("club.html.j2", club = club, meetings = meetings)   
 
@@ -382,8 +384,11 @@ def createMeeting():
     except (TypeError, ValueError):
         return "Invalid time values.", 400
 
-    if end_time <= start_time:
+    if end_time < start_time:
         return "Invalid time values.", 400
+
+    description_html = render_markdown_safe(description)
+    description_plain = render_markdown_plain(description)
 
     cursor.execute("""
         INSERT INTO 
@@ -397,8 +402,10 @@ def createMeeting():
 
     meeting_data = {
         "id": meeting_id,
+        "club_id": club_id,
         "title": title,
-        "description": render_markdown_safe(description),
+        "description": description_html,
+        "description_plain": description_plain,
         "date": start_time.strftime("%A, %b %-d"),
         "time_range": f"{start_time.strftime('%-I:%M')} - {end_time.strftime('%-I:%M')}",
         "location": location
@@ -528,3 +535,14 @@ def render_markdown_safe(markdown_text):
     )
     clean = bleach.linkify(clean, skip_tags = ["code", "pre"])
     return clean
+
+def render_markdown_plain(markdown_text):
+    html = render_markdown_safe(markdown_text)
+    return bleach.clean(
+        html,
+        tags = [],
+        attributes = {},
+        protocols = app.config["ALLOWED_PROTOCOLS"],
+        strip = True,
+        strip_comments = True,
+    )
