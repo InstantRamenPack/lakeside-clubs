@@ -235,13 +235,17 @@ def fetchMembers():
         return "Forbidden", 403
 
     cursor.execute("""
-        SELECT u.email
+        SELECT 
+            u.email,
+            cm.membership_type
         FROM 
             raymondz_club_members cm
         JOIN 
             raymondz_users u ON u.id = cm.user_id
         WHERE 
             cm.club_id = %s
+        ORDER BY
+            cm.membership_type DESC
     """, (club_id,))
     members = cursor.fetchall()
 

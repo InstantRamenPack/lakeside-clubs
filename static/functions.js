@@ -163,9 +163,33 @@ function fetchMembers(club_id) {
 async function copyUsers(club_id, button) {
     updateTooltip("Copying...", button);
     const members = await fetchMembers(club_id);
-    const clipboard = (members || []).map((member) => member.email).join("; ");
-    navigator.clipboard.writeText(clipboard || "");
+    navigator.clipboard.writeText((members).map((member) => member.email).join("; "));
     updateTooltip("Copied!", button);
+}
+
+async function constructEmail(club_id) {
+    const members = await fetchMembers(club_id);
+    
+    let url = "https://outlook.office.com/mail/deeplink/compose?to=";
+    let bccStart = false;
+    for (let i = 0; i < members.length; i++) {
+        if (!bccStart && members[i].membership_type == 0) {
+            bccStart = true;
+            url = url.substring(0, url.length - 1);
+            // not sure why but Outlook requires ? not &
+            url += "?bcc=";
+        }
+        url += members[i].email + ";";
+    }
+    url = url.substring(0, url.length - 1);
+
+    return url;
+}
+
+async function sendEmail(club_id, button) {
+    updateTooltip("Opening Outlook...", button);
+    const url = await constructEmail(club_id);
+    window.open(url);
 }
 
 function addLeader(club_id, member_id, button) {
@@ -355,6 +379,16 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         button.addEventListener('click', () => {
             copyUsers(clubId, button);
+        });
+    });
+
+    document.querySelectorAll('[data-action="send-email"]').forEach((button) => {
+        const clubId = button.dataset.clubId;
+        button.addEventListener('mouseleave', () => {
+            updateTooltip("Compose in Outlook", button);
+        });
+        button.addEventListener('click', () => {
+            sendEmail(clubId, button);
         });
     });
 
