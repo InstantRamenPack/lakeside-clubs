@@ -33,5 +33,5 @@ except ImportError:
 
 mysql = MySQL()
 
-def init_db(app):
+def init(app):
     mysql.init_app(app)
