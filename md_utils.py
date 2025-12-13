@@ -1,5 +1,9 @@
 import re
 
+import bleach
+import markdown
+from flask import current_app
+
 from markdown.extensions import Extension
 from markdown.inlinepatterns import SimpleTagInlineProcessor
 from markdown.preprocessors import Preprocessor
@@ -29,6 +33,34 @@ class ClubMarkdownExtension(Extension):
         md.inlinePatterns.register(
             SimpleTagInlineProcessor(r'(\~\~)(.+?)(\~\~)', 'del'), "strikethrough", 200
         )
+
+def render_markdown_safe(markdown_text):
+    html = markdown.markdown(
+        markdown_text,
+        extensions = current_app.config["MD_EXTENSIONS"],
+        output_format = "html5"
+    )
+    clean = bleach.clean(
+        html,
+        tags = current_app.config["ALLOWED_TAGS"],
+        attributes = current_app.config["ALLOWED_ATTRS"],
+        protocols = current_app.config["ALLOWED_PROTOCOLS"],
+        strip = True,
+        strip_comments = True,
+    )
+    clean = bleach.linkify(clean, skip_tags = ["code", "pre"])
+    return clean
+
+def render_markdown_plain(markdown_text):
+    html = render_markdown_safe(markdown_text)
+    return bleach.clean(
+        html,
+        tags = [],
+        attributes = {},
+        protocols = current_app.config["ALLOWED_PROTOCOLS"],
+        strip = True,
+        strip_comments = True,
+    )
 
 def makeExtension(**kwargs):
     return ClubMarkdownExtension(**kwargs)

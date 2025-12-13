@@ -31,5 +31,5 @@ MD_EXTENSIONS = [
     "extra",
     "sane_lists",
     "nl2br",
-    "md_extensions"
+    "md_utils"
 ]

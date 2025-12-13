@@ -2,11 +2,11 @@ import json, requests, re
 from datetime import datetime
 
 from flask import Flask, render_template, request, redirect, url_for, g, session
-import markdown, bleach
 from oauthlib.oauth2 import WebApplicationClient
 
 from user import User
 from db import mysql, init_db
+from md_utils import render_markdown_safe, render_markdown_plain
 
 app = Flask(__name__)
 app.config.from_pyfile('config.py')
@@ -523,28 +523,3 @@ def callback():
 def logout():
     session.clear()
     return redirect(url_for("index"))
-
-# ChatGPT generated
-def render_markdown_safe(markdown_text):
-    html = markdown.markdown(markdown_text, extensions = app.config["MD_EXTENSIONS"], output_format = "html5")
-    clean = bleach.clean(
-        html,
-        tags = app.config["ALLOWED_TAGS"],
-        attributes = app.config["ALLOWED_ATTRS"],
-        protocols = app.config["ALLOWED_PROTOCOLS"],
-        strip = True,
-        strip_comments = True,
-    )
-    clean = bleach.linkify(clean, skip_tags = ["code", "pre"])
-    return clean
-
-def render_markdown_plain(markdown_text):
-    html = render_markdown_safe(markdown_text)
-    return bleach.clean(
-        html,
-        tags = [],
-        attributes = {},
-        protocols = app.config["ALLOWED_PROTOCOLS"],
-        strip = True,
-        strip_comments = True,
-    )
