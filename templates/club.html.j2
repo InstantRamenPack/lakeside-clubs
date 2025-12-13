@@ -36,7 +36,7 @@
             {% if club.membership_type == 1 %}
                 <div id = "import-user-message"></div>
                 <textarea id = "import-user-text" placeholder = "Please paste in your club's mailing list with @lakesideschool.org included. (This can be done by copying the To: line on past emails from Outlook.)"></textarea>
-                <button id = "import-user-button" data-club-id = "{{club.id}}">Import Members</button>
+                <button id = "import-user-button" data-action = "import-users" data-club-id = "{{club.id}}">Import Members</button>
                 <div>
                     <span>Send Emails</span>
                     <span class = "material-symbol" data-action = "send-email" data-club-id = "{{club.id}}" data-tooltip = "Compose in Outlook">mail</span>
@@ -67,9 +67,9 @@
                     {% endfor %}
                 </ul>
             {% elif club.membership_type == 0 %}
-                <button class = "leave-club-button" data-club-id = "{{club.id}}">Leave Club</button>
+                <button class = "leave-club-button" data-action = "leave-club" data-club-id = "{{club.id}}">Leave Club</button>
             {% elif club.membership_type == None %}
-                <button class = "join-club-button" data-club-id = "{{club.id}}" data-authenticated = "{{g.user.authenticated}}">Join Club!</button>
+                <button class = "join-club-button" data-action = "join-club" data-club-id = "{{club.id}}" data-authenticated = "{{g.user.authenticated}}">Join Club!</button>
             {% endif %}
         </aside>
 

@@ -370,7 +370,7 @@ function insertMeetingCard(meeting) {
     const button = card.querySelector('button');
     if (button) {
         button.dataset.meetingId = meeting.id;
-        button.addEventListener('click', () => joinMeeting(meeting.id, button));
+        button.dataset.action = "join-meeting";
     }
 
     const emailAction = card.querySelector('[data-action="email-meeting"]');
@@ -381,104 +381,105 @@ function insertMeetingCard(meeting) {
     emailAction.addEventListener('mouseleave', () => {
         updateTooltip("Email Details", emailAction);
     });
-    emailAction.addEventListener('click', () => emailMeeting(emailAction));
 
     const deleteAction = card.querySelector('[data-action="delete-meeting"]');
     if (deleteAction) {
         deleteAction.dataset.meetingId = meeting.id;
-        deleteAction.addEventListener('click', () => deleteMeeting(meeting.id, deleteAction));
     }
 
     meetingsList.insertBefore(copy, template.nextSibling);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.join-club-button').forEach((button) => {
-        const clubId = button.dataset.clubId;
-        const authenticated = button.dataset.authenticated === 'True';
-        button.addEventListener('click', () => joinClub(clubId, authenticated, button));
-    });
+    document.addEventListener('click', (event) => {
+        const actionTarget = event.target.closest('[data-action]');
+        if (!actionTarget) {
+            return;
+        }
+        const action = actionTarget.dataset.action;
 
-    document.querySelectorAll('.leave-club-button').forEach((button) => {
-        const clubId = button.dataset.clubId;
-        button.addEventListener('click', () => leaveClub(clubId, button));
-    });
-
-    document.querySelectorAll('.join-meeting-button').forEach((button) => {
-        const meetingId = button.dataset.meetingId;
-        button.addEventListener('click', () => joinMeeting(meetingId, button));
-    });
-
-    document.querySelectorAll('.leave-meeting-button').forEach((button) => {
-        const meetingId = button.dataset.meetingId;
-        button.addEventListener('click', () => leaveMeeting(meetingId, button));
-    });
-
-    document.querySelectorAll('[data-action="delete-meeting"]').forEach((action) => {
-        const meetingId = action.dataset.meetingId;
-        action.addEventListener('click', () => deleteMeeting(meetingId, action));
-    });
-
-    const importUsersButton = document.getElementById('import-user-button');
-    if (importUsersButton) {
-        importUsersButton.addEventListener('click', () => {
-            importUsers(importUsersButton.dataset.clubId);
-        });
-    }
-
-    document.querySelectorAll('[data-action="copy-users"]').forEach((button) => {
-        const clubId = button.dataset.clubId;
-        button.addEventListener('mouseleave', () => {
-            updateTooltip("Copy Emails", button);
-        });
-        button.addEventListener('click', () => {
-            copyUsers(clubId, button);
-        });
-    });
-
-    document.querySelectorAll('[data-action="send-email"]').forEach((button) => {
-        const clubId = button.dataset.clubId;
-        button.addEventListener('mouseleave', () => {
-            updateTooltip("Compose in Outlook", button);
-        });
-        button.addEventListener('click', () => {
-            emailClub(clubId, button);
-        });
-    });
-
-    document.querySelectorAll('[data-action="email-meeting"]').forEach((button) => {
-        button.addEventListener('mouseleave', () => {
-            updateTooltip("Email Details", button);
-        });
-        button.addEventListener('click', () => {
-            emailMeeting(button);
-        });
-    });
-
-    document.querySelectorAll('.club-user-list').forEach((listElement) => {
-        listElement.addEventListener('click', (event) => {
-            const actionTarget = event.target.closest('[data-action]');
-            if (!actionTarget || !listElement.contains(actionTarget)) {
-                return;
+        switch (action) {
+            case "join-club": {
+                const clubId = actionTarget.dataset.clubId;
+                const authenticated = actionTarget.dataset.authenticated === 'True';
+                joinClub(clubId, authenticated, actionTarget);
+                break;
             }
-            const actionWrapper = actionTarget.closest('.membership-action');
-            if (actionWrapper && actionWrapper.classList.contains('action-hidden')) {
-                return;
+            case "leave-club": {
+                leaveClub(actionTarget.dataset.clubId, actionTarget);
+                break;
             }
-            const action = actionTarget.dataset.action;   
-            const clubId = listElement.dataset.clubId;
-            const memberId = actionTarget.dataset.memberId;
-            if (action === "add-leader") {
-                addLeader(clubId, memberId, actionTarget);
-            } else if (action === "kick-member") {
-                kickMember(clubId, memberId, actionTarget);
-            } else if (action === "demote-leader") {
-                demoteLeader(clubId, memberId, actionTarget);
-            } else if (action === "copy-email") {
+            case "join-meeting": {
+                joinMeeting(actionTarget.dataset.meetingId, actionTarget);
+                break;
+            }
+            case "leave-meeting": {
+                leaveMeeting(actionTarget.dataset.meetingId, actionTarget);
+                break;
+            }
+            case "delete-meeting": {
+                deleteMeeting(actionTarget.dataset.meetingId, actionTarget);
+                break;
+            }
+            case "import-users": {
+                importUsers(actionTarget.dataset.clubId);
+                break;
+            }
+            case "copy-users": {
+                copyUsers(actionTarget.dataset.clubId, actionTarget);
+                break;
+            }
+            case "send-email": {
+                emailClub(actionTarget.dataset.clubId, actionTarget);
+                break;
+            }
+            case "email-meeting": {
+                emailMeeting(actionTarget);
+                break;
+            }
+            case "add-leader": {
+                const listElement = actionTarget.closest('.club-user-list');
+                addLeader(listElement.dataset.clubId, actionTarget.dataset.memberId, actionTarget);
+                break;
+            }
+            case "kick-member": {
+                const listElement = actionTarget.closest('.club-user-list');
+                kickMember(listElement.dataset.clubId, actionTarget.dataset.memberId, actionTarget);
+                break;
+            }
+            case "demote-leader": {
+                const listElement = actionTarget.closest('.club-user-list');
+                demoteLeader(listElement.dataset.clubId, actionTarget.dataset.memberId, actionTarget);
+                break;
+            }
+            case "copy-email": {
                 navigator.clipboard.writeText(actionTarget.dataset.email);
-                return;
+                break;
             }
-        });
+            default:
+                break;
+        }
+    });
+
+    document.addEventListener('mouseout', (event) => {
+        const actionTarget = event.target.closest('[data-action]');
+        if (!actionTarget) {
+            return;
+        }
+
+        switch (actionTarget.dataset.action) {
+            case "copy-users":
+                updateTooltip("Copy Emails", actionTarget);
+                break;
+            case "send-email":
+                updateTooltip("Compose in Outlook", actionTarget);
+                break;
+            case "email-meeting":
+                updateTooltip("Email Details", actionTarget);
+                break;
+            default:
+                break;
+        }
     });
 
     const newMeetingForm = document.getElementById('new-meeting-card');

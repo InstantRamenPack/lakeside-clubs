@@ -41,7 +41,7 @@
                     </div>
                     <div class = "flex-space"></div>
                     {% if club.membership_type == None %}
-                        <button class = "join-club-button" data-club-id = "{{club.id}}" data-authenticated = "{{g.user.authenticated}}">Join club!</button>
+                        <button class = "join-club-button" data-action = "join-club" data-club-id = "{{club.id}}" data-authenticated = "{{g.user.authenticated}}">Join club!</button>
                     {% endif %}
                 </div>
             </div>
