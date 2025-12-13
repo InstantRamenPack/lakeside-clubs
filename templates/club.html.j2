@@ -125,7 +125,7 @@
                         <div class = "flex-space"></div>
                         {% if club.membership_type == 1 %}
                             <span class = "material-symbol" data-action = "email-meeting" data-club-id = "{{club.id}}" data-meeting-id = "" data-meeting-title = "" data-meeting-description = "" data-tooltip = "Email Details">mail</span>
-                            <span class = "material-symbol" data-action = "delete-meeting" data-meeting-id = "" data-tooltip = "Delete Meeting">delete</span>
+                            <span class = "material-symbol" data-action = "delete-meeting" data-meeting-id = "" data-club-id = "{{club.id}}" data-tooltip = "Delete Meeting">delete</span>
                         {% endif %}
                         {# <button class = "join-meeting-button" data-meeting-id = "">Join Meeting</button> #}
                     </div>
@@ -160,7 +160,7 @@
                         <div class = "flex-space"></div>
                         {% if club.membership_type == 1 %}
                             <span class = "material-symbol" data-action = "email-meeting" data-club-id = "{{club.id}}" data-meeting-id = "{{meeting.id}}" data-meeting-title = "{{meeting.title|e}}" data-meeting-description = "{{meeting.description_plain|e}}" data-tooltip = "Email Details">mail</span>
-                            <span class = "material-symbol" data-action = "delete-meeting" data-meeting-id = "{{meeting.id}}" data-tooltip = "Delete Meeting">delete</span>
+                            <span class = "material-symbol" data-action = "delete-meeting" data-meeting-id = "{{meeting.id}}" data-club-id = "{{club.id}}" data-tooltip = "Delete Meeting">delete</span>
                         {% endif %}
                         {# {% if meeting.is_member %}
                             <button class = "leave-meeting-button" data-meeting-id = "{{meeting.id}}">Leave Meeting</button>

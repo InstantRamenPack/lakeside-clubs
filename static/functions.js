@@ -301,7 +301,7 @@ function leaveMeeting(meeting_id, button) {
     xhttp.send("id=" + encodeURIComponent(meeting_id));
 }
 
-function deleteMeeting(meeting_id, button) {
+function deleteMeeting(meeting_id, club_id, button) {
     if (!confirm("Are you sure you want to delete this meeting? This action is irreversible, no I cannot resurrect your meeting.")) {
         return;
     }
@@ -319,7 +319,7 @@ function deleteMeeting(meeting_id, button) {
 	
 	xhttp.open("POST", "/deleteMeeting", true);
     xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded"); 
-    xhttp.send("id=" + encodeURIComponent(meeting_id));
+    xhttp.send("id=" + encodeURIComponent(meeting_id) + "&club_id=" + encodeURIComponent(club_id));
 }
 
 // https://developer.mozilla.org/en-US/docs/Learn_web_development/Extensions/Forms/Sending_forms_through_JavaScript
@@ -385,6 +385,7 @@ function insertMeetingCard(meeting) {
     const deleteAction = card.querySelector('[data-action="delete-meeting"]');
     if (deleteAction) {
         deleteAction.dataset.meetingId = meeting.id;
+        deleteAction.dataset.clubId = meeting.club_id;
     }
 
     meetingsList.insertBefore(copy, template.nextSibling);
@@ -418,7 +419,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 break;
             }
             case "delete-meeting": {
-                deleteMeeting(actionTarget.dataset.meetingId, actionTarget);
+                deleteMeeting(actionTarget.dataset.meetingId, actionTarget.dataset.clubId, actionTarget);
                 break;
             }
             case "import-users": {

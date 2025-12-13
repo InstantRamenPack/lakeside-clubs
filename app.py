@@ -1,5 +1,6 @@
 import json, requests, re
 from datetime import datetime
+from functools import wraps
 
 from flask import Flask, render_template, request, redirect, url_for, g, session
 from oauthlib.oauth2 import WebApplicationClient
@@ -19,6 +20,24 @@ def load_user():
     g.user = User.retrieve()
     if not g.user:
         g.user = User(authenticated = False)
+
+# https://realpython.com/primer-on-python-decorators/
+def authenticate_leadership(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        club_id = request.values.get("club_id") or request.values.get("id")
+
+        cursor = mysql.connection.cursor()
+        cursor.execute("""
+            SELECT club_id FROM raymondz_club_members
+            WHERE user_id = %s AND club_id = %s AND membership_type = 1
+        """, (g.user.user_id, club_id))
+        club = cursor.fetchone()
+        if not club:
+            return "Forbidden", 403
+
+        return func(*args, **kwargs)
+    return wrapper
 
 @app.route("/")
 def index():
@@ -167,18 +186,10 @@ def leaveClub():
     return "Success!", 200
 
 @app.route("/importUsers", methods = ["POST"])
+@authenticate_leadership
 def importUsers():
     club_id = request.values.get("id")
-
-    # authorization
     cursor = mysql.connection.cursor()
-    cursor.execute("""
-        SELECT club_id FROM raymondz_club_members 
-        WHERE user_id = %s AND club_id = %s AND membership_type = 1
-    """, (g.user.user_id, club_id))
-    club = cursor.fetchone()
-    if not club:
-        return "Forbidden", 403
 
     data = request.values.get("data") or ""
 
@@ -187,7 +198,7 @@ def importUsers():
     emails = [e.lower() for e in emails]
     emails = list(dict.fromkeys(emails)) # deduplicate
     if not emails:
-            return json.dumps(())
+        return json.dumps(())
     
     # add users in case they don't exist
     # use of placeholders in batch INSERT by ChatGPT
@@ -228,17 +239,10 @@ def importUsers():
     return json.dumps(new_members)
 
 @app.route("/fetchMembers", methods = ["POST"])
+@authenticate_leadership
 def fetchMembers():
     club_id = request.values.get("id")
-
     cursor = mysql.connection.cursor()
-    cursor.execute("""
-        SELECT club_id FROM raymondz_club_members
-        WHERE user_id = %s AND club_id = %s AND membership_type = 1
-    """, (g.user.user_id, club_id))
-    club = cursor.fetchone()
-    if not club:
-        return "Forbidden", 403
 
     cursor.execute("""
         SELECT 
@@ -258,19 +262,12 @@ def fetchMembers():
     return json.dumps(members)
 
 @app.route("/addLeader", methods = ["POST"])
+@authenticate_leadership
 def addLeader():
     club_id = request.values.get("club_id")
     user_id = request.values.get("user_id")
 
     cursor = mysql.connection.cursor()
-    cursor.execute("""
-        SELECT club_id FROM raymondz_club_members 
-        WHERE user_id = %s AND club_id = %s AND membership_type = 1
-    """, (g.user.user_id, club_id))
-    club = cursor.fetchone()
-    if not club:
-        return "Forbidden", 403
-    
     cursor.execute("""
         UPDATE 
             raymondz_club_members
@@ -283,6 +280,7 @@ def addLeader():
     return "Success!", 200    
 
 @app.route("/demoteLeader", methods = ["POST"])
+@authenticate_leadership
 def demoteLeader():
     club_id = request.values.get("club_id")
     user_id = request.values.get("user_id")
@@ -291,14 +289,6 @@ def demoteLeader():
         return "Cannot remove yourself", 400
 
     cursor = mysql.connection.cursor()
-    cursor.execute("""
-        SELECT club_id FROM raymondz_club_members 
-        WHERE user_id = %s AND club_id = %s AND membership_type = 1
-    """, (g.user.user_id, club_id))
-    club = cursor.fetchone()
-    if not club:
-        return "Forbidden", 403
-    
     cursor.execute("""
         UPDATE 
             raymondz_club_members
@@ -311,6 +301,7 @@ def demoteLeader():
     return "Success!", 200    
 
 @app.route("/kickMember", methods = ["POST"])
+@authenticate_leadership
 def kickMember():
     club_id = request.values.get("club_id")
     user_id = request.values.get("user_id")
@@ -319,14 +310,6 @@ def kickMember():
         return "Cannot remove yourself", 400
 
     cursor = mysql.connection.cursor()
-    cursor.execute("""
-        SELECT club_id FROM raymondz_club_members 
-        WHERE user_id = %s AND club_id = %s AND membership_type = 1
-    """, (g.user.user_id, club_id))
-    club = cursor.fetchone()
-    if not club:
-        return "Forbidden", 403
-    
     cursor.execute("""
         DELETE FROM 
             raymondz_club_members
@@ -362,6 +345,7 @@ def leaveMeeting():
     return "Success!", 200
 
 @app.route("/createMeeting", methods = ["POST"])
+@authenticate_leadership
 def createMeeting():
     club_id = request.values.get("club_id")
     title = request.values.get("title")
@@ -372,14 +356,6 @@ def createMeeting():
     location = request.values.get("location")
 
     cursor = mysql.connection.cursor()
-    cursor.execute("""
-        SELECT club_id FROM raymondz_club_members 
-        WHERE user_id = %s AND club_id = %s AND membership_type = 1
-    """, (g.user.user_id, club_id))
-    club = cursor.fetchone()
-    if not club:
-        return "Forbidden", 403
-
     if not title or not description or not start_time or not end_time or not date or not location:
         return "Missing required fields", 400
     if end_time < start_time:
@@ -412,6 +388,7 @@ def createMeeting():
     return json.dumps(meeting_data)
 
 @app.route("/deleteMeeting", methods = ["POST"])
+@authenticate_leadership
 def deleteMeeting():
     meeting_id = request.values.get("id")
 
@@ -422,14 +399,6 @@ def deleteMeeting():
     meeting = cursor.fetchone()
     if not meeting:
         return "Not found", 404
-
-    cursor.execute("""
-        SELECT club_id FROM raymondz_club_members 
-        WHERE user_id = %s AND club_id = %s AND membership_type = 1
-    """, (g.user.user_id, meeting["club_id"]))
-    club = cursor.fetchone()
-    if not club:
-        return "Forbidden", 403
 
     cursor.execute("""
         DELETE FROM 
