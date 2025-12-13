@@ -22,7 +22,7 @@ def load_user():
         g.user = User(authenticated = False)
 
 # https://realpython.com/primer-on-python-decorators/
-def authenticate_leadership(func):
+def leadership_required(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         club_id = request.values.get("club_id") or request.values.get("id")
@@ -186,7 +186,7 @@ def leaveClub():
     return "Success!", 200
 
 @app.route("/importUsers", methods = ["POST"])
-@authenticate_leadership
+@leadership_required
 def importUsers():
     club_id = request.values.get("id")
     cursor = mysql.connection.cursor()
@@ -239,7 +239,7 @@ def importUsers():
     return json.dumps(new_members)
 
 @app.route("/fetchMembers", methods = ["POST"])
-@authenticate_leadership
+@leadership_required
 def fetchMembers():
     club_id = request.values.get("id")
     cursor = mysql.connection.cursor()
@@ -262,7 +262,7 @@ def fetchMembers():
     return json.dumps(members)
 
 @app.route("/addLeader", methods = ["POST"])
-@authenticate_leadership
+@leadership_required
 def addLeader():
     club_id = request.values.get("club_id")
     user_id = request.values.get("user_id")
@@ -280,7 +280,7 @@ def addLeader():
     return "Success!", 200    
 
 @app.route("/demoteLeader", methods = ["POST"])
-@authenticate_leadership
+@leadership_required
 def demoteLeader():
     club_id = request.values.get("club_id")
     user_id = request.values.get("user_id")
@@ -301,7 +301,7 @@ def demoteLeader():
     return "Success!", 200    
 
 @app.route("/kickMember", methods = ["POST"])
-@authenticate_leadership
+@leadership_required
 def kickMember():
     club_id = request.values.get("club_id")
     user_id = request.values.get("user_id")
@@ -345,7 +345,7 @@ def leaveMeeting():
     return "Success!", 200
 
 @app.route("/createMeeting", methods = ["POST"])
-@authenticate_leadership
+@leadership_required
 def createMeeting():
     club_id = request.values.get("club_id")
     title = request.values.get("title")
@@ -388,7 +388,7 @@ def createMeeting():
     return json.dumps(meeting_data)
 
 @app.route("/deleteMeeting", methods = ["POST"])
-@authenticate_leadership
+@leadership_required
 def deleteMeeting():
     meeting_id = request.values.get("id")
 
