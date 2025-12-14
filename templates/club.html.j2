@@ -67,9 +67,9 @@
                     {% endfor %}
                 </ul>
             {% elif club.membership_type == 0 %}
-                <button data-action = "leave-club" data-club-id = "{{club.id}}">Leave Club</button>
+                <span class = "material-symbol" data-action = "leave-club" data-club-id = "{{club.id}}" data-authenticated = "{{g.user.authenticated}}" data-tooltip = "Leave Club">logout</span>
             {% elif club.membership_type == None %}
-                <button data-action = "join-club" data-club-id = "{{club.id}}" data-authenticated = "{{g.user.authenticated}}">Join Club!</button>
+                <span class = "material-symbol" data-action = "join-club" data-club-id = "{{club.id}}" data-authenticated = "{{g.user.authenticated}}" data-tooltip = "Join Club">login</span>
             {% endif %}
         </aside>
 

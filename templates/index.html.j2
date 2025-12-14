@@ -29,6 +29,11 @@
                 <div class = "flex-space"></div>
                 <hr>
                 <div class = "card-info">
+                    {% for tag in club.tags %}
+                        <div class = "club-tag">{{tag.name}}</div>
+                    {% endfor %}
+                </div>
+                <div class = "card-info">
                     <div class = "card-info-left">
                         <div>
                             <span class = "material-symbol">event</span>
@@ -41,7 +46,9 @@
                     </div>
                     <div class = "flex-space"></div>
                     {% if club.membership_type == None %}
-                        <button data-action = "join-club" data-club-id = "{{club.id}}" data-authenticated = "{{g.user.authenticated}}">Join club!</button>
+                        <span class = "material-symbol" data-action = "join-club" data-club-id = "{{club.id}}" data-authenticated = "{{g.user.authenticated}}" data-tooltip = "Join Club">login</span>
+                    {% elif club.membership_type == 0 %}
+                        <span class = "material-symbol" data-action = "leave-club" data-club-id = "{{club.id}}" data-authenticated = "{{g.user.authenticated}}" data-tooltip = "Leave Club">logout</span>
                     {% endif %}
                 </div>
             </div>

@@ -40,6 +40,16 @@
         'opsz' 20
 }
 
+.material-symbol[data-action = "join-club"], .material-symbol[data-action = "leave-club"] {
+    padding: 2px 2px;
+    margin: -2px -2px;
+    border-radius: 8px;
+
+    backdrop-filter: blur(12px) saturate(60%);
+    border: 2px solid rgba(var(--card-bg), 0.2);
+    background-color: rgba(var(--card-bg), 0.05);
+}
+
 html, body {
     max-width: 100%;
 }
@@ -163,6 +173,12 @@ textarea {
 
 .club-card a {
     color: rgb(var(--text));
+}
+
+.club-tag {
+    padding: 4px 4px;
+    border-radius: 8px;
+    border: 2px solid rgba(var(--card-bg), 0.2);
 }
 
 /** https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_grid_layout/Realizing_common_layouts_using_grids **/

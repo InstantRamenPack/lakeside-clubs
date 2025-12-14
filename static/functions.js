@@ -3,36 +3,22 @@ function joinClub(club_id, authenticated, button) {
         window.location.href = "/joinClub?id=" + club_id;
         return;
     }
-	button.textContent = "Joined!"; // illusion of responsiveness
-    button.disabled = true;
+    button.dataset.action = "leave-club";
+    button.textContent = "logout";
+    updateTooltip("Leave Club", button);
 	
-	const xhttp = new XMLHttpRequest();
-	xhttp.onreadystatechange = function() {
-		if (this.readyState == 4 && this.status == 200) {
-            button.textContent = "Leave Club";
-            button.disabled = false;
-            button.dataset.action = "leave-club";
-        }
-    };
-	
+	const xhttp = new XMLHttpRequest();	
 	xhttp.open("POST", "/joinClub", true);
     xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded"); 
     xhttp.send("id=" + encodeURIComponent(club_id));
 }
 
 function leaveClub(club_id, button) {
-	button.textContent = "Club left!"; // illusion of responsiveness
-    button.disabled = true;
+    button.dataset.action = "join-club";
+    button.textContent = "login";
+    updateTooltip("Join Club", button);
 	
 	const xhttp = new XMLHttpRequest();
-	xhttp.onreadystatechange = function() {
-		if (this.readyState == 4 && this.status == 200) {
-            button.textContent = "Join Club";
-            button.disabled = false;
-            button.dataset.action = "join-club";
-        }
-    };
-	
 	xhttp.open("POST", "/leaveClub", true);
     xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded"); 
     xhttp.send("id=" + encodeURIComponent(club_id));

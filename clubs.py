@@ -70,6 +70,10 @@ def club():
     club = cursor.fetchone()
     if not club:
         return "Unknown club", 404
+    if club["tags"]:
+        club["tags"] = json.loads(club["tags"])
+    else:
+        club["tags"] = []
     if club["leaders"]:
         club["leaders"] = [leader for leader in json.loads(club["leaders"]) if leader]
     else:

@@ -1,3 +1,4 @@
+import json
 from functools import wraps
 
 from flask import Flask, g, render_template, request
@@ -74,4 +75,11 @@ def index():
             c.id
     """, (g.user.user_id,))
 
-    return render_template("index.html.j2", clubs = cursor.fetchall())
+    clubs = cursor.fetchall()
+    for club in clubs:
+        if club["tags"]:
+            club["tags"] = json.loads(club["tags"])
+        else:
+            club["tags"] = []
+
+    return render_template("index.html.j2", clubs = clubs)
