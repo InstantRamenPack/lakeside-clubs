@@ -1,6 +1,7 @@
-from flask import Flask, g
+from flask import Flask, g, render_template
 
 import db
+from db import mysql
 from user import User
 
 app = Flask(__name__)
@@ -16,3 +17,25 @@ def load_user():
 import clubs
 import meetings
 import login
+
+@app.route("/")
+def index():
+    cursor = mysql.connection.cursor()
+    cursor.execute("""
+        SELECT
+            c.*, 
+            m.membership_type
+        FROM
+            raymondz_clubs c
+        LEFT JOIN
+            raymondz_club_members m
+        ON
+            m.club_id = c.id
+        AND
+            m.user_id = %s
+        ORDER BY
+            m.membership_type DESC,
+            c.id
+    """, (g.user.user_id,))
+
+    return render_template("index.html.j2", clubs = cursor.fetchall())

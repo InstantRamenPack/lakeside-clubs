@@ -25,28 +25,6 @@ def authenticate_leadership(func):
         return func(*args, **kwargs)
     return wrapper
 
-@app.route("/")
-def index():
-    cursor = mysql.connection.cursor()
-    cursor.execute("""
-        SELECT
-            c.*, 
-            m.membership_type
-        FROM
-            raymondz_clubs c
-        LEFT JOIN
-            raymondz_club_members m
-        ON
-            m.club_id = c.id
-        AND
-            m.user_id = %s
-        ORDER BY
-            m.membership_type DESC,
-            c.id
-    """, (g.user.user_id,))
-
-    return render_template("index.html.j2", clubs = cursor.fetchall())
-
 @app.route("/club")
 def club():
     club_id = request.values.get("id")
@@ -119,7 +97,7 @@ def club():
         ORDER BY
             m.date ASC,
             m.start_time ASC
-    """, (g.user.user_id, club_id))
+    """, (club_id,))
     meetings = cursor.fetchall()
     for meeting in meetings:
         raw_description = meeting["description"]
