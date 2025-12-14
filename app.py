@@ -41,10 +41,26 @@ import login
 @app.route("/")
 def index():
     cursor = mysql.connection.cursor()
+    # https://www.mysqltutorial.org/mysql-basics/mysql-subquery/
     cursor.execute("""
         SELECT
             c.*, 
-            m.membership_type
+            m.membership_type,
+            (
+                SELECT 
+                    JSON_ARRAYAGG(
+                        JSON_OBJECT(
+                            'id', t.id,
+                            'name', t.name
+                        )
+                    )
+                FROM
+                    raymondz_club_tags ct
+                LEFT JOIN
+                    raymondz_tags t ON t.id = ct.tag_id
+                WHERE
+                    ct.club_id = c.id
+            ) AS tags
         FROM
             raymondz_clubs c
         LEFT JOIN

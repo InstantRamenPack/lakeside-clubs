@@ -15,6 +15,21 @@ def club():
         SELECT
             c.*,
             MAX(CASE WHEN cm.user_id = %s THEN cm.membership_type END) AS membership_type,
+            (
+                SELECT 
+                    JSON_ARRAYAGG(
+                        JSON_OBJECT(
+                            'id', t.id,
+                            'name', t.name
+                        )
+                    )
+                FROM
+                    raymondz_club_tags ct
+                LEFT JOIN
+                    raymondz_tags t ON t.id = ct.tag_id
+                WHERE
+                    ct.club_id = c.id
+            ) AS tags,
             JSON_ARRAYAGG(
                 CASE WHEN 
                     cm.membership_type = 1 
