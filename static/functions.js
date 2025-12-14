@@ -90,7 +90,7 @@ function importUsers(club_id) {
                     }
                 });
 
-                showMemberActions(copy);
+                showActions(copy, "member");
                 template.parentNode.appendChild(copy);
             });
             attachTooltips();
@@ -118,16 +118,16 @@ function setActionVisibility(entry, actionName, visible) {
     }
 }
 
-function showLeaderActions(entry) {
-    setActionVisibility(entry, 'add-leader', false);
-    setActionVisibility(entry, 'kick-member', false);
-    setActionVisibility(entry, 'demote-leader', true);
-}
-
-function showMemberActions(entry) {
-    setActionVisibility(entry, 'add-leader', true);
-    setActionVisibility(entry, 'kick-member', true);
-    setActionVisibility(entry, 'demote-leader', false);
+function showActions(entry, type) {
+    if (type === "leader") {
+        setActionVisibility(entry, 'add-leader', false);
+        setActionVisibility(entry, 'kick-member', false);
+        setActionVisibility(entry, 'demote-leader', true);
+    } else if (type === "member") {
+        setActionVisibility(entry, 'add-leader', true);
+        setActionVisibility(entry, 'kick-member', true);
+        setActionVisibility(entry, 'demote-leader', false);
+    }
 }
 
 function fetchMembers(club_id) {
@@ -192,7 +192,7 @@ function addLeader(club_id, member_id, button) {
     const entry = button.closest('li');
     const leaderList = document.getElementById("club-leader-list");
     leaderList.appendChild(entry);
-    showLeaderActions(entry);
+    showActions(entry, "leader");
     attachTooltips();
 
 	const xhttp = new XMLHttpRequest();
@@ -205,7 +205,7 @@ function demoteLeader(club_id, member_id, button) {
     const entry = button.closest('li');
     const memberList = document.getElementById("club-member-list");
     memberList.insertBefore(entry, memberList.children[0]);
-    showMemberActions(entry);
+    showActions(entry, "member");
     attachTooltips();
 
 	const xhttp = new XMLHttpRequest();
