@@ -77,7 +77,7 @@
             {% if club.membership_type == 1 %}
                 <form class = "meeting-card" id = "new-meeting-card" data-club-id = "{{club.id}}">
                     <input type = "text" name = "title" placeholder = "Title" required>
-                    <textarea name = "description" placeholder = "Description: supports Markdown! Try *italics*, **bold**, ~~strikethrough~~, and !(image-links.com)." required></textarea>
+                    <textarea name = "description" placeholder = "Description: supports Markdown! Try *italics*, **bold**, ~~strikethrough~~, [links](url.com), and !(image-links.com)." required></textarea>
                     <hr>
                     <div class = "card-info">
                         <div>
