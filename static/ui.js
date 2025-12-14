@@ -30,36 +30,36 @@ function attachTooltips() {
         bubble.style.visibility = 'hidden';
     };
 
-    document.querySelectorAll('[data-tooltip]').forEach((el) => {
-        if (el.dataset.tooltipBound) {
+    document.querySelectorAll('[data-tooltip]').forEach((element) => {
+        if (element.dataset.tooltipBound) {
             return;
         }
-        el.dataset.tooltipBound = 'true';
+        element.dataset.tooltipBound = 'true';
 
         const show = () => {
-            const content = el.dataset.tooltip || '';
+            const content = element.dataset.tooltip || '';
             if (!content) {
                 hide();
                 return;
             }
-            const rect = el.getBoundingClientRect();
+            const rect = element.getBoundingClientRect();
             bubble.innerHTML = content;
             bubble.style.left = `${rect.left + rect.width / 2}px`;
             bubble.style.top = `${rect.top}px`;
             bubble.style.visibility = 'visible';
         };
 
-        el.addEventListener('mouseenter', show);
-        el.addEventListener('focusin', show);
-        el.addEventListener('mouseleave', hide);
-        el.addEventListener('focusout', hide);
+        element.addEventListener('mouseenter', show);
+        element.addEventListener('focusin', show);
+        element.addEventListener('mouseleave', hide);
+        element.addEventListener('focusout', hide);
     });
 }
 
-function updateTooltip(text, el) {
-    el.dataset.tooltip = text;
-    if (el.matches(':hover')) {
-        el.dispatchEvent(new Event('mouseenter'));
+function updateTooltip(text, element) {
+    element.dataset.tooltip = text;
+    if (element.matches(':hover')) {
+        element.dispatchEvent(new Event('mouseenter'));
     }
 }
 

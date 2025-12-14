@@ -107,19 +107,9 @@ def club():
     # https://stackoverflow.com/a/1855104 on selecting after today
     cursor.execute("""
         SELECT 
-            m.*,
-            JSON_ARRAYAGG(
-                CASE 
-                    WHEN u.id IS NOT NULL THEN JSON_OBJECT('id', u.id, 'name', u.name, 'email', u.email)
-                END
-            ) AS members,
-            MAX(u.id = %s) AS is_member
+            m.*
         FROM 
             raymondz_meetings m 
-        LEFT JOIN
-            raymondz_meeting_members mm ON mm.meeting_id = m.id
-        LEFT JOIN
-            raymondz_users u ON u.id = mm.user_id
         WHERE 
             m.club_id = %s
         AND
@@ -132,10 +122,6 @@ def club():
     """, (g.user.user_id, club_id))
     meetings = cursor.fetchall()
     for meeting in meetings:
-        if meeting["members"]:
-            meeting["members"] = json.loads(meeting["members"])
-        else:
-            meeting["members"] = []
         raw_description = meeting["description"]
         meeting["description"] = render_markdown_safe(raw_description)
         meeting["description_plain"] = render_markdown_plain(raw_description)

@@ -8,13 +8,11 @@ function joinClub(club_id, authenticated, button) {
 	
 	const xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function() {
-		if (this.readyState == 4) {
-            if (this.status == 200) {
-                button.textContent = "Joined!";
-            } else {
-                button.textContent = "Oops! Try again.";
-            }
-		}
+		if (this.readyState == 4 && this.status == 200) {
+            button.textContent = "Leave Club";
+            button.disabled = false;
+            button.dataset.action = "leave-club";
+        }
     };
 	
 	xhttp.open("POST", "/joinClub", true);
@@ -28,13 +26,11 @@ function leaveClub(club_id, button) {
 	
 	const xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function() {
-		if (this.readyState == 4) {
-            if (this.status == 200) {
-                button.textContent = "Club left!";
-            } else {
-                button.textContent = "Oops! Try again.";
-            }
-		}
+		if (this.readyState == 4 && this.status == 200) {
+            button.textContent = "Join Club";
+            button.disabled = false;
+            button.dataset.action = "join-club";
+        }
     };
 	
 	xhttp.open("POST", "/leaveClub", true);
@@ -59,64 +55,56 @@ function importUsers(club_id) {
 
     const xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function() {
-        if (this.readyState == 4) {
-            if (this.status == 200) {
-                const newMembers = JSON.parse(this.responseText);
-                if (newMembers.length == 0) {
-                    message.textContent = "No new users imported.";
-                } else {
-                    message.textContent = "Imported " + newMembers[0].email.slice(0, -19);
-                    if (newMembers.length == 1) {
-                        message.textContent += "."
-                    } else if (newMembers.length == 2) {
-                        message.textContent += " and " + newMembers[1].email.slice(0, -19) + ".";
-                    } else {
-                        for (let i = 1; i < newMembers.length - 1; i++) {
-                            message.textContent += ", " + newMembers[i].email.slice(0, -19);
-                        }
-                        message.textContent += ", and " + newMembers[newMembers.length - 1].email.slice(0, -19) + ".";
-                    }
-                }
-
-                const memberList = document.getElementById("club-member-list");
-                const template = memberList.getElementsByTagName("template")[0];
-                newMembers.forEach((user) => {
-                    appendMember(template, user);
-                });
-                attachTooltips();
-
-                textBox.value = "";
-                textBox.style.display = "";
-                button.disabled = false;
-                button.textContent = "Import Users";
+        if (this.readyState == 4 && this.status == 200) {
+            const newMembers = JSON.parse(this.responseText);
+            if (newMembers.length == 0) {
+                message.textContent = "No new users imported.";
             } else {
-                message.textContent = "Error, please try again.";
+                message.textContent = "Imported " + newMembers[0].email.slice(0, -19);
+                if (newMembers.length == 1) {
+                    message.textContent += "."
+                } else if (newMembers.length == 2) {
+                    message.textContent += " and " + newMembers[1].email.slice(0, -19) + ".";
+                } else {
+                    for (let i = 1; i < newMembers.length - 1; i++) {
+                        message.textContent += ", " + newMembers[i].email.slice(0, -19);
+                    }
+                    message.textContent += ", and " + newMembers[newMembers.length - 1].email.slice(0, -19) + ".";
+                }
             }
+
+            const memberList = document.getElementById("club-member-list");
+            const template = memberList.getElementsByTagName("template")[0];
+            newMembers.forEach((user) => {
+                const copy = template.content.cloneNode(true);
+                copy.querySelector(".user-name").textContent = user.email.slice(0, -19);
+                const actionButtons = copy.querySelectorAll("[data-action]");
+                actionButtons.forEach((actionButton) => {
+                    if (actionButton.dataset.action === "copy-email") {
+                        actionButton.dataset.email = user.email;
+                        const tooltipWrapper = actionButton.parentElement;
+                        if (tooltipWrapper) {
+                            tooltipWrapper.dataset.tooltip = user.email;
+                        }
+                        return;
+                    }
+                });
+
+                showMemberActions(copy);
+                template.parentNode.appendChild(copy);
+            });
+            attachTooltips();
+
+            textBox.value = "";
+            textBox.style.display = "";
+            button.disabled = false;
+            button.textContent = "Import Users";
         }
     }
 
     xhttp.open("POST", "/importUsers", true);
     xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     xhttp.send("data=" + encodeURIComponent(textBox.value) + "&id=" + encodeURIComponent(club_id));
-}
-
-function appendMember(template, user) {
-    const copy = template.content.cloneNode(true);
-    copy.querySelector(".user-name").textContent = user.email.slice(0, -19);
-    const actionButtons = copy.querySelectorAll("[data-action]");
-    actionButtons.forEach((actionButton) => {
-        if (actionButton.dataset.action === "copy-email") {
-            actionButton.dataset.email = user.email;
-            const tooltipWrapper = actionButton.parentElement;
-            if (tooltipWrapper) {
-                tooltipWrapper.dataset.tooltip = user.email;
-            }
-            return;
-        }
-    });
-
-    showMemberActions(copy);
-    template.parentNode.appendChild(copy);
 }
 
 function setActionVisibility(entry, actionName, visible) {
@@ -147,10 +135,8 @@ function fetchMembers(club_id) {
     return new Promise((resolve) => {
         const xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function() {
-            if (this.readyState === 4) {
-                if (this.status === 200) {
-                    resolve(JSON.parse(this.responseText));
-                }
+            if (this.readyState === 4 && this.status === 200) {
+                resolve(JSON.parse(this.responseText));
             }
         };
 
@@ -210,14 +196,6 @@ function addLeader(club_id, member_id, button) {
     attachTooltips();
 
 	const xhttp = new XMLHttpRequest();
-	xhttp.onreadystatechange = function() {
-		if (this.readyState == 4) {
-            if (this.status == 200) {
-                
-            }
-		}
-    };
-	
 	xhttp.open("POST", "/addLeader", true);
     xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded"); 
     xhttp.send("club_id=" + encodeURIComponent(club_id) + "&user_id=" + encodeURIComponent(member_id));
@@ -231,14 +209,6 @@ function demoteLeader(club_id, member_id, button) {
     attachTooltips();
 
 	const xhttp = new XMLHttpRequest();
-	xhttp.onreadystatechange = function() {
-		if (this.readyState == 4) {
-            if (this.status == 200) {
-                
-            }
-		}
-    };
-	
 	xhttp.open("POST", "/demoteLeader", true);
     xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded"); 
     xhttp.send("club_id=" + encodeURIComponent(club_id) + "&user_id=" + encodeURIComponent(member_id));
@@ -248,57 +218,9 @@ function kickMember(club_id, member_id, button) {
     button.parentElement.remove()
     
 	const xhttp = new XMLHttpRequest();
-	xhttp.onreadystatechange = function() {
-		if (this.readyState == 4) {
-            if (this.status == 200) {
-                
-            }
-		}
-    };
-	
 	xhttp.open("POST", "/kickMember", true);
     xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded"); 
     xhttp.send("club_id=" + encodeURIComponent(club_id) + "&user_id=" + encodeURIComponent(member_id));
-}
-
-function joinMeeting(meeting_id, button) {
-	button.textContent = "Joined!"; // illusion of responsiveness
-    button.disabled = true;
-	
-	const xhttp = new XMLHttpRequest();
-	xhttp.onreadystatechange = function() {
-		if (this.readyState == 4) {
-            if (this.status == 200) {
-                button.textContent = "Joined!";
-            } else {
-                button.textContent = "Oops! Try again.";
-            }
-		}
-    };
-	
-	xhttp.open("POST", "/joinMeeting", true);
-    xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded"); 
-    xhttp.send("id=" + encodeURIComponent(meeting_id));
-}
-
-function leaveMeeting(meeting_id, button) {
-	button.textContent = "Meeting left!"; // illusion of responsiveness
-    button.disabled = true;
-	
-	const xhttp = new XMLHttpRequest();
-	xhttp.onreadystatechange = function() {
-		if (this.readyState == 4) {
-            if (this.status == 200) {
-                button.textContent = "Meeting left!";
-            } else {
-                button.textContent = "Oops! Try again.";
-            }
-		}
-    };
-	
-	xhttp.open("POST", "/leaveMeeting", true);
-    xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded"); 
-    xhttp.send("id=" + encodeURIComponent(meeting_id));
 }
 
 function deleteMeeting(meeting_id, club_id, button) {
@@ -309,14 +231,6 @@ function deleteMeeting(meeting_id, club_id, button) {
     button.closest('.meeting-card').remove();
 
 	const xhttp = new XMLHttpRequest();
-	xhttp.onreadystatechange = function() {
-		if (this.readyState == 4) {
-            if (this.status == 200) {
-
-            }
-		}
-    };
-	
 	xhttp.open("POST", "/deleteMeeting", true);
     xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded"); 
     xhttp.send("id=" + encodeURIComponent(meeting_id) + "&club_id=" + encodeURIComponent(club_id));
@@ -338,9 +252,34 @@ function createMeeting(form) {
             submitButton.value = "Create Meeting";
             submitButton.disabled = false;
             if (this.status == 200) {
-                const meeting = JSON.parse(this.responseText);
-                insertMeetingCard(meeting);
                 form.reset();
+
+                const meeting = JSON.parse(this.responseText);
+                const meetingsList = document.getElementById('club-meetings-list');
+                const template = meetingsList.querySelector('template');
+
+                const copy = template.content.cloneNode(true);
+                const card = copy.querySelector('.meeting-card');
+
+                card.querySelector('h2').textContent = meeting.title;
+                card.querySelector('.meeting-description').innerHTML = meeting.description;
+
+                const meetingInfo = card.querySelectorAll('.card-info > div');
+                meetingInfo[0].querySelector('p').textContent = meeting.date;
+                meetingInfo[1].querySelector('p').textContent = meeting.time_range;
+                meetingInfo[2].querySelector('p').textContent = meeting.location;
+
+                const emailAction = card.querySelector('[data-action="email-meeting"]');
+                emailAction.dataset.meetingId = meeting.id;
+                emailAction.dataset.meetingTitle = meeting.title;
+                emailAction.dataset.meetingDescription = meeting.description_plain;
+                emailAction.dataset.clubId = meeting.club_id;
+
+                const deleteAction = card.querySelector('[data-action="delete-meeting"]');
+                deleteAction.dataset.meetingId = meeting.id;
+                deleteAction.dataset.clubId = meeting.club_id;
+
+                meetingsList.insertBefore(copy, template.nextSibling);
             } else {
                 submitButton.value = "Oops! Try again.";
             }
@@ -352,46 +291,8 @@ function createMeeting(form) {
     xhttp.send(payload.toString());
 }
 
-function insertMeetingCard(meeting) {
-    const meetingsList = document.getElementById('club-meetings-list');
-    const template = meetingsList.querySelector('template');
-
-    const copy = template.content.cloneNode(true);
-    const card = copy.querySelector('.meeting-card');
-
-    card.querySelector('h2').textContent = meeting.title;
-    card.querySelector('.meeting-description').innerHTML = meeting.description;
-
-    const meetingInfo = card.querySelectorAll('.card-info > div');
-    meetingInfo[0].querySelector('p').textContent = meeting.date;
-    meetingInfo[1].querySelector('p').textContent = meeting.time_range;
-    meetingInfo[2].querySelector('p').textContent = meeting.location;
-
-    const button = card.querySelector('button');
-    if (button) {
-        button.dataset.meetingId = meeting.id;
-        button.dataset.action = "join-meeting";
-    }
-
-    const emailAction = card.querySelector('[data-action="email-meeting"]');
-    emailAction.dataset.meetingId = meeting.id;
-    emailAction.dataset.meetingTitle = meeting.title;
-    emailAction.dataset.meetingDescription = meeting.description_plain;
-    emailAction.dataset.clubId = meeting.club_id;
-    emailAction.addEventListener('mouseleave', () => {
-        updateTooltip("Email Details", emailAction);
-    });
-
-    const deleteAction = card.querySelector('[data-action="delete-meeting"]');
-    if (deleteAction) {
-        deleteAction.dataset.meetingId = meeting.id;
-        deleteAction.dataset.clubId = meeting.club_id;
-    }
-
-    meetingsList.insertBefore(copy, template.nextSibling);
-}
-
 document.addEventListener('DOMContentLoaded', () => {
+    // https://developer.mozilla.org/en-US/docs/Web/API/Element/click_event
     document.addEventListener('click', (event) => {
         const actionTarget = event.target.closest('[data-action]');
         if (!actionTarget) {
@@ -408,14 +309,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             case "leave-club": {
                 leaveClub(actionTarget.dataset.clubId, actionTarget);
-                break;
-            }
-            case "join-meeting": {
-                joinMeeting(actionTarget.dataset.meetingId, actionTarget);
-                break;
-            }
-            case "leave-meeting": {
-                leaveMeeting(actionTarget.dataset.meetingId, actionTarget);
                 break;
             }
             case "delete-meeting": {
