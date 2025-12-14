@@ -13,6 +13,22 @@
         <aside id = "club-sidebar">
             <p>{{club.description}}</p>
             <hr>
+            <div class = "card-info">
+                {% for tag in club.tags %}
+                    <div class = "club-tag">{{tag.name}}</div>
+                {% endfor %}
+            </div>
+            <div class = "card-info">
+                <div>
+                    <span class = "material-symbol">event</span>
+                    <p>{{club.time}}</p>
+                </div>
+                <div>
+                    <span class = "material-symbol">location_on</span>
+                    <p>{{club.location}}</p>
+                </div>
+            </div>
+            <hr>
             <h2>Leaders</h2>
             <ul id = "club-leader-list" class = "club-user-list" data-club-id = "{{club.id}}" data-authenticated = "{{g.user.authenticated}}" data-current-user-id = "{{g.user.user_id}}">
                 {% for leader in club.leaders %}
