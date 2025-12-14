@@ -3,27 +3,9 @@ from functools import wraps
 
 from flask import g, redirect, render_template, request, session, url_for
 
-from app import app
+from app import app, authenticate_leadership
 from db import mysql
 from md_utils import render_markdown_plain, render_markdown_safe
-
-# https://realpython.com/primer-on-python-decorators/
-def authenticate_leadership(func):
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        club_id = request.values.get("club_id") or request.values.get("id")
-
-        cursor = mysql.connection.cursor()
-        cursor.execute("""
-            SELECT club_id FROM raymondz_club_members
-            WHERE user_id = %s AND club_id = %s AND membership_type = 1
-        """, (g.user.user_id, club_id))
-        club = cursor.fetchone()
-        if not club:
-            return "Forbidden", 403
-
-        return func(*args, **kwargs)
-    return wrapper
 
 @app.route("/club")
 def club():

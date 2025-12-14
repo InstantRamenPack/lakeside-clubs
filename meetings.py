@@ -2,8 +2,7 @@ import json
 
 from flask import g, redirect, render_template, request, session, url_for
 
-from app import app
-from clubs import authenticate_leadership
+from app import app, authenticate_leadership
 from db import mysql
 from md_utils import render_markdown_plain, render_markdown_safe
 
