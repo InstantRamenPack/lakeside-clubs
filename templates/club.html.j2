@@ -16,7 +16,7 @@
             <h2>Leaders</h2>
             <ul id = "club-leader-list" class = "club-user-list" data-club-id = "{{club.id}}" data-authenticated = "{{g.user.authenticated}}" data-current-user-id = "{{g.user.user_id}}">
                 {% for leader in club.leaders %}
-                    <li class = "membership-entry">
+                    <li>
                         <div class = "user-name">{{macros.display_name(leader)}}</div>
                         <div class = "flex-space"></div>
                         {% if club.membership_type == 1 %}
@@ -46,7 +46,7 @@
                 <h2>Members</h2>
                 <ul id = "club-member-list" class = "club-user-list" data-club-id = "{{club.id}}" data-authenticated = "{{g.user.authenticated}}" data-current-user-id = "{{g.user.user_id}}">
                     <template>
-                        <li class = "membership-entry">
+                        <li>
                             <div class = "user-name"></div>
                             <div class = "flex-space"></div>
                             <span class = "membership-action action-hidden material-symbol" data-action = "demote-leader" data-tooltip = "Demote Leader">remove_moderator</span>
@@ -56,7 +56,7 @@
                         </li>
                     </template>
                     {% for member in club.members %}
-                        <li class = "membership-entry">
+                        <li>
                             <div class = "user-name">{{macros.display_name(member)}}</div>
                             <div class = "flex-space"></div>
                             <span class = "membership-action action-hidden material-symbol" data-action = "demote-leader" data-member-id = "{{member.id}}" data-tooltip = "Demote Leader">remove_moderator</span>
@@ -67,9 +67,9 @@
                     {% endfor %}
                 </ul>
             {% elif club.membership_type == 0 %}
-                <button class = "leave-club-button" data-action = "leave-club" data-club-id = "{{club.id}}">Leave Club</button>
+                <button data-action = "leave-club" data-club-id = "{{club.id}}">Leave Club</button>
             {% elif club.membership_type == None %}
-                <button class = "join-club-button" data-action = "join-club" data-club-id = "{{club.id}}" data-authenticated = "{{g.user.authenticated}}">Join Club!</button>
+                <button data-action = "join-club" data-club-id = "{{club.id}}" data-authenticated = "{{g.user.authenticated}}">Join Club!</button>
             {% endif %}
         </aside>
 

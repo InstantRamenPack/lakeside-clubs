@@ -205,11 +205,6 @@ textarea {
     background-color: rgba(var(--card-bg), 0.05);
 }
 
-.join-club-button {
-    align-self: flex-end;
-    margin-top: auto;
-}
-
 #import-user-message {
     display: none;
 }
