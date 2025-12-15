@@ -269,3 +269,52 @@ def demoteLeader():
     """, (user_id, club_id))
     mysql.connection.commit()
     return "Success!", 200
+
+@app.route("/createTag", methods = ["POST"])
+@authenticate_leadership
+def createTag():
+    club_id = request.values.get("club_id")
+    tag_name = (request.values.get("tag_name") or "").strip().lower()[:16]
+
+    if not tag_name:
+        return "Missing tag name", 400
+
+    cursor = mysql.connection.cursor()
+    cursor.execute("""
+        INSERT INTO 
+            raymondz_tags
+            (name)
+        VALUES
+            (%s)
+        ON DUPLICATE KEY UPDATE
+            id = LAST_INSERT_ID(id)
+    """, (tag_name,))
+    mysql.connection.commit()
+    tag_id = cursor.lastrowid
+
+    cursor.execute("""
+        INSERT IGNORE INTO 
+            raymondz_club_tags
+            (club_id, tag_id)
+        VALUES
+            (%s, %s)
+    """, (club_id, tag_id))
+    mysql.connection.commit()
+
+    return json.dumps({"id": tag_id, "name": tag_name})
+
+@app.route("/deleteTag", methods = ["POST"])
+@authenticate_leadership
+def deleteTag():
+    club_id = request.values.get("club_id")
+    tag_id = request.values.get("tag_id")
+
+    cursor = mysql.connection.cursor()
+    cursor.execute("""
+        DELETE FROM 
+            raymondz_club_tags
+        WHERE
+            club_id = %s AND tag_id = %s
+    """, (club_id, tag_id))
+    mysql.connection.commit()
+    return "Success!", 200

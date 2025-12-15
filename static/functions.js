@@ -277,6 +277,69 @@ function createMeeting(form) {
     xhttp.send(payload.toString());
 }
 
+function startCreateTag(control) {
+    const addButton = control.querySelector('[data-action="start-create-tag"]');
+    const input = control.querySelector('input[name="new-tag"]');
+    const saveButton = control.querySelector('[data-action="create-tag"]');
+
+    addButton.style.display = "none";
+    input.style.display = "inline-block";
+    saveButton.style.display = "inline";
+    input.focus();
+}
+
+function createTag(control) {
+    const addButton = control.querySelector('[data-action="start-create-tag"]');
+    const input = control.querySelector('input[name="new-tag"]');
+    const tagName = input.value.trim();
+    const clubId = control.dataset.clubId;
+
+    const saveButton = control.querySelector('[data-action="create-tag"]');
+    saveButton.textContent = "progress_activity";
+    saveButton.style.display = "inline";
+    saveButton.classList.add("spin");
+
+    const xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if (this.readyState === 4 && this.status === 200) {
+            saveButton.classList.remove("spin");
+
+            const tag = JSON.parse(this.responseText);
+            const template = document.getElementById("club-tag-template");
+
+            const copy = template.content.cloneNode(true);
+            copy.querySelector(".club-tag").dataset.tagId = tag.id;
+            copy.querySelector(".tag-name").textContent = tag.name;
+            const deleteAction = copy.querySelector('[data-action="delete-tag"]');
+            deleteAction.dataset.tagId = tag.id;
+            deleteAction.dataset.clubId = clubId;
+
+            const insertionPoint = document.querySelector(".create-tag-control");
+            document.getElementById("club-tags").insertBefore(copy, insertionPoint);
+            attachTooltips();
+
+            addButton.style.display = "";
+            input.value = "";
+            input.style.display = "none";
+            saveButton.textContent = "check";
+            saveButton.style.display = "none";
+        }
+    };
+
+    xhttp.open("POST", "/createTag", true);
+    xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    xhttp.send("club_id=" + encodeURIComponent(clubId) + "&tag_name=" + encodeURIComponent(tagName));
+}
+
+function deleteTag(tagId, clubId, button) {
+    button.closest(".club-tag").remove();
+
+    const xhttp = new XMLHttpRequest();
+    xhttp.open("POST", "/deleteTag", true);
+    xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    xhttp.send("club_id=" + encodeURIComponent(clubId) + "&tag_id=" + encodeURIComponent(tagId));
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     // https://developer.mozilla.org/en-US/docs/Web/API/Element/click_event
     document.addEventListener('click', (event) => {
@@ -334,6 +397,22 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             case "copy-email": {
                 navigator.clipboard.writeText(actionTarget.dataset.email);
+                break;
+            }
+            case "delete-tag": {
+                const tagElement = actionTarget.closest('.club-tag');
+                const tagsContainer = actionTarget.closest('#club-tags');
+                deleteTag(tagElement.dataset.tagId, tagsContainer.dataset.clubId, actionTarget);
+                break;
+            }
+            case "start-create-tag": {
+                const control = actionTarget.closest('.create-tag-control');
+                startCreateTag(control);
+                break;
+            }
+            case "create-tag": {
+                const control = actionTarget.closest('.create-tag-control');
+                createTag(control);
                 break;
             }
             default:

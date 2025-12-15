@@ -13,10 +13,30 @@
         <aside id = "club-sidebar">
             <p>{{club.description}}</p>
             <hr>
-            <div class = "card-info">
+            <div id = "club-tags" data-club-id = "{{club.id}}">
+                <template id = "club-tag-template">
+                    <div class = "club-tag" data-tag-id = "">
+                        <span class = "tag-name"></span>
+                        {% if club.membership_type == 1 %}
+                            <span class = "material-symbol" data-action = "delete-tag" data-tooltip = "Remove tag">close</span>
+                        {% endif %}
+                    </div>
+                </template>
                 {% for tag in club.tags %}
-                    <div class = "club-tag">{{tag.name}}</div>
+                    <div class = "club-tag" data-tag-id = "{{tag.id}}">
+                        <span class = "tag-name">{{tag.name}}</span>
+                        {% if club.membership_type == 1 %}
+                            <span class = "material-symbol" data-action = "delete-tag" data-tag-id = "{{tag.id}}" data-tooltip = "Remove tag">close</span>
+                        {% endif %}
+                    </div>
                 {% endfor %}
+                {% if club.membership_type == 1 %}
+                    <div class = "club-tag create-tag-control" data-club-id = "{{club.id}}">
+                        <span class = "material-symbol" data-action = "start-create-tag" data-tooltip = "Add Tag">add</span>
+                        <input type = "text" name = "new-tag" placeholder = "New Tag" maxlength = "16" style = "display: none;">
+                        <span class = "material-symbol" data-action = "create-tag" data-tooltip = "Save Tag" style = "display: none;">check</span>
+                    </div>
+                {% endif %}
             </div>
             <div class = "card-info">
                 <div>
