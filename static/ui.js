@@ -8,6 +8,8 @@ function autoGrow(textarea) {
 // ChatGPT generated
 let tooltipLayer;
 let tooltipBubble;
+let tooltipObserver;
+let currentTooltipTarget;
 
 function createTooltipLayer() {
     if (tooltipBubble) {
@@ -28,7 +30,27 @@ function attachTooltips() {
 
     const hide = () => {
         bubble.style.visibility = 'hidden';
+        currentTooltipTarget = null;
     };
+
+    if (!tooltipObserver) {
+        tooltipObserver = new MutationObserver((mutations) => {
+            if (!currentTooltipTarget) {
+                return;
+            }
+            mutations.forEach((mutation) => {
+                mutation.removedNodes.forEach((node) => {
+                    if (node.nodeType !== Node.ELEMENT_NODE) {
+                        return;
+                    }
+                    if (node === currentTooltipTarget || node.contains(currentTooltipTarget)) {
+                        hide();
+                    }
+                });
+            });
+        });
+        tooltipObserver.observe(document.body, { childList: true, subtree: true });
+    }
 
     document.querySelectorAll('[data-tooltip]').forEach((element) => {
         if (element.dataset.tooltipBound) {
@@ -43,6 +65,7 @@ function attachTooltips() {
                 return;
             }
             const rect = element.getBoundingClientRect();
+            currentTooltipTarget = element;
             bubble.innerHTML = content;
             bubble.style.left = `${rect.left + rect.width / 2}px`;
             bubble.style.top = `${rect.top}px`;
@@ -53,6 +76,7 @@ function attachTooltips() {
         element.addEventListener('focusin', show);
         element.addEventListener('mouseleave', hide);
         element.addEventListener('focusout', hide);
+        element.addEventListener('click', hide);
     });
 }
 
