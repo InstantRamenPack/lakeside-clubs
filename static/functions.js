@@ -100,7 +100,7 @@ function setActionVisibility(entry, actionName, visible) {
     }
     const wrapper = action.closest('.membership-action');
     if (wrapper) {
-        wrapper.classList.toggle('action-hidden', !visible);
+        wrapper.style.display = visible ? "" : "none";
     }
 }
 

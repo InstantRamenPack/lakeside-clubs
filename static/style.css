@@ -291,10 +291,6 @@ textarea {
     visibility: hidden;
 }
 
-.club-user-list li .membership-action.action-hidden {
-    display: none;
-}
-
 .club-user-list li:hover .membership-action {
     visibility: visible;
 }
