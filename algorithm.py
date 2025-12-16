@@ -16,7 +16,7 @@ def recommend_club_ids(user_id, user_weight_factor = 2 / 3, tag_weight_factor = 
 
     cursor = mysql.connection.cursor()
 
-    # collect members and tags per club using JSON aggregation to avoid duplicates
+    # collect members and tags per club
     cursor.execute("""
         SELECT 
             c.id AS club_id,

@@ -7,7 +7,7 @@
 
 @media (prefers-color-scheme: dark) { 
     :root {
-        --bg: 28, 33, 54;
+        --bg: 14, 16, 27;
         --text: 255, 255, 255;
         --accent: 67, 35, 42;
         --card-bg: 255, 255, 255;
