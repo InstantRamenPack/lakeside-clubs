@@ -14,6 +14,36 @@
     }
 }
 
+html, body {
+    max-width: 100%;
+}
+
+body {
+    font-family: Helvetica;
+    margin: 0;
+    background-color: rgb(var(--bg));
+    color: rgb(var(--text));
+}
+
+h1, h2, h3, p, ol, ul {
+    margin: 0;
+    width: 100%;
+}
+
+img {
+    display: block;
+}
+
+hr {
+    width: 100%;
+}
+
+textarea {
+    overflow-y: hidden;
+    resize: none;
+    word-wrap: break-word;
+}
+
 .material-symbol {
     font-family: 'Material Symbols Outlined';
     font-style: normal;
@@ -49,46 +79,6 @@
 @keyframes spin {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
-}
-
-.material-symbol[data-action = "join-club"], .material-symbol[data-action = "leave-club"] {
-    padding: 2px 2px;
-    margin: -2px -2px;
-    border-radius: 8px;
-
-    backdrop-filter: blur(12px) saturate(60%);
-    border: 2px solid rgba(var(--card-bg), 0.2);
-    background-color: rgba(var(--card-bg), 0.05);
-}
-
-html, body {
-    max-width: 100%;
-}
-
-body {
-    font-family: Helvetica;
-    margin: 0;
-    background-color: rgb(var(--bg));
-    color: rgb(var(--text));
-}
-
-h1, h2, h3, p, ol, ul {
-    margin: 0;
-    width: 100%;
-}
-
-img {
-    display: block;
-}
-
-hr {
-    width: 100%;
-}
-
-textarea {
-    overflow-y: hidden;
-    resize: none;
-    word-wrap: break-word;
 }
 
 .tooltip-layer {
@@ -184,6 +174,16 @@ textarea {
 
 .club-card a {
     color: rgb(var(--text));
+}
+
+.material-symbol[data-action = "join-club"], .material-symbol[data-action = "leave-club"] {
+    padding: 2px 2px;
+    margin: -2px -2px;
+    border-radius: 8px;
+
+    backdrop-filter: blur(12px) saturate(60%);
+    border: 2px solid rgba(var(--card-bg), 0.2);
+    background-color: rgba(var(--card-bg), 0.05);
 }
 
 #club-tags {
