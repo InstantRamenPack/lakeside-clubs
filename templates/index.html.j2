@@ -8,50 +8,30 @@
     <div id = "clubs-list-container">
         <h1 id = "clubs-list-title">Lakeside Clubs</h1>
 
-        {% set ns = namespace(last_membership_type = None) %}
-        {% for club in clubs %}
-            {% if ns.last_membership_type != club.membership_type %}
-                {% if club.membership_type == 1 %}
-                    <h2 class = "clubs-list-header">Clubs You Lead</h2>
-                {% elif club.membership_type == 0 %}
-                    <h2 class = "clubs-list-header">Clubs You've Joined</h2>
-                {% else %}
-                    <h2 class = "clubs-list-header">Other Clubs</h2>
-                {% endif %}
-            {% endif %}
-            {% set ns.last_membership_type = club.membership_type %}
+        {% if lead_order %}
+            <h2 class = "clubs-list-header">Clubs You Lead</h2>
+            {% for club_id in lead_order %}
+                {% set club = clubs[club_id] %}
+                {{ macros.render_club_card(club) }}
+            {% endfor %}
+        {% endif %}
 
-            <div class = "club-card">
-                <a href = "club?id={{club.id}}">
-                    <h2>{{club.name}}</h2>
-                </a>
-                <p>{{club.description}}</p>
-                <div class = "flex-space"></div>
-                <hr>
-                <div class = "club-tags">
-                    {% for tag in club.tags %}
-                        <div class = "club-tag">{{tag.name}}</div>
-                    {% endfor %}
-                </div>
-                <div class = "card-info">
-                    <div class = "card-info-left">
-                        <div>
-                            <span class = "material-symbol">event</span>
-                            <p>{{club.time}}</p>
-                        </div>
-                        <div>
-                            <span class = "material-symbol">location_on</span>
-                            <p>{{club.location}}</p>
-                        </div>
-                    </div>
-                    <div class = "flex-space"></div>
-                    {% if club.membership_type == None %}
-                        <span class = "material-symbol" data-action = "join-club" data-club-id = "{{club.id}}" data-authenticated = "{{g.user.authenticated}}" data-tooltip = "Join Club">login</span>
-                    {% elif club.membership_type == 0 %}
-                        <span class = "material-symbol" data-action = "leave-club" data-club-id = "{{club.id}}" data-authenticated = "{{g.user.authenticated}}" data-tooltip = "Leave Club">logout</span>
-                    {% endif %}
-                </div>
-            </div>
-        {% endfor %}
+        {% if joined_order %}
+            <h2 class = "clubs-list-header">Clubs You've Joined</h2>
+            {% for club_id in joined_order %}
+                {% set club = clubs[club_id] %}
+                {{ macros.render_club_card(club) }}
+            {% endfor %}
+        {% endif %}
+
+        {% if other_order %}
+            {% if g.user.authenticated %}
+                <h2 class = "clubs-list-header">Other Clubs</h2>
+            {% endif %}
+            {% for club_id in other_order %}
+                {% set club = clubs[club_id] %}
+                {{ macros.render_club_card(club) }}
+            {% endfor %}
+        {% endif %}
     </div>
 {% endblock %}
