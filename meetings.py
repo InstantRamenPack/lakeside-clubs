@@ -18,7 +18,6 @@ def meetings():
             m.*,
             c.name AS club_name,
             CASE
-                WHEN mm.user_id IS NOT NULL THEN 2
                 WHEN cm.user_id IS NOT NULL THEN 1
                 ELSE 0
             END AS member_status
@@ -27,15 +26,13 @@ def meetings():
         JOIN
             raymondz_clubs c ON c.id = m.club_id
         LEFT JOIN
-            raymondz_meeting_members mm ON mm.meeting_id = m.id AND mm.user_id = %s
-        LEFT JOIN
             raymondz_club_members cm ON cm.club_id = c.id AND cm.user_id = %s
         WHERE
             m.date >= DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 1 DAY)
         ORDER BY
             m.date ASC,
             m.start_time ASC
-    """, (g.user.user_id, g.user.user_id))
+    """, (g.user.user_id,))
     meetings = cursor.fetchall()
 
     for meeting in meetings:
