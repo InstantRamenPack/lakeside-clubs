@@ -22,6 +22,11 @@ def load_user():
 def authenticate_leadership(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
+        if not g.user.authenticated:
+            return "Forbidden", 403
+        if g.user.is_admin:
+            return func(*args, **kwargs)
+
         club_id = request.values.get("club_id") or request.values.get("id")
 
         cursor = mysql.connection.cursor()

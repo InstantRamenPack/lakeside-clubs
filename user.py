@@ -2,7 +2,7 @@ from flask import session
 from db import mysql
 
 class User:
-    def __init__(self, user_id = None, google_id = None, first_name = None, last_name = None, name = None, email = None, picture = None, authenticated = True):
+    def __init__(self, user_id = None, google_id = None, first_name = None, last_name = None, name = None, email = None, picture = None, authenticated = True, is_admin = False):
         self.user_id = user_id
         self.google_id = google_id
         self.first_name = first_name
@@ -11,6 +11,7 @@ class User:
         self.email = email
         self.picture = picture
         self.authenticated = authenticated
+        self.is_admin = bool(is_admin)
     
     @staticmethod
     def get(user_id):
@@ -26,7 +27,8 @@ class User:
                 last_name = user_data['last_name'],
                 name = user_data['name'],
                 email = user_data['email'],
-                picture = user_data['picture']
+                picture = user_data['picture'],
+                is_admin = user_data['is_admin']
             )
         else:
             return None
@@ -41,7 +43,8 @@ class User:
                 last_name = session["raymondz_user"].get("last_name"),
                 name = session["raymondz_user"].get("name"),
                 email = session["raymondz_user"].get("email"),
-                picture = session["raymondz_user"].get("picture")
+                picture = session["raymondz_user"].get("picture"),
+                is_admin = session["raymondz_user"].get("is_admin", False)
             )  
         else:
             return None 
@@ -68,6 +71,11 @@ class User:
         mysql.connection.commit()
         self.user_id = cursor.lastrowid
 
+        cursor.execute("""
+            SELECT is_admin FROM raymondz_users WHERE id = %s
+        """, (self.user_id,)) 
+        self.is_admin = bool(cursor.fetchone().get("is_admin"))
+
         session["raymondz_user"] = {
             "user_id": self.user_id,
             "google_id": self.google_id,
@@ -75,5 +83,6 @@ class User:
             "last_name": self.last_name,
             "name": self.name,
             "email": self.email,
-            "picture": self.picture
+            "picture": self.picture,
+            "is_admin": self.is_admin
         }
