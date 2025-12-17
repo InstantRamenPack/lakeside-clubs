@@ -2,7 +2,7 @@ import json
 
 from db import mysql
 
-def recommend_club_ids(user_id, user_weight_factor = 2 / 3, tag_weight_factor = 1 / 3, limit = None):
+def recommend_club_ids(user_id, user_weight_factor = 4, tag_weight_factor = 1, limit = None):
     """
     Rank clubs by relevancy.
 
@@ -10,7 +10,7 @@ def recommend_club_ids(user_id, user_weight_factor = 2 / 3, tag_weight_factor = 
     - Let user_weight w(U') be sum of 1/|C| for clubs C that U' and U share
     - Let club_user_weight of club C be sum w(U') for U' in C, divided by |C|
     - Similarly calculate club_tag_weight
-    - Final weight is 2/3 * club_user_weight + 1/3 * club_tag_weight
+    - Final weight is scaled on club_user_weight and club_tag_weight
     - Sort by weight, then club size, then id
     """
 
