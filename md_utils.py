@@ -2,7 +2,11 @@ import re
 
 import bleach
 import markdown
-from flask import current_app as app
+
+try:
+    from app import app
+except ImportError:
+    from public.RaymondZ.finalproject.app import app  # type: ignore
 
 from markdown.extensions import Extension
 from markdown.inlinepatterns import SimpleTagInlineProcessor
