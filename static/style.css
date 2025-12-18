@@ -3,6 +3,8 @@
     --text: 0, 0, 0;
     --accent: 235, 199, 105;
     --card-bg: 0, 0, 0;
+    --link: 0, 0, 238;
+    --link-visited: 85, 26, 139;
 }
 
 @media (prefers-color-scheme: dark) { 
@@ -11,6 +13,8 @@
         --text: 255, 255, 255;
         --accent: 67, 35, 42;
         --card-bg: 255, 255, 255;
+        --link: 173, 216, 230;
+        --link-visited: 255, 105, 180;
     }
 }
 
@@ -36,6 +40,26 @@ img {
 
 hr {
     width: 100%;
+}
+
+a:has(h1, h2, h3) {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+}
+
+a:link {
+    color: rgb(var(--link));
+    text-decoration-color: rgb(var(--link));
+}
+
+a:visited {
+    color: rgb(var(--link-visited));
+    text-decoration-color: rgb(var(--link-visited));
+}
+
+a:has(h1, h2, h3):visited {
+    color: rgb(var(--link));    
+    text-decoration-color: rgb(var(--link));
 }
 
 textarea {
@@ -170,10 +194,6 @@ textarea {
     backdrop-filter: blur(12px) saturate(60%);
     border: 1px solid rgba(var(--card-bg), 0.2);
     background-color: rgba(var(--card-bg), 0.05);
-}
-
-.club-card a {
-    color: rgb(var(--text));
 }
 
 .material-symbol[data-action = "join-club"], .material-symbol[data-action = "leave-club"] {

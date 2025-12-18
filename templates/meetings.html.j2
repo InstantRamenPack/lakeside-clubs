@@ -9,7 +9,9 @@
         <h1>Upcoming Club Meetings</h1>
         {% for meeting in meetings %}
             <div class = "meeting-card" data-status = "{{meeting.member_status}}">
-                <h2>{{meeting.club_name}}</h2>
+                <a href = "club?id={{meeting.club_id}}">
+                    <h2>{{meeting.club_name}}</h2>
+                </a>
                 <h3>{{meeting.title|e}}</h3>
                 <div>{{meeting.description}}</div>
                 <hr>
