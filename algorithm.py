@@ -1,6 +1,9 @@
 import json
 
-from db import mysql
+try:
+    from db import mysql
+except ImportError:
+    from public.RaymondZ.finalproject.db import mysql  # type: ignore
 
 def recommend_club_ids(user_id, user_weight_factor = 4, tag_weight_factor = 1, limit = None):
     """

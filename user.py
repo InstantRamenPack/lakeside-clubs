@@ -1,5 +1,8 @@
 from flask import session
-from db import mysql
+try:
+    from db import mysql
+except ImportError:
+    from public.RaymondZ.finalproject.db import mysql  # type: ignore
 
 class User:
     def __init__(self, user_id = None, google_id = None, first_name = None, last_name = None, name = None, email = None, picture = None, authenticated = True, is_admin = False):

@@ -1,7 +1,7 @@
 try:
     from flask_mysqldb import MySQL
 except ImportError:
-    # ChatGPT; for Vercel
+    # ChatGPT; for Vercel deployment
     import pymysql
     from flask import current_app, g
 

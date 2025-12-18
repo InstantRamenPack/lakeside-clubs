@@ -3,13 +3,22 @@ from functools import wraps
 
 from flask import Flask, g, render_template, request
 
-import db
-from db import mysql
-from user import User
-import algorithm
+# server runs in different directory, thus import paths must be changed
+
+try:
+    import algorithm, db
+    from db import mysql
+    from user import User
+except ImportError:
+    from public.RaymondZ.finalproject import algorithm, db  # type: ignore
+    from public.RaymondZ.finalproject.db import mysql  # type: ignore
+    from public.RaymondZ.finalproject.user import User  # type: ignore
 
 app = Flask(__name__)
-app.config.from_pyfile('config.py')
+try:
+    app.config.from_pyfile("config.py")
+except OSError:
+    app.config.from_pyfile("RaymondZ/finalproject/config.py")
 db.init(app)
 
 @app.before_request
@@ -41,9 +50,10 @@ def authenticate_leadership(func):
         return func(*args, **kwargs)
     return wrapper
 
-import clubs
-import meetings
-import login
+try:
+    import clubs, login, meetings
+except ImportError:
+    from public.RaymondZ.finalproject import clubs, login, meetings  # type: ignore
 
 @app.route("/")
 def index():

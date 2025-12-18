@@ -3,8 +3,13 @@ from functools import wraps
 
 from flask import g, redirect, render_template, request, session, url_for
 
-from app import app, authenticate_leadership
-from db import mysql
+try:
+    from app import app, authenticate_leadership
+    from db import mysql
+except ImportError:
+    from public.RaymondZ.finalproject.app import app, authenticate_leadership  # type: ignore
+    from public.RaymondZ.finalproject.db import mysql  # type: ignore
+
 from md_utils import render_markdown_plain, render_markdown_safe
 
 @app.route("/club")

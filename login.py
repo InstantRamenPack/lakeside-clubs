@@ -4,8 +4,12 @@ import requests
 from flask import redirect, request, session, url_for
 from oauthlib.oauth2 import WebApplicationClient
 
-from app import app
-from user import User
+try:
+    from app import app
+    from user import User
+except ImportError:
+    from public.RaymondZ.finalproject.app import app  # type: ignore
+    from public.RaymondZ.finalproject.user import User  # type: ignore
 
 
 client = WebApplicationClient(app.config["GOOGLE_CLIENT_ID"])
