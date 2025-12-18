@@ -7,9 +7,10 @@ import db
 from db import mysql
 from user import User
 import algorithm
+import config
 
 app = Flask(__name__)
-app.config.from_pyfile('config.py')
+app.config.from_object(config)
 db.init(app)
 
 @app.before_request
