@@ -4,6 +4,7 @@ from functools import wraps
 from flask import Flask, g, render_template, request
 
 # server runs in different directory, thus import paths must be changed
+# type: ignore is so then VSCode doesn't yell at me about bad imports
 
 try:
     import algorithm, db
