@@ -2,7 +2,8 @@ import re
 
 import bleach
 import markdown
-from flask import current_app as app
+
+from app import app
 
 from markdown.extensions import Extension
 from markdown.inlinepatterns import SimpleTagInlineProcessor
