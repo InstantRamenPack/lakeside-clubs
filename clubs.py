@@ -1,5 +1,4 @@
 import json, re
-from functools import wraps
 
 from flask import g, redirect, render_template, request, session, url_for
 
@@ -7,7 +6,7 @@ from app import app, authenticate_leadership
 from db import mysql
 from md_utils import render_markdown_plain, render_markdown_safe
 
-@app.route("/club")
+@app.route("/club", methods = ["GET"])
 def club():
     club_id = request.values.get("id")
     cursor = mysql.connection.cursor()
