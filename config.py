@@ -1,4 +1,12 @@
 from os import environ
+from pathlib import Path
+
+# ChatGPT, fix loading .env on server
+from dotenv import load_dotenv
+
+for parent in Path(__file__).resolve().parents:
+    env_path = parent / ".env"
+    load_dotenv(env_path, override = False)
 
 MYSQL_HOST = environ.get('MYSQL_HOST')
 MYSQL_USER = environ.get('MYSQL_USER')
