@@ -39,5 +39,5 @@ MD_EXTENSIONS = [
     "extra",
     "sane_lists",
     "nl2br",
-    "md_utils"
+    f"{__package__}.md_utils" if __package__ else "md_utils"
 ]
