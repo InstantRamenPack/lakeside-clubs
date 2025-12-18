@@ -1,6 +1,6 @@
 function joinClub(club_id, authenticated, button) {
     if (!authenticated) {
-        window.location.href = "/joinClub?id=" + club_id;
+        window.location.href = "./joinClub?id=" + club_id;
         return;
     }
     button.dataset.action = "leave-club";
@@ -8,7 +8,7 @@ function joinClub(club_id, authenticated, button) {
     updateTooltip("Leave Club", button);
 	
 	const xhttp = new XMLHttpRequest();	
-	xhttp.open("POST", "/joinClub", true);
+	xhttp.open("POST", "./joinClub", true);
     xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded"); 
     xhttp.send("id=" + encodeURIComponent(club_id));
 }
@@ -19,7 +19,7 @@ function leaveClub(club_id, button) {
     updateTooltip("Join Club", button);
 	
 	const xhttp = new XMLHttpRequest();
-	xhttp.open("POST", "/leaveClub", true);
+	xhttp.open("POST", "./leaveClub", true);
     xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded"); 
     xhttp.send("id=" + encodeURIComponent(club_id));
 }
@@ -88,7 +88,7 @@ function importUsers(club_id) {
         }
     }
 
-    xhttp.open("POST", "/importUsers", true);
+    xhttp.open("POST", "./importUsers", true);
     xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     xhttp.send("data=" + encodeURIComponent(textBox.value) + "&id=" + encodeURIComponent(club_id));
 }
@@ -126,7 +126,7 @@ function fetchMembers(club_id) {
             }
         };
 
-        xhttp.open("POST", "/fetchMembers", true);
+        xhttp.open("POST", "./fetchMembers", true);
         xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
         xhttp.send("id=" + encodeURIComponent(club_id));
     });
@@ -182,7 +182,7 @@ function addLeader(club_id, member_id, button) {
     attachTooltips();
 
 	const xhttp = new XMLHttpRequest();
-	xhttp.open("POST", "/addLeader", true);
+	xhttp.open("POST", "./addLeader", true);
     xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded"); 
     xhttp.send("club_id=" + encodeURIComponent(club_id) + "&user_id=" + encodeURIComponent(member_id));
 }
@@ -195,7 +195,7 @@ function demoteLeader(club_id, member_id, button) {
     attachTooltips();
 
 	const xhttp = new XMLHttpRequest();
-	xhttp.open("POST", "/demoteLeader", true);
+	xhttp.open("POST", "./demoteLeader", true);
     xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded"); 
     xhttp.send("club_id=" + encodeURIComponent(club_id) + "&user_id=" + encodeURIComponent(member_id));
 }
@@ -204,7 +204,7 @@ function kickMember(club_id, member_id, button) {
     button.parentElement.remove()
     
 	const xhttp = new XMLHttpRequest();
-	xhttp.open("POST", "/kickMember", true);
+	xhttp.open("POST", "./kickMember", true);
     xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded"); 
     xhttp.send("club_id=" + encodeURIComponent(club_id) + "&user_id=" + encodeURIComponent(member_id));
 }
@@ -217,7 +217,7 @@ function deleteMeeting(meeting_id, club_id, button) {
     button.closest('.meeting-card').remove();
 
 	const xhttp = new XMLHttpRequest();
-	xhttp.open("POST", "/deleteMeeting", true);
+	xhttp.open("POST", "./deleteMeeting", true);
     xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded"); 
     xhttp.send("id=" + encodeURIComponent(meeting_id) + "&club_id=" + encodeURIComponent(club_id));
 }
@@ -272,7 +272,7 @@ function createMeeting(form) {
         }
     };
 
-    xhttp.open("POST", "/createMeeting", true);
+    xhttp.open("POST", "./createMeeting", true);
     xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     xhttp.send(payload.toString());
 }
@@ -326,7 +326,7 @@ function createTag(control) {
         }
     };
 
-    xhttp.open("POST", "/createTag", true);
+    xhttp.open("POST", "./createTag", true);
     xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     xhttp.send("club_id=" + encodeURIComponent(clubId) + "&tag_name=" + encodeURIComponent(tagName));
 }
@@ -335,7 +335,7 @@ function deleteTag(tagId, clubId, button) {
     button.closest(".club-tag").remove();
 
     const xhttp = new XMLHttpRequest();
-    xhttp.open("POST", "/deleteTag", true);
+    xhttp.open("POST", "./deleteTag", true);
     xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     xhttp.send("club_id=" + encodeURIComponent(clubId) + "&tag_id=" + encodeURIComponent(tagId));
 }
