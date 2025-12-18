@@ -17,9 +17,11 @@ except ImportError:
 
 app = Flask(__name__)
 try:
-    app.config.from_pyfile("config.py")
-except OSError:
-    app.config.from_pyfile("RaymondZ/finalproject/config.py")
+    import config
+except ImportError:
+    from public.RaymondZ.finalproject import config  # type: ignore
+
+app.config.from_object(config)
 db.init(app)
 
 @app.before_request
