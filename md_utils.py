@@ -2,7 +2,7 @@ import re
 
 import bleach
 import markdown
-from flask import current_app
+from flask import current_app as app
 
 from markdown.extensions import Extension
 from markdown.inlinepatterns import SimpleTagInlineProcessor
@@ -37,14 +37,14 @@ class ClubMarkdownExtension(Extension):
 def render_markdown_safe(markdown_text):
     html = markdown.markdown(
         markdown_text,
-        extensions = current_app.config["MD_EXTENSIONS"],
+        extensions = app.config["MD_EXTENSIONS"],
         output_format = "html5"
     )
     clean = bleach.clean(
         html,
-        tags = current_app.config["ALLOWED_TAGS"],
-        attributes = current_app.config["ALLOWED_ATTRS"],
-        protocols = current_app.config["ALLOWED_PROTOCOLS"],
+        tags = app.config["ALLOWED_TAGS"],
+        attributes = app.config["ALLOWED_ATTRS"],
+        protocols = app.config["ALLOWED_PROTOCOLS"],
         strip = True,
         strip_comments = True,
     )
@@ -57,7 +57,7 @@ def render_markdown_plain(markdown_text):
         html,
         tags = [],
         attributes = {},
-        protocols = current_app.config["ALLOWED_PROTOCOLS"],
+        protocols = app.config["ALLOWED_PROTOCOLS"],
         strip = True,
         strip_comments = True,
     )

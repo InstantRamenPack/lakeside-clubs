@@ -11,7 +11,7 @@ except ImportError:
     from public.RaymondZ.finalproject.db import mysql  # type: ignore
     from public.RaymondZ.finalproject.md_utils import render_markdown_plain, render_markdown_safe # type: ignore
 
-@app.route("/meetings")
+@app.route("/meetings", methods = ["GET"])
 def meetings():
     if not g.user.authenticated:
         session["raymondz_next"] = request.url

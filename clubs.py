@@ -1,5 +1,4 @@
 import json, re
-from functools import wraps
 
 from flask import g, redirect, render_template, request, session, url_for
 
@@ -12,7 +11,7 @@ except ImportError:
     from public.RaymondZ.finalproject.db import mysql  # type: ignore
     from public.RaymondZ.finalproject.md_utils import render_markdown_plain, render_markdown_safe # type: ignore
 
-@app.route("/club")
+@app.route("/club", methods = ["GET"])
 def club():
     club_id = request.values.get("id")
     cursor = mysql.connection.cursor()
