@@ -11,27 +11,27 @@ except ImportError:
     from public.RaymondZ.finalproject.app import app  # type: ignore
     from public.RaymondZ.finalproject.user import User  # type: ignore
 
-
 client = WebApplicationClient(app.config["GOOGLE_CLIENT_ID"])
 google_provider_cfg = requests.get(app.config["GOOGLE_DISCOVERY_URL"]).json()
-
 
 @app.route("/login")
 def login():
     return redirect(client.prepare_request_uri(
         google_provider_cfg["authorization_endpoint"],
-        redirect_uri = request.base_url + "/callback",
+        redirect_uri = url_for("callback", _external = True, _scheme = "https"),
         scope = ["openid", "email", "profile"],
     ))
-
 
 @app.route("/login/callback")
 def callback():
     code = request.values.get("code")
+    authorization_response = request.url
+    if authorization_response.startswith("http://"):
+        authorization_response = "https://" + authorization_response[len("http://"):]
     token_url, headers, body = client.prepare_token_request(
         google_provider_cfg["token_endpoint"],
-        authorization_response = request.url,
-        redirect_url = request.base_url,
+        authorization_response = authorization_response,
+        redirect_url = url_for("callback", _external = True, _scheme = "https"),
         code = code
     )
     token_response = requests.post(
@@ -56,7 +56,6 @@ def callback():
     )
     user.init()
     return redirect(session.pop("raymondz_next", url_for("index")))
-
 
 @app.route("/logout")
 def logout():
