@@ -39,9 +39,9 @@
             </div>
             <div class = "flex-space"></div>
             {% if club.membership_type is none %}
-                <span class = "material-symbol" data-action = "join-club" data-club-id = "{{club.club_id}}" data-authenticated = "{{g.user.authenticated}}" data-tooltip = "Join Club">login</span>
+                <span class = "material-symbol" data-action = "join-club" data-club-id = "{{club.club_id}}" data-authenticated = "{{g.user.authenticated}}" data-button = "Join Club">login</span>
             {% elif club.membership_type == 0 %}
-                <span class = "material-symbol" data-action = "leave-club" data-club-id = "{{club.club_id}}" data-authenticated = "{{g.user.authenticated}}" data-tooltip = "Leave Club">logout</span>
+                <span class = "material-symbol" data-action = "leave-club" data-club-id = "{{club.club_id}}" data-authenticated = "{{g.user.authenticated}}" data-button = "Leave Club">logout</span>
             {% endif %}
         </div>
     </div>
