@@ -5,6 +5,8 @@
     --card-bg: 0, 0, 0;
     --link: 0, 0, 238;
     --link-visited: 85, 26, 139;
+    --warning: 200, 60, 60;
+    --warning-text: 255, 255, 255;
 }
 
 @media (prefers-color-scheme: dark) { 
@@ -60,6 +62,11 @@ a:visited {
 a:has(h1, h2, h3):visited {
     color: rgb(var(--link));    
     text-decoration-color: rgb(var(--link));
+}
+
+small {
+    font-style: italic;
+    align-self: flex-end;
 }
 
 textarea {
@@ -132,14 +139,14 @@ input[type="submit"] {
     to { transform: rotate(360deg); }
 }
 
-.tooltip-layer {
+.tooltip-layer, .warning-layer {
     position: fixed;
     inset: 0;
     pointer-events: none;
     z-index: 2147483647;
 }
 
-.tooltip-layer .tooltip-text {
+.tooltip-layer .tooltip-text, .warning-layer .warning-text {
     display: inline-block;
     position: absolute;
     width: max-content;
@@ -154,11 +161,20 @@ input[type="submit"] {
     padding: 6px;
     border-radius: 6px;
     backdrop-filter: blur(12px) saturate(60%);
-    background-color: rgb(var(--bg));
-    border: 1px solid rgba(var(--card-bg), 0.2);
 
     transform: translate(-50%, calc(-100% - 4px));
+}
+
+.tooltip-layer .tooltip-text {
+    background-color: rgb(var(--bg));
+    border: 1px solid rgba(var(--card-bg), 0.2);
     visibility: hidden;
+}
+
+.warning-layer .warning-text {
+    background-color: rgb(var(--warning));
+    color: rgb(var(--warning-text));
+    border: 1px solid rgba(var(--card-bg), 0.2);
 }
 
 #navbar {

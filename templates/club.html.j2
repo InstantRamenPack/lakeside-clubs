@@ -117,8 +117,8 @@
         <div id = "club-meetings-list">
             {% if club.is_leader or g.user.is_admin %}
                 <form class = "meeting-card" id = "new-meeting-card" data-club-id = "{{club.id}}">
-                    <input type = "text" name = "title" placeholder = "Title" required>
-                    <textarea name = "description" placeholder = "Description: supports Markdown! Try *italics*, **bold**, ~~strikethrough~~, [links](url.com), and !(image-links.com)." required></textarea>
+                    <input type = "text" name = "title" placeholder = "Title">
+                    <textarea name = "description" placeholder = "Description: supports Markdown! Try *italics*, **bold**, ~~strikethrough~~, [links](url.com), and !(image-links.com)."></textarea>
                     <hr>
                     <div class = "card-info">
                         <div>
@@ -127,8 +127,10 @@
                         </div>
                         <div>
                             <span class = "material-symbol">schedule</span>
-                            <input type = "time" name = "start-time"> - 
-                            <input type = "time" name = "end-time">
+                            <div>
+                                <input type = "time" name = "start-time"> — 
+                                <input type = "time" name = "end-time">
+                            </div>
                         </div>
                         <div id = "new-meeting-location">
                             <span class = "material-symbol">location_on</span>
@@ -137,7 +139,7 @@
                     </div>
                     <div class = "card-info">
                         <input type = "submit" value = "Create Meeting" data-action = "create-meeting">
-                        <input type = "submit" value = "Create Announcement" data-action = "create-announcement">
+                        <input type = "submit" value = "Create Announcement" data-action = "create-annnouncement">
                     </div>
                 </form>
             {% endif %}

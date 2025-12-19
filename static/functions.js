@@ -225,16 +225,97 @@ function deleteMeeting(meeting_id, club_id, button) {
     xhttp.send("id=" + encodeURIComponent(meeting_id) + "&club_id=" + encodeURIComponent(club_id));
 }
 
+function parseTimeToMinutes(value) {
+    const parts = value.split(':');
+    if (parts.length !== 2) {
+        return NaN;
+    }
+    return Number(parts[0]) * 60 + Number(parts[1]);
+}
+
+function validateMeetingForm(form, isMeeting) {
+    clearWarnings(form);
+    let valid = true;
+    const requiredMessage = isMeeting ? "Required for meetings." : "Required.";
+    const setWarning = (element, message) => {
+        if (!element) {
+            return;
+        }
+        element.dataset.warning = message;
+        valid = false;
+    };
+
+    const titleInput = form.elements.namedItem('title');
+    if (!titleInput || !titleInput.value.trim()) {
+        setWarning(titleInput, requiredMessage);
+    } else {
+        // if both title and description show it's kind of cluttered
+        const descriptionInput = form.elements.namedItem('description');
+        if (!descriptionInput || !descriptionInput.value.trim()) {
+            setWarning(descriptionInput, requiredMessage);
+        }
+    }
+
+    if (!isMeeting) {
+        if (!valid) {
+            attachWarnings(form);
+        }
+        return valid;
+    }
+
+    // remaining is meeting-specific
+    const dateInput = form.elements.namedItem('date');
+    if (!dateInput.value) {
+        setWarning(dateInput, requiredMessage);
+    } else {
+        // cast to date
+        const selected = new Date(`${dateInput.value}T00:00:00`);
+        const today = new Date();
+        // set hour to midnight so time-of-day doesn't affect result
+        today.setHours(0, 0, 0, 0);
+        if (selected < today) {
+            setWarning(dateInput, "Date must be today or later.");
+        }
+    }
+    const startInput = form.elements.namedItem('start-time');
+    const endInput = form.elements.namedItem('end-time');
+    if (!startInput.value || !endInput.value) {
+        setWarning(endInput.parentNode, requiredMessage);
+    }
+    if (startInput.value && endInput.value) {
+        const startMinutes = parseTimeToMinutes(startInput.value);
+        const endMinutes = parseTimeToMinutes(endInput.value);
+        if (!Number.isNaN(startMinutes) && !Number.isNaN(endMinutes) && endMinutes <= startMinutes) {
+            setWarning(endInput.parentNode, "End time must be after start time.");
+        }
+    }
+
+    const locationInput = form.elements.namedItem('location');
+    if (!locationInput.value) {
+        setWarning(locationInput, requiredMessage);
+    }
+
+    if (!valid) {
+        attachWarnings(form);
+    }
+    return valid;
+}
+
 // https://developer.mozilla.org/en-US/docs/Learn_web_development/Extensions/Forms/Sending_forms_through_JavaScript
 function createMeeting(form, submitter) {
     const submitButtons = Array.from(form.querySelectorAll('input[type="submit"]'));
-    const isMeeting = submitter.dataset.action !== "create-announcement";
+    const action = submitter && submitter.dataset.action ? submitter.dataset.action : "create-meeting";
+    const isMeeting = action !== "create-annnouncement";
     const submitLabel = submitter ? submitter.value : "Create Meeting";
+
+    if (!validateMeetingForm(form, isMeeting)) {
+        return;
+    }
 
     const payload = new URLSearchParams(new FormData(form));
     payload.append('club_id', form.dataset.clubId);
     payload.append('is_meeting', isMeeting ? '1' : '0');
-    payload.append('action', submitter.dataset.actio);
+    payload.append('action', action);
     if (!isMeeting) {
         payload.delete('date');
         payload.delete('start-time');

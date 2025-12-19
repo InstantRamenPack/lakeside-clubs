@@ -73,16 +73,19 @@
                     <p>{{meeting.location}}</p>
                 </div>
             {% else %}
-                <div>
-                    {% if meeting.post_time is defined and meeting.post_time %}
-                        <small>{{meeting.post_time.strftime("%A, %b %-d %I:%M %p")}}</small>
-                    {% endif %}
-                </div>
+                {% if is_club_page and (club.is_leader or g.user.is_admin) %}
+                    <span class = "material-symbol" data-action = "email-meeting" data-club-id = "{{club.id}}" data-meeting-id = "{{meeting.id}}" data-meeting-title = "{{meeting.title|e}}" data-meeting-description = "{{meeting.description_plain|e}}" data-button = "Email Announcement">mail</span>
+                    <span class = "material-symbol" data-action = "delete-meeting" data-meeting-id = "{{meeting.id}}" data-club-id = "{{club.id}}" data-button = "Delete Announcement">delete</span>
+                {% endif %}
             {% endif %}
             <div class = "flex-space"></div>
-            {% if is_club_page and (club.is_leader or g.user.is_admin) %}
-                <span class = "material-symbol" data-action = "email-meeting" data-club-id = "{{club.id}}" data-meeting-id = "{{meeting.id}}" data-meeting-title = "{{meeting.title|e}}" data-meeting-description = "{{meeting.description_plain|e}}" data-button = "Email Announcement">mail</span>
-                <span class = "material-symbol" data-action = "delete-meeting" data-meeting-id = "{{meeting.id}}" data-club-id = "{{club.id}}" data-button = "Delete Announcement">delete</span>
+            {% if is_meeting %}
+                {% if is_club_page and (club.is_leader or g.user.is_admin) %}             
+                    <span class = "material-symbol" data-action = "email-meeting" data-club-id = "{{club.id}}" data-meeting-id = "{{meeting.id}}" data-meeting-title = "{{meeting.title|e}}" data-meeting-description = "{{meeting.description_plain|e}}" data-button = "Email Meeting">mail</span>
+                    <span class = "material-symbol" data-action = "delete-meeting" data-meeting-id = "{{meeting.id}}" data-club-id = "{{club.id}}" data-button = "Delete Meeting">delete</span>
+                {% endif %}
+            {% else %}
+                <small>Posted on {{meeting.post_time.strftime("%A, %B %-d at %I:%M %p")}}</small>
             {% endif %}
         </div>
     </div>
