@@ -23,9 +23,9 @@
             <a href = ".">
                 <img src = "static/favicon.png" height = 30 alt = "Lakeside student government logo.">
             </a>
-            <div class = "flex-space"></div>
+            <div class = "flex-space"></div>           
+            <a href = "meetings">Meetings</a>
             {% if g.user.authenticated %}
-                <a href = "meetings">Upcoming Meetings</a>
                 <a href = "logout">Logout</a>
                 <a href = ".">
                     <img id = "profile-picture" src = "{{g.user.picture}}" height = 30 alt = "User image.">

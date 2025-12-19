@@ -3,9 +3,9 @@ function joinClub(club_id, authenticated, button) {
         window.location.href = "./joinClub?id=" + club_id;
         return;
     }
-    button.dataset.action = "leave-club";
-    button.textContent = "logout";
-    updateTooltip("Leave Club", button);
+    const icon = button.tagName === 'BUTTON' ? button.querySelector('[data-button]') : button;
+    icon.dataset.action = "leave-club";
+    updateButton("Leave Club", icon, "logout");
 	
 	const xhttp = new XMLHttpRequest();	
 	xhttp.open("POST", "./joinClub", true);
@@ -14,9 +14,9 @@ function joinClub(club_id, authenticated, button) {
 }
 
 function leaveClub(club_id, button) {
-    button.dataset.action = "join-club";
-    button.textContent = "login";
-    updateTooltip("Join Club", button);
+    const icon = button.tagName === 'BUTTON' ? button.querySelector('[data-button]') : button;
+    icon.dataset.action = "join-club";
+    updateButton("Join Club", icon, "login");
 	
 	const xhttp = new XMLHttpRequest();
 	xhttp.open("POST", "./leaveClub", true);
@@ -28,15 +28,16 @@ function importUsers(club_id) {
     const message = document.getElementById("import-user-message");
     const textBox = document.getElementById("import-user-text");
     const button = document.getElementById("import-user-button");
+    const wrapper = button.closest('button');
 
     if (textBox.style.display == "none" || textBox.style.display == "") {
         textBox.style.display = "block";
         message.style.display = "block";
-        button.textContent = "Submit!";
+        updateButton("Submit!", button);
         return;
     } else {
-        button.textContent = "Submitting...";
-        button.disabled = true;
+        updateButton("Submitting...", button);
+        if (wrapper) wrapper.disabled = true;
     }
 
     const xhttp = new XMLHttpRequest();
@@ -83,8 +84,8 @@ function importUsers(club_id) {
 
             textBox.value = "";
             textBox.style.display = "";
-            button.disabled = false;
-            button.textContent = "Import Users";
+            if (wrapper) wrapper.disabled = false;
+            updateButton("Import Users", button);
         }
     }
 
@@ -133,10 +134,10 @@ function fetchMembers(club_id) {
 }
 
 async function copyUsers(club_id, button) {
-    updateTooltip("Copying...", button);
+    updateButton("Copying...", button);
     const members = await fetchMembers(club_id);
     navigator.clipboard.writeText((members).map((member) => member.email).join("; "));
-    updateTooltip("Copied!", button);
+    updateButton("Copied!", button);
 }
 
 async function constructEmail(club_id) {
@@ -159,18 +160,20 @@ async function constructEmail(club_id) {
 }
 
 async function emailClub(club_id, button) {
-    updateTooltip("Opening Outlook...", button);
+    updateButton("Opening Outlook...", button);
     const url = await constructEmail(club_id);
+    updateButton("Send Email", button);
     window.open(url);
 }
 
 async function emailMeeting(button) {
-    updateTooltip("Opening Outlook...", button);
+    updateButton("Opening Outlook...", button);
     clubId = button.dataset.clubId;
     title = button.dataset.meetingTitle;
     description = button.dataset.meetingDescription;
     let url = await constructEmail(clubId);
     url += "&subject=" + title + "&body=" + description;
+    updateButton("Email Meeting", button);
     window.open(url);
 }
 
@@ -266,6 +269,8 @@ function createMeeting(form) {
                 deleteAction.dataset.clubId = meeting.club_id;
 
                 meetingsList.insertBefore(copy, template.nextSibling);
+
+                wrapButtons();
             } else {
                 submitButton.value = "Oops! Try again.";
             }
@@ -415,27 +420,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 createTag(control);
                 break;
             }
-            default:
-                break;
-        }
-    });
-
-    document.addEventListener('mouseout', (event) => {
-        const actionTarget = event.target.closest('[data-action]');
-        if (!actionTarget) {
-            return;
-        }
-
-        switch (actionTarget.dataset.action) {
-            case "copy-users":
-                updateTooltip("Copy Emails", actionTarget);
-                break;
-            case "send-email":
-                updateTooltip("Compose in Outlook", actionTarget);
-                break;
-            case "email-meeting":
-                updateTooltip("Email Details", actionTarget);
-                break;
             default:
                 break;
         }

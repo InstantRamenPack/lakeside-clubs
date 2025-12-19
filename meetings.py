@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 
 from flask import g, redirect, render_template, request, session, url_for
 
@@ -13,10 +14,6 @@ except ImportError:
 
 @app.route("/meetings", methods = ["GET"])
 def meetings():
-    if not g.user.authenticated:
-        session["raymondz_next"] = request.url
-        return redirect(url_for("login"))
-    
     cursor = mysql.connection.cursor()
     cursor.execute("""
         SELECT 
@@ -81,7 +78,7 @@ def createMeeting():
         "title": title,
         "description": description_html,
         "description_plain": description_plain,
-        "date": date,
+        "date": datetime.strptime(date, "%Y-%m-%d").date().strftime("%A, %b %-d"),
         "time_range": f"{start_time} - {end_time}",
         "location": location
     }

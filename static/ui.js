@@ -5,7 +5,7 @@ function autoGrow(textarea) {
 }
 
 // move tooltips to top-level of DOM to ensure visible on top
-// ChatGPT generated
+// tooltips are ChatGPT generated
 let tooltipLayer;
 let tooltipBubble;
 let tooltipObserver;
@@ -87,6 +87,43 @@ function updateTooltip(text, element) {
     }
 }
 
+function wrapButtons() {
+    const targets = Array.from(document.querySelectorAll('[data-button]'));
+    targets.forEach((element) => {
+        const parentButton = element.parentElement;
+        if (parentButton.tagName === 'BUTTON') {
+            parentButton.replaceWith(element);
+        }
+
+        const button = document.createElement('button');
+        button.type = 'button';
+
+        Object.entries(element.dataset).forEach(([key, value]) => {
+            if (key !== 'button') {
+                button.dataset[key] = value;
+            }
+        });
+
+        const label = document.createElement('span');
+        label.textContent = element.getAttribute('data-button');
+        element.parentNode.replaceChild(button, element);
+        button.appendChild(label);
+        button.appendChild(element);
+    });
+}
+
+function updateButton(text, element, icon) {
+    if (element.tagName === 'BUTTON') {
+        element = element.querySelector('[data-button]');
+    }
+    element.dataset.button = text;
+    if (icon !== undefined) {
+        element.textContent = icon;
+    }
+
+    wrapButtons();
+}
+
 // attach UI utilities
 document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('textarea').forEach((textarea) => {
@@ -95,4 +132,5 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     attachTooltips();
+    wrapButtons();
 });
