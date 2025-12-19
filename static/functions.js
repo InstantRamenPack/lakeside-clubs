@@ -3,10 +3,10 @@ function joinClub(club_id, authenticated, button) {
         window.location.href = "/joinClub?id=" + club_id;
         return;
     }
-    const icon = button.tagName === 'BUTTON' ? button.querySelector('[data-button]') : button;
-    icon.dataset.action = "leave-club";
-    updateButton("Leave Club", icon, "logout");
-	
+    const targetButton = button.tagName === 'BUTTON' ? button : button.closest('button');
+    targetButton.dataset.action = "leave-club";
+    updateButton("Leave Club", targetButton, "logout");
+
 	const xhttp = new XMLHttpRequest();	
 	xhttp.open("POST", "/joinClub", true);
     xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded"); 
@@ -14,9 +14,9 @@ function joinClub(club_id, authenticated, button) {
 }
 
 function leaveClub(club_id, button) {
-    const icon = button.tagName === 'BUTTON' ? button.querySelector('[data-button]') : button;
-    icon.dataset.action = "join-club";
-    updateButton("Join Club", icon, "login");
+    const targetButton = button.tagName === 'BUTTON' ? button : button.closest('button');
+    targetButton.dataset.action = "join-club";
+    updateButton("Join Club", targetButton, "login");
 	
 	const xhttp = new XMLHttpRequest();
 	xhttp.open("POST", "/leaveClub", true);
@@ -382,8 +382,6 @@ function createMeeting(form, submitter) {
 
                 postsPanel.insertBefore(copy, template.nextSibling);
                 setActiveTab(document.querySelector(`.tab-bar [data-tab-target="${targetId}"]`).closest('.tab-bar'), panelId);
-
-                wrapButtons();
             } else {
                 submitter.value = "Oops! Try again.";
             }

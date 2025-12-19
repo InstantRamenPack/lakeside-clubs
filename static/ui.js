@@ -207,43 +207,6 @@ function scheduleOverlayUpdate() {
     overlayUpdateHandle = window.requestAnimationFrame(tick);
 }
 
-function wrapButtons() {
-    const targets = Array.from(document.querySelectorAll('[data-button]'));
-    targets.forEach((element) => {
-        const parentButton = element.parentElement;
-        if (parentButton.tagName === 'BUTTON') {
-            parentButton.replaceWith(element);
-        }
-
-        const button = document.createElement('button');
-        button.type = 'button';
-
-        Object.entries(element.dataset).forEach(([key, value]) => {
-            if (key !== 'button') {
-                button.dataset[key] = value;
-            }
-        });
-
-        const label = document.createElement('span');
-        label.textContent = element.getAttribute('data-button');
-        element.parentNode.replaceChild(button, element);
-        button.appendChild(label);
-        button.appendChild(element);
-    });
-}
-
-function updateButton(text, element, icon) {
-    if (element.tagName === 'BUTTON') {
-        element = element.querySelector('[data-button]');
-    }
-    element.dataset.button = text;
-    if (icon !== undefined) {
-        element.textContent = icon;
-    }
-
-    wrapButtons();
-}
-
 // roughly adapted from https://www.w3schools.com/howto/howto_js_tabs.asp
 function setActiveTab(tabBar, targetId) {
     const tabs = Array.from(tabBar.querySelectorAll('[data-tab-target]'));
@@ -266,6 +229,14 @@ function setupTabs() {
     });
 }
 
+function updateButton(text, element, icon) {
+    const button = element.tagName === 'BUTTON' ? element : element?.closest('button');
+    button.querySelector('.button-label').textContent = text;
+    if (icon !== undefined) {
+        button.querySelector('.material-symbol').textContent = icon;
+    }
+}
+
 // attach UI utilities
 document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('textarea').forEach((textarea) => {
@@ -274,7 +245,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     attachTooltips();
-    wrapButtons();
     setupTabs();
 
     window.addEventListener('scroll', scheduleOverlayUpdate, { passive: true, capture: true });
