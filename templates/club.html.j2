@@ -177,7 +177,8 @@
                         </div>
                         <div>
                             <span class = "material-symbol">schedule</span>
-                            <p>{{meeting.start_time}} - {{meeting.end_time}}</p>
+                            {# convert meeting.start_time to string then remove seconds #}
+                            <p>{{(meeting.start_time ~ "")[:-3]}} - {{(meeting.end_time ~ "")[:-3]}}</p>
                         </div>
                         <div>
                             <span class = "material-symbol">location_on</span>

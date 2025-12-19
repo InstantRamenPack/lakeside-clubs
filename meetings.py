@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 
 from flask import g, redirect, render_template, request, session, url_for
 
@@ -72,7 +73,7 @@ def createMeeting():
         "title": title,
         "description": description_html,
         "description_plain": description_plain,
-        "date": date,
+        "date": datetime.strptime(date, "%Y-%m-%d").date().strftime("%A, %b %-d"),
         "time_range": f"{start_time} - {end_time}",
         "location": location
     }
