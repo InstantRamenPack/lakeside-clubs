@@ -136,9 +136,8 @@
                         </div>
                     </div>
                     <div class = "card-info">
-                        <div class = "flex-space"></div>
                         <input type = "submit" value = "Create Meeting" data-action = "create-meeting">
-                        <input type = "submit" value = "Create Announcement" data-action = "create-annnouncement">
+                        <input type = "submit" value = "Create Announcement" data-action = "create-announcement">
                     </div>
                 </form>
             {% endif %}
@@ -191,8 +190,8 @@
                             </div>
                             <div class = "flex-space"></div>
                             {% if club.is_leader or g.user.is_admin %}
-                                <span class = "material-symbol" data-action = "email-meeting" data-club-id = "{{club.id}}" data-meeting-id = "" data-meeting-title = "" data-meeting-description = "" data-button = "Email Meeting">mail</span>
-                                <span class = "material-symbol" data-action = "delete-meeting" data-meeting-id = "" data-club-id = "{{club.id}}" data-button = "Delete Meeting">delete</span>
+                                <span class = "material-symbol" data-action = "email-meeting" data-club-id = "{{club.id}}" data-meeting-id = "" data-meeting-title = "" data-meeting-description = "" data-button = "Email Announcement">mail</span>
+                                <span class = "material-symbol" data-action = "delete-meeting" data-meeting-id = "" data-club-id = "{{club.id}}" data-button = "Delete Announcement">delete</span>
                             {% endif %}
                         </div>
                     </div>

@@ -228,14 +228,13 @@ function deleteMeeting(meeting_id, club_id, button) {
 // https://developer.mozilla.org/en-US/docs/Learn_web_development/Extensions/Forms/Sending_forms_through_JavaScript
 function createMeeting(form, submitter) {
     const submitButtons = Array.from(form.querySelectorAll('input[type="submit"]'));
-    const action = submitter && submitter.dataset.action ? submitter.dataset.action : "create-meeting";
-    const isMeeting = action !== "create-annnouncement";
+    const isMeeting = submitter.dataset.action !== "create-announcement";
     const submitLabel = submitter ? submitter.value : "Create Meeting";
 
     const payload = new URLSearchParams(new FormData(form));
     payload.append('club_id', form.dataset.clubId);
     payload.append('is_meeting', isMeeting ? '1' : '0');
-    payload.append('action', action);
+    payload.append('action', submitter.dataset.actio);
     if (!isMeeting) {
         payload.delete('date');
         payload.delete('start-time');
@@ -301,7 +300,7 @@ function createMeeting(form, submitter) {
                 }
 
                 postsPanel.insertBefore(copy, template.nextSibling);
-                activateTab(panelId);
+                setActiveTab(document.querySelector(`.tab-bar [data-tab-target="${targetId}"]`).closest('.tab-bar'), panelId);
 
                 wrapButtons();
             } else {

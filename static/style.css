@@ -71,21 +71,29 @@ textarea {
 button, input[type="submit"] {
     display: flex;
     align-items: center;
-    gap: 2px;
+    gap: 3px;
     cursor: pointer;
     white-space: nowrap;
+    font-weight: bold;
 
-    padding: 2px 2px 2px 5px;
+    padding: 4px 6px 4px 8px;
     border-radius: 8px;
 
     backdrop-filter: blur(12px) saturate(60%);
-    border: 2px solid rgba(var(--card-bg), 0.2);
-    background-color: rgba(var(--card-bg), 0.05);
+    border: 2px solid rgba(var(--card-bg), 0.18);
+    background-color: rgba(var(--card-bg), 0);
     color: rgb(var(--text));
+}
+
+button:hover, input[type="submit"]:hover {
+    background-color: rgba(var(--card-bg), 0.1);
+    border-color: rgba(var(--card-bg), 0.32);
 }
 
 input[type="submit"] {
     font-family: inherit;
+    padding: 4px 12px;
+    border-radius: 100px;
 }
 
 .material-symbol {
@@ -370,8 +378,8 @@ input[type="submit"] {
 }
 
 .tab-button.is-active {
-    background-color: rgba(var(--card-bg), 0.12);
-    border-color: rgba(var(--card-bg), 0.4);
+    background-color: rgba(var(--card-bg), 0.1);
+    border-color: rgba(var(--card-bg), 0.32);
 }
 
 .tab-panel {

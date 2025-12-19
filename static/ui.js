@@ -124,6 +124,7 @@ function updateButton(text, element, icon) {
     wrapButtons();
 }
 
+// roughly adapted from https://www.w3schools.com/howto/howto_js_tabs.asp
 function setActiveTab(tabBar, targetId) {
     const tabs = Array.from(tabBar.querySelectorAll('[data-tab-target]'));
     tabs.forEach((tab) => {
@@ -134,19 +135,10 @@ function setActiveTab(tabBar, targetId) {
     });
 }
 
-function activateTab(targetId) {
-    const tab = document.querySelector(`.tab-bar [data-tab-target="${targetId}"]`);
-    const tabBar = tab.closest('.tab-bar');
-    setActiveTab(tabBar, targetId);
-}
-
 function setupTabs() {
     document.querySelectorAll('.tab-bar').forEach((tabBar) => {
         const tabs = Array.from(tabBar.querySelectorAll('[data-tab-target]'));
-        if (!tabs.length) {
-            return;
-        }
-        const activeTab = tabBar.querySelector('.tab-button.is-active') || tabs[0];
+        const activeTab = tabBar.querySelector('.tab-button.is-active');
         setActiveTab(tabBar, activeTab.dataset.tabTarget);
         tabs.forEach((tab) => {
             tab.addEventListener('click', () => setActiveTab(tabBar, tab.dataset.tabTarget));
