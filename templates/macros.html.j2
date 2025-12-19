@@ -36,10 +36,56 @@
                 <p>{{club.location}}</p>
             </div>
             <div class = "flex-space"></div>
-            {% if club.membership_type is none %}
+            {% if not club.is_member %}
                 <span class = "material-symbol" data-action = "join-club" data-club-id = "{{club.club_id}}" data-authenticated = "{{g.user.authenticated}}" data-button = "Join Club">login</span>
-            {% elif club.membership_type == 0 %}
+            {% elif not club.is_leader %}
                 <span class = "material-symbol" data-action = "leave-club" data-club-id = "{{club.club_id}}" data-authenticated = "{{g.user.authenticated}}" data-button = "Leave Club">logout</span>
+            {% endif %}
+        </div>
+    </div>
+{% endmacro %}
+
+{% macro render_meeting_card(meeting, is_meeting, is_club_page) %}
+    <div class = "meeting-card">
+        {% if is_club_page %}
+            <h2>{{meeting.title|e}}</h2>            
+        {% else %}
+            <a href = "club?id={{meeting.club_id}}">
+                <h2>{{meeting.club_name}}</h2>
+            </a>
+            <h3>{{meeting.title|e}}</h3>
+        {% endif %}
+        <div class = "meeting-description">{{meeting.description}}</div>
+        <hr>
+        <div class = "card-info">
+            {% if is_meeting %}
+                <div>
+                    <span class = "material-symbol">event</span>
+                    <p>{{meeting.date.strftime("%A, %b %-d")}}</p>
+                </div>
+                <div>
+                    <span class = "material-symbol">schedule</span>
+                    {# convert meeting.start_time to string by concantenating with blank then remove seconds #}
+                    <p>{{(meeting.start_time ~ "")[:-3]}} - {{(meeting.end_time ~ "")[:-3]}}</p>
+                </div>
+                <div>
+                    <span class = "material-symbol">location_on</span>
+                    <p>{{meeting.location}}</p>
+                </div>
+            {% else %}
+                {% if is_club_page and (club.is_leader or g.user.is_admin) %}
+                    <span class = "material-symbol" data-action = "email-meeting" data-club-id = "{{club.id}}" data-meeting-id = "{{meeting.id}}" data-meeting-title = "{{meeting.title|e}}" data-meeting-description = "{{meeting.description_plain|e}}" data-button = "Email Announcement">mail</span>
+                    <span class = "material-symbol" data-action = "delete-meeting" data-meeting-id = "{{meeting.id}}" data-club-id = "{{club.id}}" data-button = "Delete Announcement">delete</span>
+                {% endif %}
+            {% endif %}
+            <div class = "flex-space"></div>
+            {% if is_meeting %}
+                {% if is_club_page and (club.is_leader or g.user.is_admin) %}             
+                    <span class = "material-symbol" data-action = "email-meeting" data-club-id = "{{club.id}}" data-meeting-id = "{{meeting.id}}" data-meeting-title = "{{meeting.title|e}}" data-meeting-description = "{{meeting.description_plain|e}}" data-button = "Email Meeting">mail</span>
+                    <span class = "material-symbol" data-action = "delete-meeting" data-meeting-id = "{{meeting.id}}" data-club-id = "{{club.id}}" data-button = "Delete Meeting">delete</span>
+                {% endif %}
+            {% else %}
+                <small>Posted on {{meeting.post_time.strftime("%A, %B %-d at %I:%M %p")}}</small>
             {% endif %}
         </div>
     </div>

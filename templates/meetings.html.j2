@@ -7,29 +7,49 @@
 {% block body %}
     <div id = "meetings-list">
         <h1>Upcoming Club Meetings</h1>
-        {% for meeting in meetings %}
-            <div class = "meeting-card" data-status = "{{meeting.member_status}}">
-                <a href = "club?id={{meeting.club_id}}">
-                    <h2>{{meeting.club_name}}</h2>
-                </a>
-                <h3>{{meeting.title|e}}</h3>
-                <div>{{meeting.description}}</div>
-                <hr>
-                <div class = "card-info">
-                    <div>
-                        <span class = "material-symbol">event</span>
-                        <p>{{meeting.date.strftime("%A, %b %-d")}}</p>
-                    </div>
-                    <div>
-                        <span class = "material-symbol">schedule</span>
-                        <p>{{(meeting.start_time ~ "")[:-3]}} - {{(meeting.end_time ~ "")[:-3]}}</p>
-                    </div>
-                    <div>
-                        <span class = "material-symbol">location_on</span>
-                        <p>{{meeting.location}}</p>
-                    </div>
-                </div>
+        <div class = "tab-bar">
+            <button type = "button" class = "tab-button is-active" data-tab-target = "meetings-panel">Meetings</button>
+            <button type = "button" class = "tab-button" data-tab-target = "announcements-panel">Announcements</button>
+        </div>
+        <div class = "tab-panel" id = "meetings-panel">
+            <div class = "tab-bar">
+                <button type = "button" class = "tab-button is-active" data-tab-target = "meetings-all-panel">All Meetings</button>
+                <button type = "button" class = "tab-button" data-tab-target = "meetings-yours-panel">Your Meetings</button>
             </div>
-        {% endfor %}
+            <div class = "tab-panel" id = "meetings-all-panel">
+                {% for meeting in meetings %}
+                    {% if meeting.is_meeting %}
+                        {{ macros.render_meeting_card(meeting, true, false) }}
+                    {% endif %}
+                {% endfor %}
+            </div>
+            <div class = "tab-panel" id = "meetings-yours-panel" hidden>
+                {% for meeting in meetings %}
+                    {% if meeting.is_meeting and meeting.is_member %}
+                        {{ macros.render_meeting_card(meeting, true, false) }}
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+        <div class = "tab-panel" id = "announcements-panel" hidden>
+            <div class = "tab-bar">
+                <button type = "button" class = "tab-button is-active" data-tab-target = "announcements-all-panel">All Announcements</button>
+                <button type = "button" class = "tab-button" data-tab-target = "announcements-yours-panel">Your Announcements</button>
+            </div>
+            <div class = "tab-panel" id = "announcements-all-panel">
+                {% for meeting in meetings %}
+                    {% if not meeting.is_meeting %}
+                        {{ macros.render_meeting_card(meeting, false, false) }}
+                    {% endif %}
+                {% endfor %}
+            </div>
+            <div class = "tab-panel" id = "announcements-yours-panel" hidden>
+                {% for meeting in meetings %}
+                    {% if not meeting.is_meeting and meeting.is_member %}
+                        {{ macros.render_meeting_card(meeting, false, false) }}
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
     </div>
 {% endblock %}

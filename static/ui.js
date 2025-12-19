@@ -5,11 +5,12 @@ function autoGrow(textarea) {
 }
 
 // move tooltips to top-level of DOM to ensure visible on top
-// tooltips are ChatGPT generated
+// tooltips and warnings are ChatGPT generated
 let tooltipLayer;
 let tooltipBubble;
 let tooltipObserver;
 let currentTooltipTarget;
+let warningLayer;
 
 function createTooltipLayer() {
     if (tooltipBubble) {
@@ -87,6 +88,46 @@ function updateTooltip(text, element) {
     }
 }
 
+function createWarningLayer() {
+    if (warningLayer) {
+        return warningLayer;
+    }
+    warningLayer = document.createElement('div');
+    warningLayer.className = 'warning-layer';
+    document.body.appendChild(warningLayer);
+    return warningLayer;
+}
+
+function attachWarnings(scope) {
+    const layer = createWarningLayer();
+    layer.replaceChildren();
+    const targets = Array.from((scope || document).querySelectorAll('[data-warning]'));
+    targets.forEach((element) => {
+        const content = element.dataset.warning || '';
+        if (!content) {
+            return;
+        }
+        const bubble = document.createElement('span');
+        bubble.className = 'warning-text';
+        bubble.textContent = content;
+        bubble._target = element;
+        layer.appendChild(bubble);
+        const rect = element.getBoundingClientRect();
+        bubble.style.left = `${rect.left + rect.width / 2}px`;
+        bubble.style.top = `${rect.top}px`;
+    });
+}
+
+function clearWarnings(scope) {
+    const target = scope || document;
+    target.querySelectorAll('[data-warning]').forEach((element) => {
+        delete element.dataset.warning;
+    });
+    if (warningLayer) {
+        warningLayer.replaceChildren();
+    }
+}
+
 function wrapButtons() {
     const targets = Array.from(document.querySelectorAll('[data-button]'));
     targets.forEach((element) => {
@@ -124,6 +165,28 @@ function updateButton(text, element, icon) {
     wrapButtons();
 }
 
+// roughly adapted from https://www.w3schools.com/howto/howto_js_tabs.asp
+function setActiveTab(tabBar, targetId) {
+    const tabs = Array.from(tabBar.querySelectorAll('[data-tab-target]'));
+    tabs.forEach((tab) => {
+        const isActive = tab.dataset.tabTarget === targetId;
+        tab.classList.toggle('is-active', isActive);
+        const panel = document.getElementById(tab.dataset.tabTarget);
+        panel.hidden = !isActive;
+    });
+}
+
+function setupTabs() {
+    document.querySelectorAll('.tab-bar').forEach((tabBar) => {
+        const tabs = Array.from(tabBar.querySelectorAll('[data-tab-target]'));
+        const activeTab = tabBar.querySelector('.tab-button.is-active');
+        setActiveTab(tabBar, activeTab.dataset.tabTarget);
+        tabs.forEach((tab) => {
+            tab.addEventListener('click', () => setActiveTab(tabBar, tab.dataset.tabTarget));
+        });
+    });
+}
+
 // attach UI utilities
 document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('textarea').forEach((textarea) => {
@@ -133,4 +196,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
     attachTooltips();
     wrapButtons();
+    setupTabs();
 });

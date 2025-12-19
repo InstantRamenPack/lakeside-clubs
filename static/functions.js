@@ -146,7 +146,7 @@ async function constructEmail(club_id) {
     let url = "https://outlook.office.com/mail/deeplink/compose?to=";
     let bccStart = false;
     for (let i = 0; i < members.length; i++) {
-        if (!bccStart && members[i].membership_type == 0) {
+        if (!bccStart && members[i].is_leader == 0) {
             bccStart = true;
             url = url.substring(0, url.length - 1);
             // not sure why but Outlook requires ? not &
@@ -225,27 +225,125 @@ function deleteMeeting(meeting_id, club_id, button) {
     xhttp.send("id=" + encodeURIComponent(meeting_id) + "&club_id=" + encodeURIComponent(club_id));
 }
 
+function parseTimeToMinutes(value) {
+    const parts = value.split(':');
+    if (parts.length !== 2) {
+        return NaN;
+    }
+    return Number(parts[0]) * 60 + Number(parts[1]);
+}
+
+function validateMeetingForm(form, isMeeting) {
+    clearWarnings(form);
+    let valid = true;
+    const requiredMessage = isMeeting ? "Required for meetings." : "Required.";
+    const setWarning = (element, message) => {
+        if (!element) {
+            return;
+        }
+        element.dataset.warning = message;
+        valid = false;
+    };
+
+    const titleInput = form.elements.namedItem('title');
+    if (!titleInput || !titleInput.value.trim()) {
+        setWarning(titleInput, requiredMessage);
+    } else {
+        // if both title and description show it's kind of cluttered
+        const descriptionInput = form.elements.namedItem('description');
+        if (!descriptionInput || !descriptionInput.value.trim()) {
+            setWarning(descriptionInput, requiredMessage);
+        }
+    }
+
+    if (!isMeeting) {
+        if (!valid) {
+            attachWarnings(form);
+        }
+        return valid;
+    }
+
+    // remaining is meeting-specific
+    const dateInput = form.elements.namedItem('date');
+    if (!dateInput.value) {
+        setWarning(dateInput, requiredMessage);
+    } else {
+        // cast to date
+        const selected = new Date(`${dateInput.value}T00:00:00`);
+        const today = new Date();
+        // set hour to midnight so time-of-day doesn't affect result
+        today.setHours(0, 0, 0, 0);
+        if (selected < today) {
+            setWarning(dateInput, "Date must be today or later.");
+        }
+    }
+    const startInput = form.elements.namedItem('start-time');
+    const endInput = form.elements.namedItem('end-time');
+    if (!startInput.value || !endInput.value) {
+        setWarning(endInput.parentNode, requiredMessage);
+    }
+    if (startInput.value && endInput.value) {
+        const startMinutes = parseTimeToMinutes(startInput.value);
+        const endMinutes = parseTimeToMinutes(endInput.value);
+        if (!Number.isNaN(startMinutes) && !Number.isNaN(endMinutes) && endMinutes <= startMinutes) {
+            setWarning(endInput.parentNode, "End time must be after start time.");
+        }
+    }
+
+    const locationInput = form.elements.namedItem('location');
+    if (!locationInput.value) {
+        setWarning(locationInput, requiredMessage);
+    }
+
+    if (!valid) {
+        attachWarnings(form);
+    }
+    return valid;
+}
+
 // https://developer.mozilla.org/en-US/docs/Learn_web_development/Extensions/Forms/Sending_forms_through_JavaScript
-function createMeeting(form) {
-    const submitButton = form.querySelector('input[type="submit"]');
+function createMeeting(form, submitter) {
+    const submitButtons = Array.from(form.querySelectorAll('input[type="submit"]'));
+    const action = submitter && submitter.dataset.action ? submitter.dataset.action : "create-meeting";
+    const isMeeting = action !== "create-annnouncement";
+    const submitLabel = submitter ? submitter.value : "Create Meeting";
+
+    if (!validateMeetingForm(form, isMeeting)) {
+        return;
+    }
 
     const payload = new URLSearchParams(new FormData(form));
     payload.append('club_id', form.dataset.clubId);
+    payload.append('is_meeting', isMeeting ? '1' : '0');
+    payload.append('action', action);
+    if (!isMeeting) {
+        payload.delete('date');
+        payload.delete('start-time');
+        payload.delete('end-time');
+        payload.delete('location');
+    }
 
-    submitButton.value = "Creating...";
-    submitButton.disabled = true;
+    submitter.value = "Creating...";
+    submitButtons.forEach((button) => {
+        button.disabled = true;
+    });
 
     const xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function() {
         if (this.readyState == 4) {
-            submitButton.value = "Create Meeting";
-            submitButton.disabled = false;
+            submitButtons.forEach((button) => {
+                button.disabled = false;
+            });
             if (this.status == 200) {
+                submitter.value = submitLabel;
                 form.reset();
 
                 const meeting = JSON.parse(this.responseText);
-                const meetingsList = document.getElementById('club-meetings-list');
-                const template = meetingsList.querySelector('template');
+                const isMeetingPost = Number(meeting.is_meeting) === 1 || meeting.is_meeting === true;
+                const panelId = isMeetingPost ? 'club-meetings-panel' : 'club-announcements-panel';
+                const templateType = isMeetingPost ? 'meeting' : 'announcement';
+                const postsPanel = document.getElementById(panelId);
+                const template = postsPanel.querySelector(`template[data-post-template="${templateType}"]`);
 
                 const copy = template.content.cloneNode(true);
                 const card = copy.querySelector('.meeting-card');
@@ -253,26 +351,41 @@ function createMeeting(form) {
                 card.querySelector('h2').textContent = meeting.title;
                 card.querySelector('.meeting-description').innerHTML = meeting.description;
 
-                const meetingInfo = card.querySelectorAll('.card-info > div');
-                meetingInfo[0].querySelector('p').textContent = meeting.date;
-                meetingInfo[1].querySelector('p').textContent = meeting.time_range;
-                meetingInfo[2].querySelector('p').textContent = meeting.location;
-
+                const dateField = card.querySelector('[data-field="date"]');
+                if (dateField) {
+                    dateField.textContent = meeting.date;
+                }
+                const timeField = card.querySelector('[data-field="time-range"]');
+                if (timeField) {
+                    timeField.textContent = meeting.time_range;
+                }
+                const locationField = card.querySelector('[data-field="location"]');
+                if (locationField) {
+                    locationField.textContent = meeting.location;
+                }
+                const postTimeField = card.querySelector('[data-field="post-time"]');
+                if (postTimeField) {
+                    postTimeField.textContent = meeting.post_time;
+                }
                 const emailAction = card.querySelector('[data-action="email-meeting"]');
-                emailAction.dataset.meetingId = meeting.id;
-                emailAction.dataset.meetingTitle = meeting.title;
-                emailAction.dataset.meetingDescription = meeting.description_plain;
-                emailAction.dataset.clubId = meeting.club_id;
-
+                if (emailAction) {
+                    emailAction.dataset.meetingId = meeting.id;
+                    emailAction.dataset.meetingTitle = meeting.title;
+                    emailAction.dataset.meetingDescription = meeting.description_plain;
+                    emailAction.dataset.clubId = meeting.club_id;
+                }
                 const deleteAction = card.querySelector('[data-action="delete-meeting"]');
-                deleteAction.dataset.meetingId = meeting.id;
-                deleteAction.dataset.clubId = meeting.club_id;
+                if (deleteAction) {
+                    deleteAction.dataset.meetingId = meeting.id;
+                    deleteAction.dataset.clubId = meeting.club_id;
+                }
 
-                meetingsList.insertBefore(copy, template.nextSibling);
+                postsPanel.insertBefore(copy, template.nextSibling);
+                setActiveTab(document.querySelector(`.tab-bar [data-tab-target="${targetId}"]`).closest('.tab-bar'), panelId);
 
                 wrapButtons();
             } else {
-                submitButton.value = "Oops! Try again.";
+                submitter.value = "Oops! Try again.";
             }
         }
     };
@@ -429,7 +542,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (newMeetingForm) {
         newMeetingForm.addEventListener('submit', (event) => {
             event.preventDefault(); // prevent sending form regularly
-            createMeeting(newMeetingForm);
+            createMeeting(newMeetingForm, event.submitter);
         });
     }
 });

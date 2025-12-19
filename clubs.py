@@ -18,7 +18,8 @@ def club():
     cursor.execute("""
         SELECT
             c.*,
-            MAX(CASE WHEN cm.user_id = %s THEN cm.membership_type END) AS membership_type,
+            MAX(CASE WHEN cm.user_id = %s THEN cm.is_leader END) AS is_leader,
+            MAX(CASE WHEN cm.user_id = %s THEN 1 END) AS is_member,
             (
                 SELECT 
                     JSON_ARRAYAGG(
@@ -36,7 +37,7 @@ def club():
             ) AS tags,
             JSON_ARRAYAGG(
                 CASE WHEN 
-                    cm.membership_type = 1 
+                    cm.is_leader = 1 
                 THEN 
                     JSON_OBJECT(
                         'id', u.id, 
@@ -49,7 +50,7 @@ def club():
             ) AS leaders,
             JSON_ARRAYAGG(
                 CASE WHEN 
-                    cm.membership_type = 0 
+                    cm.is_leader = 0 
                 THEN 
                     JSON_OBJECT(
                         'id', u.id, 
@@ -70,7 +71,7 @@ def club():
             c.id = %s
         GROUP BY
             c.id
-    """, (g.user.user_id, club_id))
+    """, (g.user.user_id, g.user.user_id, club_id))
     club = cursor.fetchone()
     if not club:
         return "Unknown club", 404
@@ -96,12 +97,18 @@ def club():
         WHERE 
             m.club_id = %s
         AND
-            m.date >= DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 1 DAY)
+            (
+                (m.is_meeting = 1 AND m.date >= DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 1 DAY))
+                OR
+                (m.is_meeting = 0 AND m.post_time >= DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 1 MONTH))
+            )
         GROUP BY 
             m.id 
         ORDER BY
-            m.date ASC,
-            m.start_time ASC
+            m.is_meeting DESC,
+            CASE WHEN m.is_meeting = 1 THEN m.date END ASC,
+            CASE WHEN m.is_meeting = 1 THEN m.start_time END ASC,
+            CASE WHEN m.is_meeting = 0 THEN m.post_time END DESC
     """, (club_id,))
     meetings = cursor.fetchall()
     for meeting in meetings:
@@ -149,7 +156,7 @@ def fetchMembers():
     cursor.execute("""
         SELECT 
             u.email,
-            cm.membership_type
+            cm.is_leader
         FROM 
             raymondz_club_members cm
         JOIN 
@@ -157,7 +164,7 @@ def fetchMembers():
         WHERE 
             cm.club_id = %s
         ORDER BY
-            cm.membership_type DESC
+            cm.is_leader DESC
     """, (club_id,))
     members = cursor.fetchall()
 
@@ -246,7 +253,7 @@ def addLeader():
         UPDATE 
             raymondz_club_members
         SET 
-            membership_type = 1
+            is_leader = 1
         WHERE
             user_id = %s AND club_id = %s
     """, (user_id, club_id))
@@ -267,7 +274,7 @@ def demoteLeader():
         UPDATE 
             raymondz_club_members
         SET 
-            membership_type = 0
+            is_leader = 0
         WHERE
             user_id = %s AND club_id = %s
     """, (user_id, club_id))
