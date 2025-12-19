@@ -46,7 +46,7 @@
 {% endmacro %}
 
 {% macro render_meeting_card(meeting, is_meeting, is_club_page) %}
-    <div class = "meeting-card" {% if not is_club_page %} data-status = "{{meeting.member_status}}" {% endif %}>
+    <div class = "meeting-card">
         {% if is_club_page %}
             <h2>{{meeting.title|e}}</h2>            
         {% else %}
