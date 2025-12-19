@@ -52,14 +52,29 @@
             <h2>Club Actions</h2>
             <div id = "club-actions">
                 {% if club.is_member and not club.is_leader %}
-                    <span class = "material-symbol" data-action = "leave-club" data-club-id = "{{club.id}}" data-authenticated = "{{g.user.authenticated}}" data-button = "Leave Club">logout</span>
+                    <button type = "button" data-action = "leave-club" data-club-id = "{{club.id}}" data-authenticated = "{{g.user.authenticated}}">
+                        <span class = "button-label">Leave Club</span>
+                        <span class = "material-symbol">logout</span>
+                    </button>
                 {% elif not club.is_member %}
-                    <span class = "material-symbol" data-action = "join-club" data-club-id = "{{club.id}}" data-authenticated = "{{g.user.authenticated}}" data-button = "Join Club">login</span>
+                    <button type = "button" data-action = "join-club" data-club-id = "{{club.id}}" data-authenticated = "{{g.user.authenticated}}">
+                        <span class = "button-label">Join Club</span>
+                        <span class = "material-symbol">login</span>
+                    </button>
                 {% endif %}
                 {% if club.is_leader or g.user.is_admin %}
-                    <span class = "material-symbol" data-action = "send-email" data-club-id = "{{club.id}}" data-button = "Send Email">mail</span>
-                    <span class = "material-symbol" data-action = "copy-users" data-club-id = "{{club.id}}" data-button = "Copy Emails">content_copy</span>
-                    <span id = "import-user-button" class = "material-symbol" data-action = "import-users" data-button = "Import Members" data-club-id = "{{club.id}}">upload</span>
+                    <button type = "button" data-action = "send-email" data-club-id = "{{club.id}}">
+                        <span class = "button-label">Send Email</span>
+                        <span class = "material-symbol">mail</span>
+                    </button>
+                    <button type = "button" data-action = "copy-users" data-club-id = "{{club.id}}">
+                        <span class = "button-label">Copy Emails</span>
+                        <span class = "material-symbol">content_copy</span>
+                    </button>
+                    <button type = "button" id = "import-user-button" data-action = "import-users" data-club-id = "{{club.id}}">
+                        <span class = "button-label">Import Members</span>
+                        <span class = "material-symbol">upload</span>
+                    </button>
                 {% endif %}
             </div>
             {% if club.is_leader or g.user.is_admin %}
@@ -168,17 +183,30 @@
                             </div>
                             <div class = "flex-space"></div>
                             {% if club.is_leader or g.user.is_admin %}
-                                <span class = "material-symbol" data-action = "email-meeting" data-club-id = "{{club.id}}" data-meeting-id = "" data-meeting-title = "" data-meeting-description = "" data-button = "Email Meeting">mail</span>
-                                <span class = "material-symbol" data-action = "delete-meeting" data-meeting-id = "" data-club-id = "{{club.id}}" data-button = "Delete Meeting">delete</span>
+                                <button type = "button" data-action = "email-meeting" data-club-id = "{{club.id}}" data-meeting-id = "" data-meeting-title = "" data-meeting-description = "">
+                                    <span class = "button-label">Email Meeting</span>
+                                    <span class = "material-symbol">mail</span>
+                                </button>
+                                <button type = "button" data-action = "delete-meeting" data-meeting-id = "" data-club-id = "{{club.id}}">
+                                    <span class = "button-label">Delete Meeting</span>
+                                    <span class = "material-symbol">delete</span>
+                                </button>
                             {% endif %}
                         </div>
                     </div>
                 </template>
+                {% set ns = namespace(exists_meeting = false) %}
                 {% for meeting in meetings %}
                     {% if meeting.is_meeting %}
                         {{ macros.render_meeting_card(meeting, true, true) }}
+                        {% set ns.exists_meeting = true %}
                     {% endif %}
                 {% endfor %}
+                {% if not ns.exists_meeting %}
+                    <h2 id = "no-meetings" class = "no-meetings">
+                        No Meetings Found
+                    </h2>
+                {% endif %}
             </div>
             <div class = "tab-panel" id = "club-announcements-panel" hidden>
                 <template data-post-template = "announcement">
@@ -192,17 +220,30 @@
                             </div>
                             <div class = "flex-space"></div>
                             {% if club.is_leader or g.user.is_admin %}
-                                <span class = "material-symbol" data-action = "email-meeting" data-club-id = "{{club.id}}" data-meeting-id = "" data-meeting-title = "" data-meeting-description = "" data-button = "Email Announcement">mail</span>
-                                <span class = "material-symbol" data-action = "delete-meeting" data-meeting-id = "" data-club-id = "{{club.id}}" data-button = "Delete Announcement">delete</span>
+                                <button type = "button" data-action = "email-meeting" data-club-id = "{{club.id}}" data-meeting-id = "" data-meeting-title = "" data-meeting-description = "">
+                                    <span class = "button-label">Email Announcement</span>
+                                    <span class = "material-symbol">mail</span>
+                                </button>
+                                <button type = "button" data-action = "delete-meeting" data-meeting-id = "" data-club-id = "{{club.id}}">
+                                    <span class = "button-label">Delete Announcement</span>
+                                    <span class = "material-symbol">delete</span>
+                                </button>
                             {% endif %}
                         </div>
                     </div>
                 </template>
+                {% set ns.exists_meeting = false %}
                 {% for meeting in meetings %}
                     {% if not meeting.is_meeting %}
                         {{ macros.render_meeting_card(meeting, false, true) }}
+                        {% set ns.exists_meeting = true %}
                     {% endif %}
                 {% endfor %}
+                {% if not ns.exists_meeting %}
+                    <h2 id = "no-announcements" class = "no-meetings">
+                        No Announcements Found
+                    </h2>
+                {% endif %}
             </div>
         </div>
     </div>

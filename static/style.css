@@ -22,6 +22,7 @@
 
 html, body {
     max-width: 100%;
+    overscroll-behavior-y: none;
 }
 
 body {
@@ -84,7 +85,7 @@ button, input[type="submit"] {
     font-weight: bold;
 
     padding: 4px 6px 4px 8px;
-    border-radius: 8px;
+    border-radius: 12px;
 
     backdrop-filter: blur(12px) saturate(60%);
     border: 2px solid rgba(var(--card-bg), 0.18);
@@ -143,7 +144,7 @@ input[type="submit"] {
     position: fixed;
     inset: 0;
     pointer-events: none;
-    z-index: 2147483647;
+    z-index: 1;
 }
 
 .tooltip-layer .tooltip-text, .warning-layer .warning-text {
@@ -250,7 +251,7 @@ input[type="submit"] {
     align-items: center;
     gap: 6px;
     padding: 4px 4px;
-    border-radius: 8px;
+    border-radius: 12px;
     border: 2px solid rgba(var(--card-bg), 0.2);
 }
 
@@ -379,6 +380,12 @@ input[type="submit"] {
     backdrop-filter: blur(12px) saturate(60%);
     border: 1px solid rgba(var(--card-bg), 0.2);
     background-color: rgba(var(--card-bg), 0.05);  
+}
+
+.meeting-card img {
+    max-width: 100%;
+    width: auto;
+    height: auto;
 }
 
 .tab-bar {

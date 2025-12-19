@@ -12,6 +12,8 @@ let tooltipObserver;
 let currentTooltipTarget;
 let warningLayer;
 let overlayUpdateHandle;
+let lastOverlayEventAt = 0;
+let lastTooltipContent = '';
 
 function createTooltipLayer() {
     if (tooltipBubble) {
@@ -102,7 +104,10 @@ function positionTooltip() {
         return;
     }
     const rect = currentTooltipTarget.getBoundingClientRect();
-    tooltipBubble.innerHTML = content;
+    if (lastTooltipContent !== content) {
+        tooltipBubble.innerHTML = content;
+        lastTooltipContent = content;
+    }
     tooltipBubble.style.left = `${rect.left + rect.width / 2}px`;
     tooltipBubble.style.top = `${rect.top}px`;
 }
@@ -176,52 +181,30 @@ function positionWarnings() {
     });
 }
 
+function hasOverlays() {
+    return Boolean(currentTooltipTarget || (warningLayer && warningLayer.childElementCount));
+}
+
 function scheduleOverlayUpdate() {
+    lastOverlayEventAt = window.performance.now();
+    if (!hasOverlays()) {
+        return;
+    }
+    positionTooltip();
+    positionWarnings();
     if (overlayUpdateHandle) {
         return;
     }
-    overlayUpdateHandle = window.requestAnimationFrame(() => {
-        overlayUpdateHandle = null;
+    const tick = () => {
         positionTooltip();
         positionWarnings();
-    });
-}
-
-function wrapButtons() {
-    const targets = Array.from(document.querySelectorAll('[data-button]'));
-    targets.forEach((element) => {
-        const parentButton = element.parentElement;
-        if (parentButton.tagName === 'BUTTON') {
-            parentButton.replaceWith(element);
+        if (window.performance.now() - lastOverlayEventAt < 200) {
+            overlayUpdateHandle = window.requestAnimationFrame(tick);
+        } else {
+            overlayUpdateHandle = null;
         }
-
-        const button = document.createElement('button');
-        button.type = 'button';
-
-        Object.entries(element.dataset).forEach(([key, value]) => {
-            if (key !== 'button') {
-                button.dataset[key] = value;
-            }
-        });
-
-        const label = document.createElement('span');
-        label.textContent = element.getAttribute('data-button');
-        element.parentNode.replaceChild(button, element);
-        button.appendChild(label);
-        button.appendChild(element);
-    });
-}
-
-function updateButton(text, element, icon) {
-    if (element.tagName === 'BUTTON') {
-        element = element.querySelector('[data-button]');
-    }
-    element.dataset.button = text;
-    if (icon !== undefined) {
-        element.textContent = icon;
-    }
-
-    wrapButtons();
+    };
+    overlayUpdateHandle = window.requestAnimationFrame(tick);
 }
 
 // roughly adapted from https://www.w3schools.com/howto/howto_js_tabs.asp
@@ -246,6 +229,14 @@ function setupTabs() {
     });
 }
 
+function updateButton(text, element, icon) {
+    const button = element.tagName === 'BUTTON' ? element : element?.closest('button');
+    button.querySelector('.button-label').textContent = text;
+    if (icon !== undefined) {
+        button.querySelector('.material-symbol').textContent = icon;
+    }
+}
+
 // attach UI utilities
 document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('textarea').forEach((textarea) => {
@@ -254,7 +245,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     attachTooltips();
-    wrapButtons();
     setupTabs();
 
     window.addEventListener('scroll', scheduleOverlayUpdate, { passive: true, capture: true });
