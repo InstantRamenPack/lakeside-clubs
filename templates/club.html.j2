@@ -167,22 +167,19 @@
                 <div class = "meeting-card">
                     <h2>{{meeting.title|e}}</h2>
                     <div class = "meeting-description">{{meeting.description}}</div>
-                    <small>Posted at {{meeting.post_time}}</small>
                     <hr>
                     <div class = "card-info">
-                        <div class = "card-info-left">
-                            <div>
-                                <span class = "material-symbol">event</span>
-                                <p>{{meeting.date.strftime("%A, %b %-d")}}</p>
-                            </div>
-                            <div>
-                                <span class = "material-symbol">schedule</span>
-                                <p>{{meeting.start_time}} - {{meeting.end_time}}</p>
-                            </div>
-                            <div>
-                                <span class = "material-symbol">location_on</span>
-                                <p>{{meeting.location}}</p>
-                            </div>
+                        <div>
+                            <span class = "material-symbol">event</span>
+                            <p>{{meeting.date.strftime("%A, %b %-d")}}</p>
+                        </div>
+                        <div>
+                            <span class = "material-symbol">schedule</span>
+                            <p>{{meeting.start_time}} - {{meeting.end_time}}</p>
+                        </div>
+                        <div>
+                            <span class = "material-symbol">location_on</span>
+                            <p>{{meeting.location}}</p>
                         </div>
                         <div class = "flex-space"></div>
                         {% if club.membership_type == 1 or g.user.is_admin %}

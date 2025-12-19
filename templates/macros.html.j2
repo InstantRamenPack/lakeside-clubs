@@ -27,15 +27,13 @@
             {% endfor %}
         </div>
         <div class = "card-info">
-            <div class = "card-info-left">
-                <div>
-                    <span class = "material-symbol">event</span>
-                    <p>{{club.time}}</p>
-                </div>
-                <div>
-                    <span class = "material-symbol">location_on</span>
-                    <p>{{club.location}}</p>
-                </div>
+            <div class = "card-time">
+                <span class = "material-symbol">event</span>
+                <p>{{club.time}}</p>
+            </div>
+            <div>
+                <span class = "material-symbol">location_on</span>
+                <p>{{club.location}}</p>
             </div>
             <div class = "flex-space"></div>
             {% if club.membership_type is none %}

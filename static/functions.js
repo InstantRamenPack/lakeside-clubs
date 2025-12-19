@@ -162,8 +162,8 @@ async function constructEmail(club_id) {
 async function emailClub(club_id, button) {
     updateButton("Opening Outlook...", button);
     const url = await constructEmail(club_id);
-    window.open(url);
     updateButton("Send Email", button);
+    window.open(url);
 }
 
 async function emailMeeting(button) {
@@ -173,8 +173,8 @@ async function emailMeeting(button) {
     description = button.dataset.meetingDescription;
     let url = await constructEmail(clubId);
     url += "&subject=" + title + "&body=" + description;
-    window.open(url);
     updateButton("Email Meeting", button);
+    window.open(url);
 }
 
 function addLeader(club_id, member_id, button) {
@@ -269,6 +269,8 @@ function createMeeting(form) {
                 deleteAction.dataset.clubId = meeting.club_id;
 
                 meetingsList.insertBefore(copy, template.nextSibling);
+
+                wrapButtons();
             } else {
                 submitButton.value = "Oops! Try again.";
             }
