@@ -49,6 +49,24 @@
                 </div>
             </div>
             <hr>
+            <h2>Club Actions</h2>
+            <div id = "club-actions">
+                {% if club.membership_type == 0 %}
+                    <span class = "material-symbol" data-action = "leave-club" data-club-id = "{{club.id}}" data-authenticated = "{{g.user.authenticated}}" data-button = "Leave Club">logout</span>
+                {% elif club.membership_type == None %}
+                    <span class = "material-symbol" data-action = "join-club" data-club-id = "{{club.id}}" data-authenticated = "{{g.user.authenticated}}" data-button = "Join Club">login</span>
+                {% endif %}
+                {% if club.membership_type == 1 or g.user.is_admin %}
+                    <span class = "material-symbol" data-action = "send-email" data-club-id = "{{club.id}}" data-button = "Send Email">mail</span>
+                    <span class = "material-symbol" data-action = "copy-users" data-club-id = "{{club.id}}" data-button = "Copy Emails">content_copy</span>
+                    <span id = "import-user-button" class = "material-symbol" data-action = "import-users" data-button = "Import Members" data-club-id = "{{club.id}}">upload</span>
+                {% endif %}
+            </div>
+            {% if club.membership_type == 1 or g.user.is_admin %}
+                <div id = "import-user-message"></div>
+                <textarea id = "import-user-text" placeholder = "Please paste in your club's mailing list with @lakesideschool.org included. (This can be done by copying the To: line on past emails from Outlook.)"></textarea>    
+            {% endif %}
+            <hr>
             <h2>Leaders</h2>
             <ul id = "club-leader-list" class = "club-user-list" data-club-id = "{{club.id}}" data-authenticated = "{{g.user.authenticated}}" data-current-user-id = "{{g.user.user_id}}">
                 {% for leader in club.leaders %}
@@ -68,23 +86,7 @@
                     </li>
                 {% endfor %}  
             </ul>
-            <hr>
-            <h2>Club Actions</h2>
-            <div id = "club-actions">
-                {% if club.membership_type == 0 %}
-                    <span class = "material-symbol" data-action = "leave-club" data-club-id = "{{club.id}}" data-authenticated = "{{g.user.authenticated}}" data-button = "Leave Club">logout</span>
-                {% elif club.membership_type == None %}
-                    <span class = "material-symbol" data-action = "join-club" data-club-id = "{{club.id}}" data-authenticated = "{{g.user.authenticated}}" data-button = "Join Club">login</span>
-                {% endif %}
-                {% if club.membership_type == 1 or g.user.is_admin %}
-                    <span class = "material-symbol" data-action = "send-email" data-club-id = "{{club.id}}" data-button = "Send Email">mail</span>
-                    <span class = "material-symbol" data-action = "copy-users" data-club-id = "{{club.id}}" data-button = "Copy Emails">content_copy</span>
-                    <span id = "import-user-button" class = "material-symbol" data-action = "import-users" data-button = "Import Members" data-club-id = "{{club.id}}">upload</span>
-                {% endif %}
-            </div>
-            {% if club.membership_type == 1 or g.user.is_admin %}
-                <div id = "import-user-message"></div>
-                <textarea id = "import-user-text" placeholder = "Please paste in your club's mailing list with @lakesideschool.org included. (This can be done by copying the To: line on past emails from Outlook.)"></textarea>                
+            {% if club.membership_type == 1 or g.user.is_admin %}            
                 <hr>
                 <h2>Members</h2>
                 <ul id = "club-member-list" class = "club-user-list" data-club-id = "{{club.id}}" data-authenticated = "{{g.user.authenticated}}" data-current-user-id = "{{g.user.user_id}}">

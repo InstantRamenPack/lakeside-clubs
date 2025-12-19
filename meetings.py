@@ -8,10 +8,6 @@ from md_utils import render_markdown_plain, render_markdown_safe
 
 @app.route("/meetings", methods = ["GET"])
 def meetings():
-    if not g.user.authenticated:
-        session["raymondz_next"] = request.url
-        return redirect(url_for("login"))
-    
     cursor = mysql.connection.cursor()
     cursor.execute("""
         SELECT 
