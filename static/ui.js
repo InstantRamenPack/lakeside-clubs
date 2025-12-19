@@ -12,6 +12,8 @@ let tooltipObserver;
 let currentTooltipTarget;
 let warningLayer;
 let overlayUpdateHandle;
+let lastOverlayEventAt = 0;
+let lastTooltipContent = '';
 
 function createTooltipLayer() {
     if (tooltipBubble) {
@@ -102,7 +104,10 @@ function positionTooltip() {
         return;
     }
     const rect = currentTooltipTarget.getBoundingClientRect();
-    tooltipBubble.innerHTML = content;
+    if (lastTooltipContent !== content) {
+        tooltipBubble.innerHTML = content;
+        lastTooltipContent = content;
+    }
     tooltipBubble.style.left = `${rect.left + rect.width / 2}px`;
     tooltipBubble.style.top = `${rect.top}px`;
 }
@@ -176,15 +181,30 @@ function positionWarnings() {
     });
 }
 
+function hasOverlays() {
+    return Boolean(currentTooltipTarget || (warningLayer && warningLayer.childElementCount));
+}
+
 function scheduleOverlayUpdate() {
+    lastOverlayEventAt = window.performance.now();
+    if (!hasOverlays()) {
+        return;
+    }
+    positionTooltip();
+    positionWarnings();
     if (overlayUpdateHandle) {
         return;
     }
-    overlayUpdateHandle = window.requestAnimationFrame(() => {
-        overlayUpdateHandle = null;
+    const tick = () => {
         positionTooltip();
         positionWarnings();
-    });
+        if (window.performance.now() - lastOverlayEventAt < 200) {
+            overlayUpdateHandle = window.requestAnimationFrame(tick);
+        } else {
+            overlayUpdateHandle = null;
+        }
+    };
+    overlayUpdateHandle = window.requestAnimationFrame(tick);
 }
 
 function wrapButtons() {
