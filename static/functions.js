@@ -381,7 +381,18 @@ function createMeeting(form, submitter) {
                 }
 
                 postsPanel.insertBefore(copy, template.nextSibling);
-                setActiveTab(document.querySelector(`.tab-bar [data-tab-target="${targetId}"]`).closest('.tab-bar'), panelId);
+                setActiveTab(document.querySelector(`.tab-bar [data-tab-target="${panelId}"]`).closest('.tab-bar'), panelId);
+                if (isMeeting) {
+                    const noMeetings = document.querySelector('#no-meetings');
+                    if (noMeetings) {
+                        noMeetings.remove();
+                    }
+                } else {
+                    const noAnnouncements = document.querySelector('#no-announcements');
+                    if (noAnnouncements) {
+                        noAnnouncements.remove();
+                    }
+                } 
             } else {
                 submitter.value = "Oops! Try again.";
             }

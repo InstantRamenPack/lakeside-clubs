@@ -195,11 +195,18 @@
                         </div>
                     </div>
                 </template>
+                {% set ns = namespace(exists_meeting = false) %}
                 {% for meeting in meetings %}
                     {% if meeting.is_meeting %}
                         {{ macros.render_meeting_card(meeting, true, true) }}
+                        {% set ns.exists_meeting = true %}
                     {% endif %}
                 {% endfor %}
+                {% if not ns.exists_meeting %}
+                    <h2 id = "no-meetings" class = "no-meetings">
+                        No Meetings Found
+                    </h2>
+                {% endif %}
             </div>
             <div class = "tab-panel" id = "club-announcements-panel" hidden>
                 <template data-post-template = "announcement">
@@ -225,11 +232,18 @@
                         </div>
                     </div>
                 </template>
+                {% set ns.exists_meeting = false %}
                 {% for meeting in meetings %}
                     {% if not meeting.is_meeting %}
                         {{ macros.render_meeting_card(meeting, false, true) }}
+                        {% set ns.exists_meeting = true %}
                     {% endif %}
                 {% endfor %}
+                {% if not ns.exists_meeting %}
+                    <h2 id = "no-announcements" class = "no-meetings">
+                        No Announcements Found
+                    </h2>
+                {% endif %}
             </div>
         </div>
     </div>
