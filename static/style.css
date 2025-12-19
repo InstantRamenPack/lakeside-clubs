@@ -84,7 +84,7 @@ button, input[type="submit"] {
     font-weight: bold;
 
     padding: 4px 6px 4px 8px;
-    border-radius: 8px;
+    border-radius: 12px;
 
     backdrop-filter: blur(12px) saturate(60%);
     border: 2px solid rgba(var(--card-bg), 0.18);
@@ -250,7 +250,7 @@ input[type="submit"] {
     align-items: center;
     gap: 6px;
     padding: 4px 4px;
-    border-radius: 8px;
+    border-radius: 12px;
     border: 2px solid rgba(var(--card-bg), 0.2);
 }
 
