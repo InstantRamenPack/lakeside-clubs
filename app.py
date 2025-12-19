@@ -33,7 +33,7 @@ def authenticate_leadership(func):
         cursor = mysql.connection.cursor()
         cursor.execute("""
             SELECT club_id FROM raymondz_club_members
-            WHERE user_id = %s AND club_id = %s AND membership_type = 1
+            WHERE user_id = %s AND club_id = %s AND is_leader = 1
         """, (g.user.user_id, club_id))
         club = cursor.fetchone()
         if not club:
@@ -53,7 +53,8 @@ def index():
     cursor.execute("""
         SELECT
             c.*, 
-            m.membership_type,
+            m.is_leader AS is_leader,
+            m.user_id IS NOT NULL AS is_member,
             (
                 SELECT 
                     COUNT(*)
@@ -106,9 +107,9 @@ def index():
         club["club_id"] = club_id
         clubs[club_id] = club
 
-        if club["membership_type"] == 1:
+        if club["is_leader"]:
             lead_order.append(club_id)
-        elif club["membership_type"] == 0:
+        elif club["is_member"]:
             joined_order.append(club_id)
         else:
             other_order.append(club_id)

@@ -146,7 +146,7 @@ async function constructEmail(club_id) {
     let url = "https://outlook.office.com/mail/deeplink/compose?to=";
     let bccStart = false;
     for (let i = 0; i < members.length; i++) {
-        if (!bccStart && members[i].membership_type == 0) {
+        if (!bccStart && members[i].is_leader == 0) {
             bccStart = true;
             url = url.substring(0, url.length - 1);
             // not sure why but Outlook requires ? not &

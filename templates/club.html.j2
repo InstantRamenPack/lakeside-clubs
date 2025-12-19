@@ -17,7 +17,7 @@
                 <template id = "club-tag-template">
                     <div class = "club-tag" data-tag-id = "">
                         <span class = "tag-name"></span>
-                        {% if club.membership_type == 1 or g.user.is_admin %}
+                        {% if club.is_leader or g.user.is_admin %}
                             <span class = "material-symbol" data-action = "delete-tag" data-tooltip = "Delete Tag">close</span>
                         {% endif %}
                     </div>
@@ -25,12 +25,12 @@
                 {% for tag in club.tags %}
                     <div class = "club-tag" data-tag-id = "{{tag.id}}">
                         <span class = "tag-name">{{tag.name}}</span>
-                        {% if club.membership_type == 1 or g.user.is_admin %}
+                        {% if club.is_leader or g.user.is_admin %}
                             <span class = "material-symbol" data-action = "delete-tag" data-tag-id = "{{tag.id}}" data-tooltip = "Delete Tag">close</span>
                         {% endif %}
                     </div>
                 {% endfor %}
-                {% if club.membership_type == 1 or g.user.is_admin %}
+                {% if club.is_leader or g.user.is_admin %}
                     <div class = "club-tag create-tag-control" data-club-id = "{{club.id}}">
                         <span class = "material-symbol" data-action = "start-create-tag" data-tooltip = "Add Tag">add</span>
                         <input type = "text" name = "new-tag" placeholder = "New Tag" maxlength = "16" style = "display: none;">
@@ -51,18 +51,18 @@
             <hr>
             <h2>Club Actions</h2>
             <div id = "club-actions">
-                {% if club.membership_type == 0 %}
+                {% if club.is_member and not club.is_leader %}
                     <span class = "material-symbol" data-action = "leave-club" data-club-id = "{{club.id}}" data-authenticated = "{{g.user.authenticated}}" data-button = "Leave Club">logout</span>
-                {% elif club.membership_type == None %}
+                {% elif not club.is_member %}
                     <span class = "material-symbol" data-action = "join-club" data-club-id = "{{club.id}}" data-authenticated = "{{g.user.authenticated}}" data-button = "Join Club">login</span>
                 {% endif %}
-                {% if club.membership_type == 1 or g.user.is_admin %}
+                {% if club.is_leader or g.user.is_admin %}
                     <span class = "material-symbol" data-action = "send-email" data-club-id = "{{club.id}}" data-button = "Send Email">mail</span>
                     <span class = "material-symbol" data-action = "copy-users" data-club-id = "{{club.id}}" data-button = "Copy Emails">content_copy</span>
                     <span id = "import-user-button" class = "material-symbol" data-action = "import-users" data-button = "Import Members" data-club-id = "{{club.id}}">upload</span>
                 {% endif %}
             </div>
-            {% if club.membership_type == 1 or g.user.is_admin %}
+            {% if club.is_leader or g.user.is_admin %}
                 <div id = "import-user-message"></div>
                 <textarea id = "import-user-text" placeholder = "Please paste in your club's mailing list with @lakesideschool.org included. (This can be done by copying the To: line on past emails from Outlook.)"></textarea>    
             {% endif %}
@@ -73,7 +73,7 @@
                     <li>
                         <div class = "user-name">{{macros.display_name(leader)}}</div>
                         <div class = "flex-space"></div>
-                        {% if club.membership_type == 1 or g.user.is_admin %}
+                        {% if club.is_leader or g.user.is_admin %}
                             {% if leader.id != g.user.user_id %}
                                 <span class = "membership-action material-symbol" data-action = "demote-leader" data-member-id = "{{leader.id}}" data-tooltip = "Demote Leader">remove_moderator</span>
                             {% endif %}
@@ -86,7 +86,7 @@
                     </li>
                 {% endfor %}  
             </ul>
-            {% if club.membership_type == 1 or g.user.is_admin %}            
+            {% if club.is_leader or g.user.is_admin %}            
                 <hr>
                 <h2>Members</h2>
                 <ul id = "club-member-list" class = "club-user-list" data-club-id = "{{club.id}}" data-authenticated = "{{g.user.authenticated}}" data-current-user-id = "{{g.user.user_id}}">
@@ -115,7 +115,7 @@
         </aside>
 
         <div id = "club-meetings-list">
-            {% if club.membership_type == 1 or g.user.is_admin %}
+            {% if club.is_leader or g.user.is_admin %}
                 <form class = "meeting-card" id = "new-meeting-card" data-club-id = "{{club.id}}">
                     <input type = "text" name = "title" placeholder = "Title" required>
                     <textarea name = "description" placeholder = "Description: supports Markdown! Try *italics*, **bold**, ~~strikethrough~~, [links](url.com), and !(image-links.com)." required></textarea>
@@ -166,7 +166,7 @@
                                 <p data-field = "location"></p>
                             </div>
                             <div class = "flex-space"></div>
-                            {% if club.membership_type == 1 or g.user.is_admin %}
+                            {% if club.is_leader or g.user.is_admin %}
                                 <span class = "material-symbol" data-action = "email-meeting" data-club-id = "{{club.id}}" data-meeting-id = "" data-meeting-title = "" data-meeting-description = "" data-button = "Email Meeting">mail</span>
                                 <span class = "material-symbol" data-action = "delete-meeting" data-meeting-id = "" data-club-id = "{{club.id}}" data-button = "Delete Meeting">delete</span>
                             {% endif %}
@@ -190,7 +190,7 @@
                                 <small data-field = "post-time"></small>
                             </div>
                             <div class = "flex-space"></div>
-                            {% if club.membership_type == 1 or g.user.is_admin %}
+                            {% if club.is_leader or g.user.is_admin %}
                                 <span class = "material-symbol" data-action = "email-meeting" data-club-id = "{{club.id}}" data-meeting-id = "" data-meeting-title = "" data-meeting-description = "" data-button = "Email Meeting">mail</span>
                                 <span class = "material-symbol" data-action = "delete-meeting" data-meeting-id = "" data-club-id = "{{club.id}}" data-button = "Delete Meeting">delete</span>
                             {% endif %}

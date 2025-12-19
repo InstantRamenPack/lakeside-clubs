@@ -25,7 +25,7 @@
             </div>
             <div class = "tab-panel" id = "meetings-yours-panel" hidden>
                 {% for meeting in meetings %}
-                    {% if meeting.is_meeting and meeting.member_status == 1 %}
+                    {% if meeting.is_meeting and meeting.is_member %}
                         {{ macros.render_meeting_card(meeting, true, false) }}
                     {% endif %}
                 {% endfor %}
@@ -45,7 +45,7 @@
             </div>
             <div class = "tab-panel" id = "announcements-yours-panel" hidden>
                 {% for meeting in meetings %}
-                    {% if not meeting.is_meeting and meeting.member_status == 1 %}
+                    {% if not meeting.is_meeting and meeting.is_member %}
                         {{ macros.render_meeting_card(meeting, false, false) }}
                     {% endif %}
                 {% endfor %}

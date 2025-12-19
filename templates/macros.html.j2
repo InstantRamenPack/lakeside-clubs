@@ -36,9 +36,9 @@
                 <p>{{club.location}}</p>
             </div>
             <div class = "flex-space"></div>
-            {% if club.membership_type is none %}
+            {% if not club.is_member %}
                 <span class = "material-symbol" data-action = "join-club" data-club-id = "{{club.club_id}}" data-authenticated = "{{g.user.authenticated}}" data-button = "Join Club">login</span>
-            {% elif club.membership_type == 0 %}
+            {% elif not club.is_leader %}
                 <span class = "material-symbol" data-action = "leave-club" data-club-id = "{{club.club_id}}" data-authenticated = "{{g.user.authenticated}}" data-button = "Leave Club">logout</span>
             {% endif %}
         </div>
@@ -80,7 +80,7 @@
                 </div>
             {% endif %}
             <div class = "flex-space"></div>
-            {% if is_club_page and (club.membership_type == 1 or g.user.is_admin) %}
+            {% if is_club_page and (club.is_leader or g.user.is_admin) %}
                 <span class = "material-symbol" data-action = "email-meeting" data-club-id = "{{club.id}}" data-meeting-id = "{{meeting.id}}" data-meeting-title = "{{meeting.title|e}}" data-meeting-description = "{{meeting.description_plain|e}}" data-button = "Email Meeting">mail</span>
                 <span class = "material-symbol" data-action = "delete-meeting" data-meeting-id = "{{meeting.id}}" data-club-id = "{{club.id}}" data-button = "Delete Meeting">delete</span>
             {% endif %}
