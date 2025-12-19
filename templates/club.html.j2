@@ -85,20 +85,7 @@
             <h2>Leaders</h2>
             <ul id = "club-leader-list" class = "club-user-list" data-club-id = "{{club.id}}" data-authenticated = "{{g.user.authenticated}}" data-current-user-id = "{{g.user.user_id}}">
                 {% for leader in club.leaders %}
-                    <li>
-                        <div class = "user-name">{{macros.display_name(leader)}}</div>
-                        <div class = "flex-space"></div>
-                        {% if club.is_leader or g.user.is_admin %}
-                            {% if leader.id != g.user.user_id %}
-                                <span class = "membership-action material-symbol" data-action = "demote-leader" data-member-id = "{{leader.id}}" data-tooltip = "Demote Leader">remove_moderator</span>
-                            {% endif %}
-                        {% endif %}
-                        <span class = "membership-action material-symbol" style = "display: none;" data-action = "add-leader" data-member-id = "{{leader.id}}" data-tooltip = "Add Leader">add_moderator</span>
-                        <span class = "membership-action material-symbol" style = "display: none;" data-action = "kick-member" data-member-id = "{{leader.id}}" data-tooltip = "Kick Member">person_remove</span>
-                        {% if g.user.authenticated %}
-                            <span class = "membership-action material-symbol" data-action = "copy-email" data-email = "{{leader.email}}" data-tooltip = "{{leader.email}}">contact_mail</span>
-                        {% endif %}
-                    </li>
+                    {{macros.display_member(leader, true)}}
                 {% endfor %}  
             </ul>
             {% if club.is_leader or g.user.is_admin %}            
@@ -116,14 +103,7 @@
                         </li>
                     </template>
                     {% for member in club.members %}
-                        <li>
-                            <div class = "user-name">{{macros.display_name(member)}}</div>
-                            <div class = "flex-space"></div>
-                            <span class = "membership-action material-symbol" style = "display: none;" data-action = "demote-leader" data-member-id = "{{member.id}}" data-tooltip = "Demote Leader">remove_moderator</span>
-                            <span class = "membership-action material-symbol" data-action = "add-leader" data-member-id = "{{member.id}}" data-tooltip = "Add Leader">add_moderator</span>
-                            <span class = "membership-action material-symbol" data-action = "kick-member" data-member-id = "{{member.id}}" data-tooltip = "Kick Member">person_remove</span>
-                            <span class = "membership-action material-symbol" data-action = "copy-email" data-email = "{{member.email}}" data-tooltip = "{{member.email}}">contact_mail</span>
-                        </li>
+                        {{macros.display_member(member, false)}}
                     {% endfor %}
                 </ul>
             {% endif %}
