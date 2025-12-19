@@ -44,3 +44,46 @@
         </div>
     </div>
 {% endmacro %}
+
+{% macro render_meeting_card(meeting, is_meeting, is_club_page) %}
+    <div class = "meeting-card" {% if not is_club_page %} data-status = "{{meeting.member_status}}" {% endif %}>
+        {% if is_club_page %}
+            <h2>{{meeting.title|e}}</h2>            
+        {% else %}
+            <a href = "club?id={{meeting.club_id}}">
+                <h2>{{meeting.club_name}}</h2>
+            </a>
+            <h3>{{meeting.title|e}}</h3>
+        {% endif %}
+        <div class = "meeting-description">{{meeting.description}}</div>
+        <hr>
+        <div class = "card-info">
+            {% if is_meeting %}
+                <div>
+                    <span class = "material-symbol">event</span>
+                    <p>{{meeting.date.strftime("%A, %b %-d")}}</p>
+                </div>
+                <div>
+                    <span class = "material-symbol">schedule</span>
+                    {# convert meeting.start_time to string by concantenating with blank then remove seconds #}
+                    <p>{{(meeting.start_time ~ "")[:-3]}} - {{(meeting.end_time ~ "")[:-3]}}</p>
+                </div>
+                <div>
+                    <span class = "material-symbol">location_on</span>
+                    <p>{{meeting.location}}</p>
+                </div>
+            {% else %}
+                <div>
+                    {% if meeting.post_time is defined and meeting.post_time %}
+                        <small>{{meeting.post_time.strftime("%A, %b %-d %I:%M %p")}}</small>
+                    {% endif %}
+                </div>
+            {% endif %}
+            <div class = "flex-space"></div>
+            {% if is_club_page and (club.membership_type == 1 or g.user.is_admin) %}
+                <span class = "material-symbol" data-action = "email-meeting" data-club-id = "{{club.id}}" data-meeting-id = "{{meeting.id}}" data-meeting-title = "{{meeting.title|e}}" data-meeting-description = "{{meeting.description_plain|e}}" data-button = "Email Meeting">mail</span>
+                <span class = "material-symbol" data-action = "delete-meeting" data-meeting-id = "{{meeting.id}}" data-club-id = "{{club.id}}" data-button = "Delete Meeting">delete</span>
+            {% endif %}
+        </div>
+    </div>
+{% endmacro %}

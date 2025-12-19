@@ -68,7 +68,7 @@ textarea {
     word-wrap: break-word;
 }
 
-button {
+button, input[type="submit"] {
     display: flex;
     align-items: center;
     gap: 2px;
@@ -84,13 +84,16 @@ button {
     color: rgb(var(--text));
 }
 
+input[type="submit"] {
+    font-family: inherit;
+}
+
 .material-symbol {
     font-family: 'Material Symbols Outlined';
     font-style: normal;
     font-weight: normal;
     font-size: 20px;
     position: relative;
-    bottom: 1.5px;
 
     user-select: none;
     cursor: default; 
@@ -352,6 +355,33 @@ button {
     backdrop-filter: blur(12px) saturate(60%);
     border: 1px solid rgba(var(--card-bg), 0.2);
     background-color: rgba(var(--card-bg), 0.05);  
+}
+
+.tab-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.tab-button {
+    border-radius: 100px;
+    padding: 4px 12px;
+    font-weight: bold;
+}
+
+.tab-button.is-active {
+    background-color: rgba(var(--card-bg), 0.12);
+    border-color: rgba(var(--card-bg), 0.4);
+}
+
+.tab-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.tab-panel[hidden] {
+    display: none;
 }
 
 #new-meeting-location input {

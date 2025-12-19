@@ -91,12 +91,18 @@ def club():
         WHERE 
             m.club_id = %s
         AND
-            m.date >= DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 1 DAY)
+            (
+                (m.is_meeting = 1 AND m.date >= DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 1 DAY))
+                OR
+                (m.is_meeting = 0 AND m.post_time >= DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 1 MONTH))
+            )
         GROUP BY 
             m.id 
         ORDER BY
-            m.date ASC,
-            m.start_time ASC
+            m.is_meeting DESC,
+            CASE WHEN m.is_meeting = 1 THEN m.date END ASC,
+            CASE WHEN m.is_meeting = 1 THEN m.start_time END ASC,
+            CASE WHEN m.is_meeting = 0 THEN m.post_time END DESC
     """, (club_id,))
     meetings = cursor.fetchall()
     for meeting in meetings:

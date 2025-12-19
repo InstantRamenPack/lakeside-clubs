@@ -124,6 +124,36 @@ function updateButton(text, element, icon) {
     wrapButtons();
 }
 
+function setActiveTab(tabBar, targetId) {
+    const tabs = Array.from(tabBar.querySelectorAll('[data-tab-target]'));
+    tabs.forEach((tab) => {
+        const isActive = tab.dataset.tabTarget === targetId;
+        tab.classList.toggle('is-active', isActive);
+        const panel = document.getElementById(tab.dataset.tabTarget);
+        panel.hidden = !isActive;
+    });
+}
+
+function activateTab(targetId) {
+    const tab = document.querySelector(`.tab-bar [data-tab-target="${targetId}"]`);
+    const tabBar = tab.closest('.tab-bar');
+    setActiveTab(tabBar, targetId);
+}
+
+function setupTabs() {
+    document.querySelectorAll('.tab-bar').forEach((tabBar) => {
+        const tabs = Array.from(tabBar.querySelectorAll('[data-tab-target]'));
+        if (!tabs.length) {
+            return;
+        }
+        const activeTab = tabBar.querySelector('.tab-button.is-active') || tabs[0];
+        setActiveTab(tabBar, activeTab.dataset.tabTarget);
+        tabs.forEach((tab) => {
+            tab.addEventListener('click', () => setActiveTab(tabBar, tab.dataset.tabTarget));
+        });
+    });
+}
+
 // attach UI utilities
 document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('textarea').forEach((textarea) => {
@@ -133,4 +163,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
     attachTooltips();
     wrapButtons();
+    setupTabs();
 });
