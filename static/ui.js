@@ -11,6 +11,7 @@ let tooltipBubble;
 let tooltipObserver;
 let currentTooltipTarget;
 let warningLayer;
+let overlayUpdateHandle;
 
 function createTooltipLayer() {
     if (tooltipBubble) {
@@ -65,11 +66,8 @@ function attachTooltips() {
                 hide();
                 return;
             }
-            const rect = element.getBoundingClientRect();
             currentTooltipTarget = element;
-            bubble.innerHTML = content;
-            bubble.style.left = `${rect.left + rect.width / 2}px`;
-            bubble.style.top = `${rect.top}px`;
+            positionTooltip();
             bubble.style.visibility = 'visible';
         };
 
@@ -86,6 +84,27 @@ function updateTooltip(text, element) {
     if (element.matches(':hover')) {
         element.dispatchEvent(new Event('mouseenter'));
     }
+}
+
+function positionTooltip() {
+    if (!tooltipBubble || !currentTooltipTarget) {
+        return;
+    }
+    if (!currentTooltipTarget.isConnected) {
+        tooltipBubble.style.visibility = 'hidden';
+        currentTooltipTarget = null;
+        return;
+    }
+    const content = currentTooltipTarget.dataset.tooltip || '';
+    if (!content) {
+        tooltipBubble.style.visibility = 'hidden';
+        currentTooltipTarget = null;
+        return;
+    }
+    const rect = currentTooltipTarget.getBoundingClientRect();
+    tooltipBubble.innerHTML = content;
+    tooltipBubble.style.left = `${rect.left + rect.width / 2}px`;
+    tooltipBubble.style.top = `${rect.top}px`;
 }
 
 function createWarningLayer() {
@@ -112,9 +131,7 @@ function attachWarnings(scope) {
         bubble.textContent = content;
         bubble._target = element;
         layer.appendChild(bubble);
-        const rect = element.getBoundingClientRect();
-        bubble.style.left = `${rect.left + rect.width / 2}px`;
-        bubble.style.top = `${rect.top}px`;
+        positionWarning(bubble, element);
     });
 }
 
@@ -126,6 +143,48 @@ function clearWarnings(scope) {
     if (warningLayer) {
         warningLayer.replaceChildren();
     }
+}
+
+function positionWarning(bubble, element) {
+    if (!bubble || !element) {
+        return;
+    }
+    const rect = element.getBoundingClientRect();
+    bubble.style.left = `${rect.left + rect.width / 2}px`;
+    bubble.style.top = `${rect.top}px`;
+}
+
+function positionWarnings() {
+    if (!warningLayer) {
+        return;
+    }
+    warningLayer.querySelectorAll('.warning-text').forEach((bubble) => {
+        const target = bubble._target;
+        if (!target || !target.isConnected) {
+            bubble.remove();
+            return;
+        }
+        const content = target.dataset.warning || '';
+        if (!content) {
+            bubble.remove();
+            return;
+        }
+        if (bubble.textContent !== content) {
+            bubble.textContent = content;
+        }
+        positionWarning(bubble, target);
+    });
+}
+
+function scheduleOverlayUpdate() {
+    if (overlayUpdateHandle) {
+        return;
+    }
+    overlayUpdateHandle = window.requestAnimationFrame(() => {
+        overlayUpdateHandle = null;
+        positionTooltip();
+        positionWarnings();
+    });
 }
 
 function wrapButtons() {
@@ -197,4 +256,7 @@ document.addEventListener('DOMContentLoaded', () => {
     attachTooltips();
     wrapButtons();
     setupTabs();
+
+    window.addEventListener('scroll', scheduleOverlayUpdate, { passive: true, capture: true });
+    window.addEventListener('resize', scheduleOverlayUpdate, { passive: true });
 });
