@@ -381,6 +381,12 @@ input[type="submit"] {
     background-color: rgba(var(--card-bg), 0.05);  
 }
 
+.meeting-card img {
+    max-width: 100%;
+    width: auto;
+    height: auto;
+}
+
 .tab-bar {
     display: flex;
     align-items: center;
