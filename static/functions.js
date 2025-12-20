@@ -43,7 +43,9 @@ function importUsers(club_id) {
     const xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
-            const newMembers = JSON.parse(this.responseText);
+            const payload = JSON.parse(this.responseText);
+            const newMembers = payload.new_members || [];
+            const renderedMembers = payload.rendered_members || [];
             if (newMembers.length == 0) {
                 message.textContent = "No new users imported.";
             } else {
@@ -61,24 +63,8 @@ function importUsers(club_id) {
             }
 
             const memberList = document.getElementById("club-member-list");
-            const template = memberList.getElementsByTagName("template")[0];
-            newMembers.forEach((user) => {
-                const copy = template.content.cloneNode(true);
-                copy.querySelector(".user-name").textContent = user.email.slice(0, -19);
-                const actionButtons = copy.querySelectorAll("[data-action]");
-                actionButtons.forEach((actionButton) => {
-                    if (actionButton.dataset.action === "copy-email") {
-                        actionButton.dataset.email = user.email;
-                        const tooltipWrapper = actionButton.parentElement;
-                        if (tooltipWrapper) {
-                            tooltipWrapper.dataset.tooltip = user.email;
-                        }
-                        return;
-                    }
-                });
-
-                showActions(copy, "member");
-                template.parentNode.appendChild(copy);
+            renderedMembers.forEach((memberHtml) => {
+                memberList.insertAdjacentHTML("beforeend", memberHtml);
             });
             attachTooltips();
 
@@ -338,51 +324,19 @@ function createMeeting(form, submitter) {
                 submitter.value = submitLabel;
                 form.reset();
 
-                const meeting = JSON.parse(this.responseText);
-                const isMeetingPost = Number(meeting.is_meeting) === 1 || meeting.is_meeting === true;
+                const payload = JSON.parse(this.responseText);
+                const isMeetingPost = payload.is_meeting === true || payload.is_meeting === 1 || payload.is_meeting === "1";
                 const panelId = isMeetingPost ? 'club-meetings-panel' : 'club-announcements-panel';
-                const templateType = isMeetingPost ? 'meeting' : 'announcement';
                 const postsPanel = document.getElementById(panelId);
-                const template = postsPanel.querySelector(`template[data-post-template="${templateType}"]`);
+                const cardHtml = payload.html || "";
 
-                const copy = template.content.cloneNode(true);
-                const card = copy.querySelector('.meeting-card');
-
-                card.querySelector('h2').textContent = meeting.title;
-                card.querySelector('.meeting-description').innerHTML = meeting.description;
-
-                const dateField = card.querySelector('[data-field="date"]');
-                if (dateField) {
-                    dateField.textContent = meeting.date;
-                }
-                const timeField = card.querySelector('[data-field="time-range"]');
-                if (timeField) {
-                    timeField.textContent = meeting.time_range;
-                }
-                const locationField = card.querySelector('[data-field="location"]');
-                if (locationField) {
-                    locationField.textContent = meeting.location;
-                }
-                const postTimeField = card.querySelector('[data-field="post-time"]');
-                if (postTimeField) {
-                    postTimeField.textContent = meeting.post_time;
-                }
-                const emailAction = card.querySelector('[data-action="email-meeting"]');
-                if (emailAction) {
-                    emailAction.dataset.meetingId = meeting.id;
-                    emailAction.dataset.meetingTitle = meeting.title;
-                    emailAction.dataset.meetingDescription = meeting.description_plain;
-                    emailAction.dataset.clubId = meeting.club_id;
-                }
-                const deleteAction = card.querySelector('[data-action="delete-meeting"]');
-                if (deleteAction) {
-                    deleteAction.dataset.meetingId = meeting.id;
-                    deleteAction.dataset.clubId = meeting.club_id;
+                if (cardHtml && postsPanel) {
+                    postsPanel.insertAdjacentHTML('afterbegin', cardHtml);
+                    attachTooltips();
                 }
 
-                postsPanel.insertBefore(copy, template.nextSibling);
                 setActiveTab(document.querySelector(`.tab-bar [data-tab-target="${panelId}"]`).closest('.tab-bar'), panelId);
-                if (isMeeting) {
+                if (isMeetingPost) {
                     const noMeetings = document.querySelector('#no-meetings');
                     if (noMeetings) {
                         noMeetings.remove();

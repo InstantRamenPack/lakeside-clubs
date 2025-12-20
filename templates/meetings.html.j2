@@ -21,7 +21,7 @@
                 {% set ns = namespace(exists_meeting = false) %}
                 {% for meeting in meetings %}
                     {% if meeting.is_meeting %}
-                        {{ macros.render_meeting_card(meeting, true, false) }}
+                        {{ macros.render_meeting_card(meeting, false, true, false) }}
                         {% set ns.exists_meeting = true %}
                     {% endif %}
                 {% endfor %}
@@ -36,7 +36,7 @@
                 {% set ns.exists_meeting = false %}
                 {% for meeting in meetings %}
                     {% if meeting.is_meeting and meeting.is_member %}
-                        {{ macros.render_meeting_card(meeting, true, false) }}
+                        {{ macros.render_meeting_card(meeting, false, true, false) }}
                         {% set ns.exists_meeting = true %}
                     {% endif %}
                 {% endfor %}
@@ -58,7 +58,7 @@
                 {% set ns.exists_meeting = false %}
                 {% for meeting in meetings %}
                     {% if not meeting.is_meeting %}
-                        {{ macros.render_meeting_card(meeting, false, false) }}
+                        {{ macros.render_meeting_card(meeting, false, false, false) }}
                         {% set ns.exists_meeting = true %}
                     {% endif %}
                 {% endfor %}
@@ -73,7 +73,7 @@
                 {% set ns.exists_meeting = false %}
                 {% for meeting in meetings %}
                     {% if not meeting.is_meeting and meeting.is_member %}
-                        {{ macros.render_meeting_card(meeting, false, false) }}
+                        {{ macros.render_meeting_card(meeting, false, false, false) }}
                         {% set ns.exists_meeting = true %}
                     {% endif %}
                 {% endfor %}

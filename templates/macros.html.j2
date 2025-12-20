@@ -1,16 +1,27 @@
-{% macro display_name(person) %}
-    {% if person.first_name and person.last_name %}
+{% macro display_member(member, is_leader) %}
+    <li>
+        <div class = "user-name">    
+            {% if member.first_name and member.last_name %}
+                {% if g.user.authenticated %}
+                    {{member.first_name}} {{member.last_name}}
+                {% else %}
+                    {{member.first_name}} {{member.last_name[0]}}.
+                {% endif %}
+            {% elif member.email %}
+                <span>{{member.email[:-22]|capitalize}} {{member.email[-22]|capitalize}}</span>
+                <span data-tooltip = "This name might be inaccurate since this user never logged in.">
+                    <span class = "material-symbol">info</span>
+                </span>
+            {% endif %}
+        </div>
+        <div class = "flex-space"></div>
+        <span class = "membership-action material-symbol" {% if not is_leader or member.id == g.user.user_id %} style = "display: none;"{% endif %} data-action = "demote-leader" data-member-id = "{{member.id}}" data-tooltip = "Demote Leader">remove_moderator</span>
+        <span class = "membership-action material-symbol" {% if is_leader %} style = "display: none;"{% endif %} data-action = "add-leader" data-member-id = "{{member.id}}" data-tooltip = "Add Leader">add_moderator</span>
+        <span class = "membership-action material-symbol" {% if is_leader %} style = "display: none;"{% endif %} data-action = "kick-member" data-member-id = "{{member.id}}" data-tooltip = "Kick Member">person_remove</span>
         {% if g.user.authenticated %}
-            {{person.first_name}} {{person.last_name}}
-        {% else %}
-            {{person.first_name}} {{person.last_name[0]}}.
+            <span class = "membership-action material-symbol" data-action = "copy-email" data-email = "{{member.email}}" data-tooltip = "{{member.email}}">contact_mail</span>
         {% endif %}
-    {% elif person.email %}
-        <span>{{person.email[:-22]|capitalize}} {{person.email[-22]|capitalize}}</span>
-        <span data-tooltip = "This name might be inaccurate since this user never logged in.">
-            <span class = "material-symbol">info</span>
-        </span>
-    {% endif %}
+    </li>
 {% endmacro %}
 
 {% macro render_club_card(club) %}
@@ -51,7 +62,7 @@
     </div>
 {% endmacro %}
 
-{% macro render_meeting_card(meeting, is_meeting, is_club_page) %}
+{% macro render_meeting_card(meeting, is_leader, is_meeting, is_club_page) %}
     <div class = "meeting-card">
         {% if is_club_page %}
             <h2>{{meeting.title|e}}</h2>            
@@ -61,7 +72,7 @@
             </a>
             <h3>{{meeting.title|e}}</h3>
         {% endif %}
-        <div class = "meeting-description">{{meeting.description}}</div>
+        <div class = "meeting-description">{{meeting.description_safe()}}</div>
         <hr>
         <div class = "card-info">
             {% if is_meeting %}
@@ -79,12 +90,12 @@
                     <p>{{meeting.location}}</p>
                 </div>
             {% else %}
-                {% if is_club_page and (club.is_leader or g.user.is_admin) %}
-                    <button type = "button" data-action = "email-meeting" data-club-id = "{{club.id}}" data-meeting-id = "{{meeting.id}}" data-meeting-title = "{{meeting.title|e}}" data-meeting-description = "{{meeting.description_plain|e}}">
+                {% if is_club_page and (is_leader or g.user.is_admin) %}
+                    <button type = "button" data-action = "email-meeting" data-club-id = "{{meeting.club_id}}" data-meeting-id = "{{meeting.id}}" data-meeting-title = "{{meeting.title|e}}" data-meeting-description = "{{meeting.description_plain()|e}}">
                         <span class = "button-label">Email Announcement</span>
                         <span class = "material-symbol">mail</span>
                     </button>
-                    <button type = "button" data-action = "delete-meeting" data-meeting-id = "{{meeting.id}}" data-club-id = "{{club.id}}">
+                    <button type = "button" data-action = "delete-meeting" data-meeting-id = "{{meeting.id}}" data-club-id = "{{meeting.club_id}}">
                         <span class = "button-label">Delete Announcement</span>
                         <span class = "material-symbol">delete</span>
                     </button>
@@ -92,12 +103,12 @@
             {% endif %}
             <div class = "flex-space"></div>
             {% if is_meeting %}
-                {% if is_club_page and (club.is_leader or g.user.is_admin) %}             
-                    <button type = "button" data-action = "email-meeting" data-club-id = "{{club.id}}" data-meeting-id = "{{meeting.id}}" data-meeting-title = "{{meeting.title|e}}" data-meeting-description = "{{meeting.description_plain|e}}">
+                {% if is_club_page and (is_leader or g.user.is_admin) %}             
+                    <button type = "button" data-action = "email-meeting" data-club-id = "{{meeting.club_id}}" data-meeting-id = "{{meeting.id}}" data-meeting-title = "{{meeting.title|e}}" data-meeting-description = "{{meeting.description_plain()|e}}">
                         <span class = "button-label">Email Meeting</span>
                         <span class = "material-symbol">mail</span>
                     </button>
-                    <button type = "button" data-action = "delete-meeting" data-meeting-id = "{{meeting.id}}" data-club-id = "{{club.id}}">
+                    <button type = "button" data-action = "delete-meeting" data-meeting-id = "{{meeting.id}}" data-club-id = "{{meeting.club_id}}">
                         <span class = "button-label">Delete Meeting</span>
                         <span class = "material-symbol">delete</span>
                     </button>
