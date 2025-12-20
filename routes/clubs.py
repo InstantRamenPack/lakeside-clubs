@@ -105,17 +105,17 @@ def club():
             CASE WHEN m.is_meeting = 1 THEN m.start_time END ASC,
             CASE WHEN m.is_meeting = 0 THEN m.post_time END DESC
     """, (club_id,))
-    meeting_rows = cursor.fetchall()
+    rows = cursor.fetchall()
 
-    meeting_objects = []
+    meetings = []
     macros = app.jinja_env.get_template("macros.html.j2").make_module({"g": g})
-    for meeting in meeting_rows:
+    for meeting in rows:
         m = Meeting.from_dict(meeting)
-        m.is_leader = bool(club.get("is_leader"))
+        m.is_leader = bool(club["is_leader"])
         m.rendered_card = macros.render_meeting_card(m, m.is_leader, m.is_meeting, True)
-        meeting_objects.append(m)
+        meetings.append(m)
 
-    return render_template("club.html.j2", club = club, meetings = meeting_objects)   
+    return render_template("club.html.j2", club = club, meetings = meetings)   
 
 @app.route("/joinClub", methods = ["GET", "POST"])
 def joinClub():
@@ -220,13 +220,8 @@ def importUsers():
         """, [(member["id"], club_id) for member in new_members])
         mysql.connection.commit()
 
-    rendered_members = [
-        render_template_string(
-            '{% import "macros.html.j2" as macros %}{{ macros.display_member(member, False)|trim }}',
-            member = member
-        )
-        for member in new_members
-    ]
+    macros = app.jinja_env.get_template("macros.html.j2").make_module({"g": g})
+    rendered_members = [macros.display_member(member, False) for member in new_members]
 
     return json.dumps({"new_members": new_members, "rendered_members": rendered_members})
 

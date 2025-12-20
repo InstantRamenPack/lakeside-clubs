@@ -42,35 +42,27 @@ def meetings():
 @app.route("/createMeeting", methods = ["POST"])
 @authenticate_leadership
 def createMeeting():
-    club_id = request.values.get("club_id")
-    title = request.values.get("title")
-    description = request.values.get("description")
-    start_time = request.values.get("start-time")
-    end_time = request.values.get("end-time")
-    date = request.values.get("date")
-    location = request.values.get("location")
-    is_meeting = request.values.get("is_meeting", "1") != "0"
+    meeting = {
+        "club_id": request.values.get("club_id"),
+        "title":request.values.get("title"),
+        "description": request.values.get("description"),
+        "start_time": request.values.get("start-time"),
+        "end_time": request.values.get("end-time"),
+        "date": request.values.get("date"),
+        "location": request.values.get("location"),
+        "is_meeting": request.values.get("is_meeting", "1") != "0",
+        "is_leader": True
+    }
 
-    if not title or not description:
+    if not meeting["title"] or not meeting["description"]:
         return "Missing required fields", 400
-    if is_meeting:
-        if not start_time or not end_time or not date or not location:
+    if meeting["is_meeting"]:
+        if not meeting["start_time"] or not meeting["end_time"] or not meeting["date"] or not meeting["location"]:
             return "Missing required fields", 400
-        if end_time < start_time:
+        if meeting["end_time"] < meeting["start_time"]:
             return "Invalid times", 400
 
-    meeting = Meeting.from_dict({
-        "club_id": club_id,
-        "title": title,
-        "description": description,
-        "start_time": start_time,
-        "end_time": end_time,
-        "date": date,
-        "location": location,
-        "is_meeting": is_meeting,
-        "is_leader": True
-    }).create()
-
+    meeting = Meeting.from_dict(meeting).create()
     macros = app.jinja_env.get_template("macros.html.j2").make_module({"g": g})
     rendered_meeting = macros.render_meeting_card(meeting, meeting.is_leader, meeting.is_meeting, True)
 
