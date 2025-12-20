@@ -1,0 +1,87 @@
+from flask import g, jsonify, render_template, request
+
+from app import app, authenticate_leadership
+from db import mysql
+from meeting import Meeting
+
+@app.route("/meetings", methods = ["GET"])
+def meetings():
+    cursor = mysql.connection.cursor()
+    cursor.execute("""
+        SELECT 
+            m.*,
+            c.name AS club_name,
+            cm.user_id IS NOT NULL AS is_member
+        FROM 
+            raymondz_meetings m
+        JOIN
+            raymondz_clubs c ON c.id = m.club_id
+        LEFT JOIN
+            raymondz_club_members cm ON cm.club_id = c.id AND cm.user_id = %s
+        WHERE
+            (m.is_meeting = 1 AND m.date >= DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 1 DAY))
+        OR
+            (m.is_meeting = 0 AND m.post_time >= DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 1 MONTH))
+        ORDER BY
+            m.is_meeting DESC,
+            CASE WHEN m.is_meeting = 1 THEN m.date END ASC,
+            CASE WHEN m.is_meeting = 1 THEN m.start_time END ASC,
+            CASE WHEN m.is_meeting = 0 THEN m.post_time END DESC
+    """, (g.user.user_id,))
+    meeting_rows = cursor.fetchall()
+
+    meeting_objects = []
+    for meeting in meeting_rows:
+        m = Meeting.from_dict(meeting)
+        m.club_name = meeting.get("club_name")
+        m.is_member = bool(meeting.get("is_member"))
+        meeting_objects.append(m)
+
+    return render_template("meetings.html.j2", meetings = meeting_objects)
+
+@app.route("/createMeeting", methods = ["POST"])
+@authenticate_leadership
+def createMeeting():
+    club_id = request.values.get("club_id")
+    title = request.values.get("title")
+    description = request.values.get("description")
+    start_time = request.values.get("start-time")
+    end_time = request.values.get("end-time")
+    date = request.values.get("date")
+    location = request.values.get("location")
+    is_meeting = request.values.get("is_meeting", "1") != "0"
+
+    if not title or not description:
+        return "Missing required fields", 400
+    if is_meeting:
+        if not start_time or not end_time or not date or not location:
+            return "Missing required fields", 400
+        if end_time < start_time:
+            return "Invalid times", 400
+
+    meeting = Meeting.from_dict({
+        "club_id": club_id,
+        "title": title,
+        "description": description,
+        "start_time": start_time,
+        "end_time": end_time,
+        "date": date,
+        "location": location,
+        "is_meeting": is_meeting,
+        "is_leader": True
+    }).create()
+
+    macros = app.jinja_env.get_template("macros.html.j2").make_module({"g": g})
+    rendered_meeting = macros.render_meeting_card(meeting, meeting.is_leader, meeting.is_meeting, True)
+
+    return jsonify({"html": rendered_meeting, "is_meeting": meeting.is_meeting})
+
+@app.route("/deleteMeeting", methods = ["POST"])
+@authenticate_leadership
+def deleteMeeting():
+    meeting_id = request.values.get("id")
+    meeting = Meeting.get(meeting_id)
+    if not meeting:
+        return "Not found", 404
+    Meeting.delete(meeting_id)
+    return "Success!", 200

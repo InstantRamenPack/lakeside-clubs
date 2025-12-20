@@ -4,7 +4,7 @@ from flask import g, redirect, render_template, render_template_string, request,
 
 from app import app, authenticate_leadership
 from db import mysql
-from meetings import Meeting
+from meeting import Meeting
 
 @app.route("/club", methods = ["GET"])
 def club():
