@@ -92,16 +92,6 @@
                 <hr>
                 <h2>Members</h2>
                 <ul id = "club-member-list" class = "club-user-list" data-club-id = "{{club.id}}" data-authenticated = "{{g.user.authenticated}}" data-current-user-id = "{{g.user.user_id}}">
-                    <template>
-                        <li>
-                            <div class = "user-name"></div>
-                            <div class = "flex-space"></div>
-                            <span class = "membership-action material-symbol" style = "display: none;" data-action = "demote-leader" data-tooltip = "Demote Leader">remove_moderator</span>
-                            <span class = "membership-action material-symbol" data-action = "add-leader" data-tooltip = "Add Leader">add_moderator</span>
-                            <span class = "membership-action material-symbol" data-action = "kick-member" data-tooltip = "Kick Member">person_remove</span>
-                            <span class = "membership-action material-symbol" data-action = "copy-email" data-tooltip = "">contact_mail</span>
-                        </li>
-                    </template>
                     {% for member in club.members %}
                         {{macros.display_member(member, false)}}
                     {% endfor %}
@@ -143,42 +133,10 @@
                 <button type = "button" class = "tab-button" data-tab-target = "club-announcements-panel">Announcements</button>
             </div>
             <div class = "tab-panel" id = "club-meetings-panel">
-                <template data-post-template = "meeting">
-                    <div class = "meeting-card">
-                        <h2></h2>
-                        <div class = "meeting-description"></div>
-                        <hr>
-                        <div class = "card-info">
-                            <div>
-                                <span class = "material-symbol">event</span>
-                                <p data-field = "date"></p>
-                            </div>
-                            <div>
-                                <span class = "material-symbol">schedule</span>
-                                <p data-field = "time-range"></p>
-                            </div>
-                            <div>
-                                <span class = "material-symbol">location_on</span>
-                                <p data-field = "location"></p>
-                            </div>
-                            <div class = "flex-space"></div>
-                            {% if club.is_leader or g.user.is_admin %}
-                                <button type = "button" data-action = "email-meeting" data-club-id = "{{club.id}}" data-meeting-id = "" data-meeting-title = "" data-meeting-description = "">
-                                    <span class = "button-label">Email Meeting</span>
-                                    <span class = "material-symbol">mail</span>
-                                </button>
-                                <button type = "button" data-action = "delete-meeting" data-meeting-id = "" data-club-id = "{{club.id}}">
-                                    <span class = "button-label">Delete Meeting</span>
-                                    <span class = "material-symbol">delete</span>
-                                </button>
-                            {% endif %}
-                        </div>
-                    </div>
-                </template>
                 {% set ns = namespace(exists_meeting = false) %}
                 {% for meeting in meetings %}
                     {% if meeting.is_meeting %}
-                        {{ macros.render_meeting_card(meeting, true, true) }}
+                        {{ meeting.rendered_card }}
                         {% set ns.exists_meeting = true %}
                     {% endif %}
                 {% endfor %}
@@ -189,33 +147,10 @@
                 {% endif %}
             </div>
             <div class = "tab-panel" id = "club-announcements-panel" hidden>
-                <template data-post-template = "announcement">
-                    <div class = "meeting-card">
-                        <h2></h2>
-                        <div class = "meeting-description"></div>
-                        <hr>
-                        <div class = "card-info">
-                            <div>
-                                <small data-field = "post-time"></small>
-                            </div>
-                            <div class = "flex-space"></div>
-                            {% if club.is_leader or g.user.is_admin %}
-                                <button type = "button" data-action = "email-meeting" data-club-id = "{{club.id}}" data-meeting-id = "" data-meeting-title = "" data-meeting-description = "">
-                                    <span class = "button-label">Email Announcement</span>
-                                    <span class = "material-symbol">mail</span>
-                                </button>
-                                <button type = "button" data-action = "delete-meeting" data-meeting-id = "" data-club-id = "{{club.id}}">
-                                    <span class = "button-label">Delete Announcement</span>
-                                    <span class = "material-symbol">delete</span>
-                                </button>
-                            {% endif %}
-                        </div>
-                    </div>
-                </template>
                 {% set ns.exists_meeting = false %}
                 {% for meeting in meetings %}
                     {% if not meeting.is_meeting %}
-                        {{ macros.render_meeting_card(meeting, false, true) }}
+                        {{ meeting.rendered_card }}
                         {% set ns.exists_meeting = true %}
                     {% endif %}
                 {% endfor %}

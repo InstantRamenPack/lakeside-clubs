@@ -1,10 +1,10 @@
 import json, re
 
-from flask import g, redirect, render_template, request, session, url_for
+from flask import g, redirect, render_template, render_template_string, request, session, url_for
 
 from app import app, authenticate_leadership
 from db import mysql
-from md_utils import render_markdown_plain, render_markdown_safe
+from meetings import Meeting
 
 @app.route("/club", methods = ["GET"])
 def club():
@@ -105,13 +105,17 @@ def club():
             CASE WHEN m.is_meeting = 1 THEN m.start_time END ASC,
             CASE WHEN m.is_meeting = 0 THEN m.post_time END DESC
     """, (club_id,))
-    meetings = cursor.fetchall()
-    for meeting in meetings:
-        raw_description = meeting["description"]
-        meeting["description"] = render_markdown_safe(raw_description)
-        meeting["description_plain"] = render_markdown_plain(raw_description)
+    meeting_rows = cursor.fetchall()
 
-    return render_template("club.html.j2", club = club, meetings = meetings)   
+    meeting_objects = []
+    macros = app.jinja_env.get_template("macros.html.j2").make_module({"g": g})
+    for meeting in meeting_rows:
+        m = Meeting.from_dict(meeting)
+        m.is_leader = bool(club.get("is_leader"))
+        m.rendered_card = macros.render_meeting_card(m, m.is_leader, m.is_meeting, True)
+        meeting_objects.append(m)
+
+    return render_template("club.html.j2", club = club, meetings = meeting_objects)   
 
 @app.route("/joinClub", methods = ["GET", "POST"])
 def joinClub():
@@ -178,7 +182,7 @@ def importUsers():
     emails = [e.lower() for e in emails]
     emails = list(dict.fromkeys(emails)) # deduplicate
     if not emails:
-        return json.dumps(())
+        return json.dumps({"new_members": [], "rendered_members": []})
     
     # add users in case they don't exist
     # use of placeholders in batch INSERT by ChatGPT
@@ -216,7 +220,15 @@ def importUsers():
         """, [(member["id"], club_id) for member in new_members])
         mysql.connection.commit()
 
-    return json.dumps(new_members)
+    rendered_members = [
+        render_template_string(
+            '{% import "macros.html.j2" as macros %}{{ macros.display_member(member, False)|trim }}',
+            member = member
+        )
+        for member in new_members
+    ]
+
+    return json.dumps({"new_members": new_members, "rendered_members": rendered_members})
 
 @app.route("/kickMember", methods = ["POST"])
 @authenticate_leadership
