@@ -1,6 +1,7 @@
 from functools import wraps
 
 from flask import Flask, g, request
+from openai import OpenAI
 
 import db
 from db import mysql
@@ -10,6 +11,7 @@ import config
 app = Flask(__name__)
 app.config.from_object(config)
 db.init(app)
+client = OpenAI(api_key = config.OPENAI_API_KEY)
 
 @app.before_request
 def load_user():

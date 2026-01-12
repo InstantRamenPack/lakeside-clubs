@@ -1,5 +1,9 @@
 from os import environ
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 MYSQL_HOST = environ.get('MYSQL_HOST')
 MYSQL_USER = environ.get('MYSQL_USER')
 MYSQL_PASSWORD = environ.get('MYSQL_PASSWORD')
@@ -11,6 +15,9 @@ GOOGLE_CLIENT_SECRET = environ.get('GOOGLE_CLIENT_SECRET')
 GOOGLE_DISCOVERY_URL = 'https://accounts.google.com/.well-known/openid-configuration'
 
 SECRET_KEY = environ.get('SECRET_KEY')
+
+OPENAI_API_KEY = environ.get('OPENAI_API_KEY')
+OPENAI_VECTOR_STORE_ID = environ.get('OPENAI_VECTOR_STORE_ID')
 
 ALLOWED_TAGS = [
     "p", "br", "hr", "pre", "code", "blockquote",

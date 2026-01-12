@@ -1,5 +1,8 @@
 from datetime import datetime, time, date as date_cls
+import io
 
+from app import client
+import config
 from db import mysql
 from md_utils import render_markdown_plain, render_markdown_safe
 
@@ -115,7 +118,7 @@ class Meeting:
     @staticmethod
     def from_dict(meeting):
         return Meeting(
-            meeting_id = meeting.get("id"),
+            meeting_id = meeting.get("id") or meeting.get("meeting_id"),
             club_id = meeting.get("club_id"),
             title = meeting.get("title"),
             description = meeting.get("description"),
@@ -127,3 +130,42 @@ class Meeting:
             is_leader = meeting.get("is_leader", False),
             post_time = meeting.get("post_time")
         )
+    
+    def as_dict(self):
+        return {
+            "id": self.id,
+            "club_id": self.club_id,
+            "title": self.title,
+            "description": self.description,
+            "start_time": self.start_time,
+            "end_time": self.end_time,
+            "date": self.date,
+            "location": self.location,
+            "is_meeting": self.is_meeting,
+            "is_leader": self.is_leader,
+            "post_time": self.post_time
+        }
+
+    def as_vector_store(self):
+        file = io.BytesIO(self.description_plain().encode("utf-8"))
+        file.name = f"{self.id}.txt"
+
+        attributes = {
+            "id": self.id,
+            "club_id": self.club_id,
+            "title": self.title,
+            "location": self.location,
+            "is_meeting": self.is_meeting
+        }
+
+        uploaded = client.files.create(
+            file = file,
+            purpose = "assistants"
+        )
+
+        return client.vector_stores.files.create_and_poll(
+            vector_store_id = config.OPENAI_VECTOR_STORE_ID,
+            file_id = uploaded.id,
+            attributes = attributes
+        )
+
