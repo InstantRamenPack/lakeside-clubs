@@ -21,6 +21,7 @@ except ImportError:
                     user=current_app.config["MYSQL_USER"],
                     password=current_app.config["MYSQL_PASSWORD"],
                     database=current_app.config["MYSQL_DB"],
+                    port=int(current_app.config.get("DB_PORT", 4000)),
                     cursorclass=pymysql.cursors.DictCursor,
                     autocommit=True,
                 )
