@@ -3,6 +3,7 @@ try:
 except ImportError:
     # ChatGPT; for Vercel
     import pymysql
+    import os
     from flask import current_app, g
 
     class MySQL:
@@ -21,8 +22,9 @@ except ImportError:
                     user=current_app.config["MYSQL_USER"],
                     password=current_app.config["MYSQL_PASSWORD"],
                     database=current_app.config["MYSQL_DB"],
-                    port=int(current_app.config.get("DB_PORT", 4000)),
+                    port=int(current_app.config["DB_PORT"]),
                     cursorclass=pymysql.cursors.DictCursor,
+                    ssl={"ca": os.path.join(os.path.dirname(__file__), "certs", "tidb-ca.pem")},
                     autocommit=True,
                 )
             return g.db_conn
