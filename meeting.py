@@ -148,7 +148,7 @@ class Meeting:
 
     def as_vector_store(self):
         file = io.BytesIO(self.description_plain().encode("utf-8"))
-        file.name = f"{self.id}.txt"
+        file.name = f"meeting_{self.id}.txt"
 
         attributes = {
             "id": self.id,
