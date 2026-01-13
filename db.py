@@ -24,7 +24,7 @@ except ImportError:
                     database=current_app.config["MYSQL_DB"],
                     port=int(current_app.config["MYSQL_PORT"]),
                     cursorclass=pymysql.cursors.DictCursor,
-                    ssl={"ca": os.path.join(os.path.dirname(__file__), "certs", "tidb-ca.pem")},
+                    ssl={"ca": os.path.join(os.path.dirname(__file__), "tidb-ca.pem")},
                     autocommit=True,
                 )
             return g.db_conn
