@@ -22,7 +22,7 @@ except ImportError:
                     user=current_app.config["MYSQL_USER"],
                     password=current_app.config["MYSQL_PASSWORD"],
                     database=current_app.config["MYSQL_DB"],
-                    port=int(current_app.config["DB_PORT"]),
+                    port=int(current_app.config["MYSQL_PORT"]),
                     cursorclass=pymysql.cursors.DictCursor,
                     ssl={"ca": os.path.join(os.path.dirname(__file__), "certs", "tidb-ca.pem")},
                     autocommit=True,
