@@ -68,7 +68,6 @@ class User:
             self.google_id, self.first_name, self.last_name, self.name, self.email, self.picture, 
             self.google_id, self.first_name, self.last_name, self.name, self.picture
         ))
-        mysql.connection.commit()
         self.user_id = cursor.lastrowid
 
         cursor.execute("""

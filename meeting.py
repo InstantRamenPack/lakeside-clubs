@@ -84,7 +84,6 @@ class Meeting:
                 VALUES 
                     (%s, %s, %s, 0)
             """, (self.club_id, self.title, self.description))
-        mysql.connection.commit()
         self.id = cursor.lastrowid
         created = Meeting.get(self.id)
         if created:
@@ -101,7 +100,6 @@ class Meeting:
             WHERE 
                 id = %s
         """, (meeting_id,))
-        mysql.connection.commit()
         return cursor.rowcount
 
     @staticmethod
@@ -168,4 +166,3 @@ class Meeting:
             file_id = uploaded.id,
             attributes = attributes
         )
-

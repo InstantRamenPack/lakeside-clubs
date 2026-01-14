@@ -131,7 +131,6 @@ def joinClub():
         VALUES
             (%s, %s)
     """, (g.user.user_id, request.values.get("id")))
-    mysql.connection.commit()
     return redirect(url_for("club", id = request.values.get("id"))) 
 
 @app.route("/leaveClub", methods = ["POST"])
@@ -143,7 +142,6 @@ def leaveClub():
         WHERE 
             user_id = %s AND club_id = %s
     """, (g.user.user_id, request.values.get("id")))
-    mysql.connection.commit()
     return "Success!", 200
 
 @app.route("/fetchMembers", methods = ["POST"])
@@ -192,8 +190,6 @@ def importUsers():
         VALUES 
             {", ".join(["(%s)"] * len(emails))}
     """, emails)
-    mysql.connection.commit()
-
     # select new members
     cursor.execute(f"""
         SELECT 
@@ -218,8 +214,6 @@ def importUsers():
             VALUES 
                 (%s, %s)
         """, [(member["id"], club_id) for member in new_members])
-        mysql.connection.commit()
-
     macros = app.jinja_env.get_template("macros.html.j2").make_module({"g": g})
     rendered_members = [macros.display_member(member, False) for member in new_members]
 
@@ -241,7 +235,6 @@ def kickMember():
         WHERE
             user_id = %s AND club_id = %s
     """, (user_id, club_id))
-    mysql.connection.commit()
     return "Success!", 200
 
 @app.route("/addLeader", methods = ["POST"])
@@ -259,7 +252,6 @@ def addLeader():
         WHERE
             user_id = %s AND club_id = %s
     """, (user_id, club_id))
-    mysql.connection.commit()
     return "Success!", 200
 
 @app.route("/demoteLeader", methods = ["POST"])
@@ -280,7 +272,6 @@ def demoteLeader():
         WHERE
             user_id = %s AND club_id = %s
     """, (user_id, club_id))
-    mysql.connection.commit()
     return "Success!", 200
 
 @app.route("/createTag", methods = ["POST"])
@@ -302,7 +293,6 @@ def createTag():
         ON DUPLICATE KEY UPDATE
             id = LAST_INSERT_ID(id)
     """, (tag_name,))
-    mysql.connection.commit()
     tag_id = cursor.lastrowid
 
     cursor.execute("""
@@ -312,8 +302,6 @@ def createTag():
         VALUES
             (%s, %s)
     """, (club_id, tag_id))
-    mysql.connection.commit()
-
     return json.dumps({"id": tag_id, "name": tag_name})
 
 @app.route("/deleteTag", methods = ["POST"])
@@ -329,5 +317,4 @@ def deleteTag():
         WHERE
             club_id = %s AND tag_id = %s
     """, (club_id, tag_id))
-    mysql.connection.commit()
     return "Success!", 200
