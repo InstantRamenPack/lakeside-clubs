@@ -7,10 +7,11 @@ function joinClub(club_id, authenticated, button) {
     targetButton.dataset.action = "leave-club";
     updateButton("Leave Club", targetButton, "logout");
 
-	const xhttp = new XMLHttpRequest();	
-	xhttp.open("POST", "/joinClub", true);
-    xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded"); 
-    xhttp.send("club_id=" + encodeURIComponent(club_id));
+    fetch("/joinClub", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: "club_id=" + encodeURIComponent(club_id),
+    }).catch(() => {});
 }
 
 function leaveClub(club_id, button) {
@@ -18,10 +19,11 @@ function leaveClub(club_id, button) {
     targetButton.dataset.action = "join-club";
     updateButton("Join Club", targetButton, "login");
 	
-	const xhttp = new XMLHttpRequest();
-	xhttp.open("POST", "/leaveClub", true);
-    xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded"); 
-    xhttp.send("club_id=" + encodeURIComponent(club_id));
+    fetch("/leaveClub", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: "club_id=" + encodeURIComponent(club_id),
+    }).catch(() => {});
 }
 
 function importUsers(club_id) {
@@ -40,10 +42,22 @@ function importUsers(club_id) {
         if (wrapper) wrapper.disabled = true;
     }
 
-    const xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-            const payload = JSON.parse(this.responseText);
+    const body = "data=" + encodeURIComponent(textBox.value) + "&club_id=" + encodeURIComponent(club_id);
+    fetch("/importUsers", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body,
+    })
+        .then((response) => {
+            if (!response.ok) {
+                return null;
+            }
+            return response.json();
+        })
+        .then((payload) => {
+            if (!payload) {
+                return;
+            }
             const newMembers = payload.new_members || [];
             const renderedMembers = payload.rendered_members || [];
             if (newMembers.length == 0) {
@@ -72,12 +86,8 @@ function importUsers(club_id) {
             textBox.style.display = "";
             if (wrapper) wrapper.disabled = false;
             updateButton("Import Users", button);
-        }
-    }
-
-    xhttp.open("POST", "/importUsers", true);
-    xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    xhttp.send("data=" + encodeURIComponent(textBox.value) + "&club_id=" + encodeURIComponent(club_id));
+        })
+        .catch(() => {});
 }
 
 function setActionVisibility(entry, actionName, visible) {
@@ -106,16 +116,24 @@ function showActions(entry, type) {
 function fetchMembers(club_id) {
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function
     return new Promise((resolve) => {
-        const xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function() {
-            if (this.readyState === 4 && this.status === 200) {
-                resolve(JSON.parse(this.responseText));
-            }
-        };
-
-        xhttp.open("POST", "/fetchMembers", true);
-        xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-        xhttp.send("club_id=" + encodeURIComponent(club_id));
+        fetch("/fetchMembers", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: "club_id=" + encodeURIComponent(club_id),
+        })
+            .then((response) => {
+                if (!response.ok) {
+                    return null;
+                }
+                return response.json();
+            })
+            .then((payload) => {
+                if (payload === null) {
+                    return;
+                }
+                resolve(payload);
+            })
+            .catch(() => {});
     });
 }
 
@@ -170,10 +188,11 @@ function addLeader(club_id, user_id, button) {
     showActions(entry, "leader");
     attachTooltips();
 
-	const xhttp = new XMLHttpRequest();
-	xhttp.open("POST", "/addLeader", true);
-    xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded"); 
-    xhttp.send("club_id=" + encodeURIComponent(club_id) + "&user_id=" + encodeURIComponent(user_id));
+    fetch("/addLeader", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: "club_id=" + encodeURIComponent(club_id) + "&user_id=" + encodeURIComponent(user_id),
+    }).catch(() => {});
 }
 
 function demoteLeader(club_id, user_id, button) {
@@ -183,19 +202,21 @@ function demoteLeader(club_id, user_id, button) {
     showActions(entry, "member");
     attachTooltips();
 
-	const xhttp = new XMLHttpRequest();
-	xhttp.open("POST", "/demoteLeader", true);
-    xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded"); 
-    xhttp.send("club_id=" + encodeURIComponent(club_id) + "&user_id=" + encodeURIComponent(user_id));
+    fetch("/demoteLeader", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: "club_id=" + encodeURIComponent(club_id) + "&user_id=" + encodeURIComponent(user_id),
+    }).catch(() => {});
 }
 
 function kickMember(club_id, user_id, button) {
     button.parentElement.remove()
     
-	const xhttp = new XMLHttpRequest();
-	xhttp.open("POST", "/kickMember", true);
-    xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded"); 
-    xhttp.send("club_id=" + encodeURIComponent(club_id) + "&user_id=" + encodeURIComponent(user_id));
+    fetch("/kickMember", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: "club_id=" + encodeURIComponent(club_id) + "&user_id=" + encodeURIComponent(user_id),
+    }).catch(() => {});
 }
 
 function deleteMeeting(meeting_id, club_id, button) {
@@ -205,10 +226,11 @@ function deleteMeeting(meeting_id, club_id, button) {
 
     button.closest('.meeting-card').remove();
 
-	const xhttp = new XMLHttpRequest();
-	xhttp.open("POST", "/deleteMeeting", true);
-    xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded"); 
-    xhttp.send("meeting_id=" + encodeURIComponent(meeting_id) + "&club_id=" + encodeURIComponent(club_id));
+    fetch("/deleteMeeting", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: "meeting_id=" + encodeURIComponent(meeting_id) + "&club_id=" + encodeURIComponent(club_id),
+    }).catch(() => {});
 }
 
 function parseTimeToMinutes(value) {
@@ -314,48 +336,56 @@ function createMeeting(form, submitter) {
         button.disabled = true;
     });
 
-    const xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function() {
-        if (this.readyState == 4) {
+    fetch("/createMeeting", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: payload.toString(),
+    })
+        .then((response) => {
+            if (!response.ok) {
+                submitter.value = "Oops! Try again.";
+                return null;
+            }
+            return response.json();
+        })
+        .then((responsePayload) => {
+            if (!responsePayload) {
+                return;
+            }
+            submitter.value = submitLabel;
+            form.reset();
+
+            const isMeetingPost = responsePayload.is_meeting === true || responsePayload.is_meeting === 1 || responsePayload.is_meeting === "1";
+            const panelId = isMeetingPost ? 'club-meetings-panel' : 'club-announcements-panel';
+            const postsPanel = document.getElementById(panelId);
+            const cardHtml = responsePayload.html || "";
+
+            if (cardHtml && postsPanel) {
+                postsPanel.insertAdjacentHTML('afterbegin', cardHtml);
+                attachTooltips();
+            }
+
+            setActiveTab(document.querySelector(`.tab-bar [data-tab-target="${panelId}"]`).closest('.tab-bar'), panelId);
+            if (isMeetingPost) {
+                const noMeetings = document.querySelector('#no-meetings');
+                if (noMeetings) {
+                    noMeetings.remove();
+                }
+            } else {
+                const noAnnouncements = document.querySelector('#no-announcements');
+                if (noAnnouncements) {
+                    noAnnouncements.remove();
+                }
+            } 
+        })
+        .catch(() => {
+            submitter.value = "Oops! Try again.";
+        })
+        .finally(() => {
             submitButtons.forEach((button) => {
                 button.disabled = false;
             });
-            if (this.status == 200) {
-                submitter.value = submitLabel;
-                form.reset();
-
-                const payload = JSON.parse(this.responseText);
-                const isMeetingPost = payload.is_meeting === true || payload.is_meeting === 1 || payload.is_meeting === "1";
-                const panelId = isMeetingPost ? 'club-meetings-panel' : 'club-announcements-panel';
-                const postsPanel = document.getElementById(panelId);
-                const cardHtml = payload.html || "";
-
-                if (cardHtml && postsPanel) {
-                    postsPanel.insertAdjacentHTML('afterbegin', cardHtml);
-                    attachTooltips();
-                }
-
-                setActiveTab(document.querySelector(`.tab-bar [data-tab-target="${panelId}"]`).closest('.tab-bar'), panelId);
-                if (isMeetingPost) {
-                    const noMeetings = document.querySelector('#no-meetings');
-                    if (noMeetings) {
-                        noMeetings.remove();
-                    }
-                } else {
-                    const noAnnouncements = document.querySelector('#no-announcements');
-                    if (noAnnouncements) {
-                        noAnnouncements.remove();
-                    }
-                } 
-            } else {
-                submitter.value = "Oops! Try again.";
-            }
-        }
-    };
-
-    xhttp.open("POST", "/createMeeting", true);
-    xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    xhttp.send(payload.toString());
+        });
 }
 
 function startCreateTag(control) {
@@ -380,12 +410,23 @@ function createTag(control) {
     saveButton.style.display = "inline";
     saveButton.classList.add("spin");
 
-    const xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function() {
-        if (this.readyState === 4 && this.status === 200) {
+    fetch("/createTag", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: "club_id=" + encodeURIComponent(clubId) + "&tag_name=" + encodeURIComponent(tagName),
+    })
+        .then((response) => {
+            if (!response.ok) {
+                return null;
+            }
+            return response.json();
+        })
+        .then((tag) => {
+            if (!tag) {
+                return;
+            }
             saveButton.classList.remove("spin");
 
-            const tag = JSON.parse(this.responseText);
             const template = document.getElementById("club-tag-template");
 
             const copy = template.content.cloneNode(true);
@@ -404,21 +445,18 @@ function createTag(control) {
             input.style.display = "none";
             saveButton.textContent = "check";
             saveButton.style.display = "none";
-        }
-    };
-
-    xhttp.open("POST", "/createTag", true);
-    xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    xhttp.send("club_id=" + encodeURIComponent(clubId) + "&tag_name=" + encodeURIComponent(tagName));
+        })
+        .catch(() => {});
 }
 
 function deleteTag(tagId, clubId, button) {
     button.closest(".club-tag").remove();
 
-    const xhttp = new XMLHttpRequest();
-    xhttp.open("POST", "/deleteTag", true);
-    xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    xhttp.send("club_id=" + encodeURIComponent(clubId) + "&tag_id=" + encodeURIComponent(tagId));
+    fetch("/deleteTag", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: "club_id=" + encodeURIComponent(clubId) + "&tag_id=" + encodeURIComponent(tagId),
+    }).catch(() => {});
 }
 
 document.addEventListener('DOMContentLoaded', () => {
