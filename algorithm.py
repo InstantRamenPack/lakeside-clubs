@@ -1,6 +1,5 @@
 import json
 
-import config
 from app import client
 from db import mysql
 
@@ -91,3 +90,40 @@ def recommend_club_ids(user_id, user_weight_factor = 4, tag_weight_factor = 1, l
         weights = weights[:limit]
 
     return [club_id for _, _, club_id in weights]
+
+def search_clubs(query, n = 5):
+    response = client.embeddings.create(
+        model = "text-embedding-3-small",
+        input = query,
+        dimensions = 1536,
+    )
+
+    cursor = mysql.connection.cursor()
+    cursor.execute("""
+        SELECT 
+            club_id,
+            vec_cosine_distance(embedding, CAST(%s AS VECTOR)) AS distance
+        FROM 
+            meetings
+        WHERE
+            embedding IS NOT NULL
+        ORDER BY
+            distance ASC
+        LIMIT %s
+    """, (json.dumps(response.data[0].embedding), 10 * n))
+
+    club_similarities = {}
+    for row in cursor.fetchall():
+        similarity = 1.0 - float(row.get("distance"))
+        club_id = row.get("club_id")
+        club_similarities[club_id] = club_similarities.get(club_id, 0.0) + similarity
+
+    if not club_similarities:
+        return []
+
+    club_rankings = sorted(
+        club_similarities.items(),
+        key = lambda item: (-item[1], item[0])
+    )
+
+    return [club_id for club_id, _ in club_rankings[:n]]
