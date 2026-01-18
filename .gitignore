@@ -4,3 +4,4 @@ https.crt
 https.key
 __pycache__
 *.bat
+.vscode
