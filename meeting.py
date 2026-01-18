@@ -1,9 +1,8 @@
 from datetime import datetime, time, date as date_cls
-import io
+import json
 
 from app import client
 from flask import g
-import config
 from db import mysql
 from md_utils import render_markdown_plain, render_markdown_safe
 
@@ -67,24 +66,33 @@ class Meeting:
     def description_plain(self):
         return render_markdown_plain(self.description or "")
 
+    def as_embedding(self):
+        response = client.embeddings.create(
+            model = "text-embedding-3-small",
+            input = self.title + "\n" + self.description_plain(),
+            dimensions = 1536,
+        )
+        return response.data[0].embedding
+
     def create(self):
+        embedding = json.dumps(self.as_embedding())
         cursor = mysql.connection.cursor()
         if self.is_meeting:
             cursor.execute("""
                 INSERT INTO 
                     meetings
-                    (club_id, title, description, start_time, end_time, date, location, is_meeting)
+                    (club_id, title, description, start_time, end_time, date, location, is_meeting, embedding)
                 VALUES 
-                    (%s, %s, %s, %s, %s, %s, %s, 1)
-            """, (self.club_id, self.title, self.description, self.start_time, self.end_time, self.date, self.location))
+                    (%s, %s, %s, %s, %s, %s, %s, 1, CAST(%s AS VECTOR))
+            """, (self.club_id, self.title, self.description, self.start_time, self.end_time, self.date, self.location, embedding))
         else:
             cursor.execute("""
                 INSERT INTO 
                     meetings
-                    (club_id, title, description, is_meeting)
+                    (club_id, title, description, is_meeting, embedding)
                 VALUES 
-                    (%s, %s, %s, 0)
-            """, (self.club_id, self.title, self.description))
+                    (%s, %s, %s, 0, CAST(%s AS VECTOR))
+            """, (self.club_id, self.title, self.description, embedding))
         self.meeting_id = cursor.lastrowid
         created = Meeting.get(self.meeting_id)
         if created:

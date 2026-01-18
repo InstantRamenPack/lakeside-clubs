@@ -18,7 +18,6 @@ GOOGLE_DISCOVERY_URL = 'https://accounts.google.com/.well-known/openid-configura
 SECRET_KEY = environ.get('SECRET_KEY')
 
 OPENAI_API_KEY = environ.get('OPENAI_API_KEY')
-OPENAI_VECTOR_STORE_ID = environ.get('OPENAI_VECTOR_STORE_ID')
 
 ALLOWED_TAGS = [
     "p", "br", "hr", "pre", "code", "blockquote",
