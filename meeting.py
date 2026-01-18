@@ -2,6 +2,7 @@ from datetime import datetime, time, date as date_cls
 import io
 
 from app import client
+from flask import g
 import config
 from db import mysql
 from md_utils import render_markdown_plain, render_markdown_safe
@@ -90,6 +91,40 @@ class Meeting:
             created.is_leader = self.is_leader
             return created
         return self
+
+    @staticmethod
+    def all_meetings(recent = True):
+        cursor = mysql.connection.cursor()
+        cursor.execute("""
+            SELECT 
+                m.*,
+                c.name AS club_name,
+                cm.user_id IS NOT NULL AS is_member
+            FROM 
+                meetings m
+            JOIN
+                clubs c ON c.club_id = m.club_id
+            LEFT JOIN
+                club_members cm ON cm.club_id = c.club_id AND cm.user_id = %s
+            WHERE
+                (%s = 0)
+            OR
+                (m.is_meeting = 1 AND m.date >= DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 1 DAY))
+            OR
+                (m.is_meeting = 0 AND m.post_time >= DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 1 MONTH))
+            ORDER BY
+                m.is_meeting DESC,
+                CASE WHEN m.is_meeting = 1 THEN m.date END ASC,
+                CASE WHEN m.is_meeting = 1 THEN m.start_time END ASC,
+                CASE WHEN m.is_meeting = 0 THEN m.post_time END DESC
+        """, (g.user.user_id, 1 if recent else 0))
+        meeting_objects = []
+        for meeting in cursor.fetchall():
+            m = Meeting.from_dict(meeting)
+            m.club_name = meeting.get("club_name")
+            m.is_member = bool(meeting.get("is_member"))
+            meeting_objects.append(m)
+        return meeting_objects
 
     @staticmethod
     def delete(meeting_id):
