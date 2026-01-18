@@ -4,7 +4,7 @@ from flask import Flask, g, request
 from openai import OpenAI
 
 import db
-from db import mysql
+from club import Club
 from user import User
 import config
 
@@ -30,13 +30,7 @@ def authenticate_leadership(func):
 
         club_id = request.values.get("club_id")
 
-        cursor = mysql.connection.cursor()
-        cursor.execute("""
-            SELECT club_id FROM club_members
-            WHERE user_id = %s AND club_id = %s AND is_leader = 1
-        """, (g.user.user_id, club_id))
-        club = cursor.fetchone()
-        if not club:
+        if not Club.is_leader(club_id):
             return "Forbidden", 403
 
         return func(*args, **kwargs)

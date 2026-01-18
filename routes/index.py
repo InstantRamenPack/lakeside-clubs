@@ -1,74 +1,26 @@
-import json
-
 from flask import g, render_template
 
 import algorithm
 from app import app
-from db import mysql
+from club import Club
 
 
 @app.route("/")
 def index():
-    cursor = mysql.connection.cursor()
-    # https://www.mysqltutorial.org/mysql-basics/mysql-subquery/
-    cursor.execute("""
-        SELECT
-            c.*, 
-            m.is_leader AS is_leader,
-            m.user_id IS NOT NULL AS is_member,
-            (
-                SELECT 
-                    COUNT(*)
-                FROM 
-                    club_members cm2
-                WHERE 
-                    cm2.club_id = c.club_id
-            ) AS size,
-            (
-                SELECT 
-                    JSON_ARRAYAGG(
-                        JSON_OBJECT(
-                            'tag_id', t.tag_id,
-                            'name', t.name
-                        )
-                    )
-                FROM
-                    club_tags ct
-                LEFT JOIN
-                    tags t ON t.tag_id = ct.tag_id
-                WHERE
-                    ct.club_id = c.club_id
-            ) AS tags
-        FROM
-            clubs c
-        LEFT JOIN
-            club_members m
-        ON
-            m.club_id = c.club_id
-        AND
-            m.user_id = %s
-        ORDER BY
-            size DESC
-    """, (g.user.user_id,))
-
-    club_rows = cursor.fetchall()
+    club_rows = Club.all_details()
+    club_rows.sort(key = lambda club: club.size or 0, reverse = True)
     clubs = {}
     lead_order = []
     joined_order = []
     other_order = []
 
     for club in club_rows:
-        if club["tags"]:
-            club["tags"] = json.loads(club["tags"])
-        else:
-            club["tags"] = []
-            
-        club_id = club["club_id"]
+        club_id = club.club_id
         clubs[club_id] = club
 
-        if club["is_leader"]:
+        if club.is_leader:
             lead_order.append(club_id)
-        elif club["is_member"]:
+        elif club.is_member:
             joined_order.append(club_id)
         else:
             other_order.append(club_id)

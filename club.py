@@ -6,13 +6,18 @@ from db import mysql
 from meeting import Meeting
 
 class Club:
-    def __init__(self, club_id, name = None, description = None, location = None, time = None, is_salt_group = False):
+    def __init__(self, club_id, is_detailed = False):
         self.club_id = club_id
-        self.name = name
-        self.description = description
-        self.location = location
-        self.time = time
-        self.is_salt_group = bool(is_salt_group)
+        self.name = None
+        self.description = None
+        self.location = None
+        self.time = None
+        self.is_salt_group = False
+        self.is_member = False
+        self.is_leader = False
+        self.size = None
+        if is_detailed:
+            self.load_details()
 
     @staticmethod
     def get(club_id):
@@ -27,14 +32,41 @@ class Club:
     
     @staticmethod
     def from_dict(club):
-        return Club(
-            club_id = club.get("club_id"),
-            name = club.get("name"),
-            description = club.get("description"),
-            location = club.get("location"),
-            time = club.get("time"),
-            is_salt_group = club.get("is_salt_group", False)
-        )
+        club_obj = Club(club_id = club.get("club_id"))
+        club_obj.name = club.get("name")
+        club_obj.description = club.get("description")
+        club_obj.location = club.get("location")
+        club_obj.time = club.get("time")
+        club_obj.is_salt_group = bool(club.get("is_salt_group", False))
+        if "is_member" in club:
+            club_obj.is_member = bool(club.get("is_member"))
+        if "is_leader" in club:
+            club_obj.is_leader = bool(club.get("is_leader"))
+        if "size" in club:
+            club_obj.size = club.get("size")
+        if "tags" in club:
+            club_obj.tags = club.get("tags") or []
+        return club_obj
+
+    def load_details(self, recent = True):
+        details = Club.list_details([self.club_id])
+        if not details:
+            return None
+        club = details[0]
+        self.name = club.name
+        self.description = club.description
+        self.location = club.location
+        self.time = club.time
+        self.is_salt_group = bool(club.is_salt_group)
+        self.is_member = bool(club.is_member)
+        self.is_leader = bool(club.is_leader)
+        self.size = club.size
+        self.tags = club.tags or []
+        self.leaders = Club.leaders(self)
+        self.members = Club.members(self)
+        meetings = Club.meetings(self, recent)
+        self.meetings = meetings
+        return self
 
     @staticmethod
     def is_leader(club_id):
@@ -97,7 +129,7 @@ class Club:
                 club["tags"] = json.loads(club["tags"])
             else:
                 club["tags"] = []
-            clubs.append(club)
+            clubs.append(Club.from_dict(club))
         return clubs
 
     @staticmethod
@@ -121,6 +153,9 @@ class Club:
         """, [(user_id, self.club_id) for user_id in unique_ids])
         return cursor.rowcount
 
+    def add_member(self, user_id):
+        return self.add_members([user_id])
+
     def remove_members(self, user_ids):
         if not user_ids:
             return 0
@@ -134,6 +169,9 @@ class Club:
                 club_id = %s AND user_id IN ({placeholders})
         """, (self.club_id, *unique_ids))
         return cursor.rowcount
+
+    def remove_member(self, user_id):
+        return self.remove_members([user_id])
 
     def add_leader(self, user_id, is_leader):
         cursor = mysql.connection.cursor()
@@ -275,6 +313,16 @@ class Club:
                 (club_id, tag_id)
             VALUES
                 (%s, %s)
+        """, (self.club_id, tag_id))
+        return cursor.rowcount
+
+    def remove_tag(self, tag_id):
+        cursor = mysql.connection.cursor()
+        cursor.execute("""
+            DELETE FROM 
+                club_tags
+            WHERE
+                club_id = %s AND tag_id = %s
         """, (self.club_id, tag_id))
         return cursor.rowcount
 
