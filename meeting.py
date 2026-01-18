@@ -178,26 +178,3 @@ class Meeting:
             "is_leader": self.is_leader,
             "post_time": self.post_time
         }
-
-    def as_vector_store(self):
-        file = io.BytesIO(self.description_plain().encode("utf-8"))
-        file.name = f"meeting_{self.meeting_id}.txt"
-
-        attributes = {
-            "meeting_id": self.meeting_id,
-            "club_id": self.club_id,
-            "title": self.title,
-            "location": self.location,
-            "is_meeting": self.is_meeting
-        }
-
-        uploaded = client.files.create(
-            file = file,
-            purpose = "assistants"
-        )
-
-        return client.vector_stores.files.create_and_poll(
-            vector_store_id = config.OPENAI_VECTOR_STORE_ID,
-            file_id = uploaded.id,
-            attributes = attributes
-        )

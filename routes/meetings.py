@@ -34,7 +34,6 @@ def createMeeting():
     meeting = Meeting.from_dict(meeting).create()
     macros = app.jinja_env.get_template("macros.html.j2").make_module({"g": g})
     rendered_meeting = macros.render_meeting_card(meeting, meeting.is_leader, meeting.is_meeting, True)
-    meeting.as_vector_store()
 
     return jsonify({"html": rendered_meeting, "is_meeting": meeting.is_meeting})
 

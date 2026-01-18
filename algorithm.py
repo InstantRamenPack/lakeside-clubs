@@ -91,23 +91,3 @@ def recommend_club_ids(user_id, user_weight_factor = 4, tag_weight_factor = 1, l
         weights = weights[:limit]
 
     return [club_id for _, _, club_id in weights]
-
-def search_clubs(query, n):
-    results = client.vector_stores.search(
-        vector_store_id = config.OPENAI_VECTOR_STORE_ID,
-        query = query,
-        max_num_results = 10
-    )
-
-    club_scores = {}
-    for item in results.data:
-        attributes = item.attributes
-        club_id = attributes.get("club_id")
-        club_scores[club_id] = club_scores.get(club_id, 0.0) + float(item.score)
-
-    ranked = sorted(
-        club_scores.items(),
-        key = lambda pair: (-pair[1], str(pair[0]))
-    )
-    
-    return [club_id for club_id, _ in ranked[:n]]
