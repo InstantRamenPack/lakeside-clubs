@@ -20,31 +20,31 @@ def index():
                 SELECT 
                     COUNT(*)
                 FROM 
-                    raymondz_club_members cm2
+                    club_members cm2
                 WHERE 
-                    cm2.club_id = c.id
+                    cm2.club_id = c.club_id
             ) AS size,
             (
                 SELECT 
                     JSON_ARRAYAGG(
                         JSON_OBJECT(
-                            'id', t.id,
+                            'tag_id', t.tag_id,
                             'name', t.name
                         )
                     )
                 FROM
-                    raymondz_club_tags ct
+                    club_tags ct
                 LEFT JOIN
-                    raymondz_tags t ON t.id = ct.tag_id
+                    tags t ON t.tag_id = ct.tag_id
                 WHERE
-                    ct.club_id = c.id
+                    ct.club_id = c.club_id
             ) AS tags
         FROM
-            raymondz_clubs c
+            clubs c
         LEFT JOIN
-            raymondz_club_members m
+            club_members m
         ON
-            m.club_id = c.id
+            m.club_id = c.club_id
         AND
             m.user_id = %s
         ORDER BY
@@ -63,8 +63,7 @@ def index():
         else:
             club["tags"] = []
             
-        club_id = club["id"]
-        club["club_id"] = club_id
+        club_id = club["club_id"]
         clubs[club_id] = club
 
         if club["is_leader"]:

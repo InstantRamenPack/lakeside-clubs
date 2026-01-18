@@ -9,7 +9,7 @@ from md_utils import render_markdown_plain, render_markdown_safe
 
 class Meeting:
     def __init__(self, club_id, title, description, start_time = None, end_time = None, date = None, location = None, is_meeting = True, is_leader = False, meeting_id = None, post_time = None):
-        self.id = meeting_id
+        self.meeting_id = meeting_id
         self.club_id = club_id
         self.title = title
         self.description = description
@@ -71,7 +71,7 @@ class Meeting:
         if self.is_meeting:
             cursor.execute("""
                 INSERT INTO 
-                    raymondz_meetings
+                    meetings
                     (club_id, title, description, start_time, end_time, date, location, is_meeting)
                 VALUES 
                     (%s, %s, %s, %s, %s, %s, %s, 1)
@@ -79,13 +79,13 @@ class Meeting:
         else:
             cursor.execute("""
                 INSERT INTO 
-                    raymondz_meetings
+                    meetings
                     (club_id, title, description, is_meeting)
                 VALUES 
                     (%s, %s, %s, 0)
             """, (self.club_id, self.title, self.description))
-        self.id = cursor.lastrowid
-        created = Meeting.get(self.id)
+        self.meeting_id = cursor.lastrowid
+        created = Meeting.get(self.meeting_id)
         if created:
             created.is_leader = self.is_leader
             return created
@@ -96,9 +96,9 @@ class Meeting:
         cursor = mysql.connection.cursor()
         cursor.execute("""
             DELETE FROM 
-                raymondz_meetings
+                meetings
             WHERE 
-                id = %s
+                meeting_id = %s
         """, (meeting_id,))
         return cursor.rowcount
 
@@ -106,7 +106,7 @@ class Meeting:
     def get(meeting_id):
         cursor = mysql.connection.cursor()
         cursor.execute("""
-            SELECT * FROM raymondz_meetings WHERE id = %s
+            SELECT * FROM meetings WHERE meeting_id = %s
         """, (meeting_id,))
         meeting = cursor.fetchone()
         if not meeting:
@@ -116,7 +116,7 @@ class Meeting:
     @staticmethod
     def from_dict(meeting):
         return Meeting(
-            meeting_id = meeting.get("id") or meeting.get("meeting_id"),
+            meeting_id = meeting.get("meeting_id"),
             club_id = meeting.get("club_id"),
             title = meeting.get("title"),
             description = meeting.get("description"),
@@ -131,7 +131,7 @@ class Meeting:
     
     def as_dict(self):
         return {
-            "id": self.id,
+            "meeting_id": self.meeting_id,
             "club_id": self.club_id,
             "title": self.title,
             "description": self.description,
@@ -146,10 +146,10 @@ class Meeting:
 
     def as_vector_store(self):
         file = io.BytesIO(self.description_plain().encode("utf-8"))
-        file.name = f"meeting_{self.id}.txt"
+        file.name = f"meeting_{self.meeting_id}.txt"
 
         attributes = {
-            "id": self.id,
+            "meeting_id": self.meeting_id,
             "club_id": self.club_id,
             "title": self.title,
             "location": self.location,

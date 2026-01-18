@@ -13,7 +13,7 @@ def recommend_club_ids(user_id, user_weight_factor = 4, tag_weight_factor = 1, l
     - Let club_user_weight of club C be sum w(U') for U' in C, divided by |C|
     - Similarly calculate club_tag_weight
     - Final weight is scaled on club_user_weight and club_tag_weight
-    - Sort by weight, then club size, then id
+    - Sort by weight, then club size, then club_id
     """
 
     cursor = mysql.connection.cursor()
@@ -21,17 +21,17 @@ def recommend_club_ids(user_id, user_weight_factor = 4, tag_weight_factor = 1, l
     # collect members and tags per club
     cursor.execute("""
         SELECT 
-            c.id AS club_id,
+            c.club_id AS club_id,
             JSON_ARRAYAGG(cm.user_id) AS members,
             JSON_ARRAYAGG(ct.tag_id) AS tags
         FROM 
-            raymondz_clubs c
+            clubs c
         LEFT JOIN 
-            raymondz_club_members cm ON cm.club_id = c.id
+            club_members cm ON cm.club_id = c.club_id
         LEFT JOIN 
-            raymondz_club_tags ct ON ct.club_id = c.id
+            club_tags ct ON ct.club_id = c.club_id
         GROUP BY 
-            c.id
+            c.club_id
     """)
 
     club_ids = []

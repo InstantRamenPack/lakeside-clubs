@@ -8,7 +8,7 @@ from meeting import Meeting
 
 @app.route("/club", methods = ["GET"])
 def club():
-    club_id = request.values.get("id")
+    club_id = request.values.get("club_id")
     cursor = mysql.connection.cursor()
     cursor.execute("""
         SELECT
@@ -19,23 +19,23 @@ def club():
                 SELECT 
                     JSON_ARRAYAGG(
                         JSON_OBJECT(
-                            'id', t.id,
+                            'tag_id', t.tag_id,
                             'name', t.name
                         )
                     )
                 FROM
-                    raymondz_club_tags ct
+                    club_tags ct
                 LEFT JOIN
-                    raymondz_tags t ON t.id = ct.tag_id
+                    tags t ON t.tag_id = ct.tag_id
                 WHERE
-                    ct.club_id = c.id
+                    ct.club_id = c.club_id
             ) AS tags,
             JSON_ARRAYAGG(
                 CASE WHEN 
                     cm.is_leader = 1 
                 THEN 
                     JSON_OBJECT(
-                        'id', u.id, 
+                        'user_id', u.user_id, 
                         'first_name', u.first_name,
                         'last_name', u.last_name,
                         'name', u.name, 
@@ -48,7 +48,7 @@ def club():
                     cm.is_leader = 0 
                 THEN 
                     JSON_OBJECT(
-                        'id', u.id, 
+                        'user_id', u.user_id, 
                         'first_name', u.first_name,
                         'last_name', u.last_name,
                         'name', u.name, 
@@ -57,15 +57,15 @@ def club():
                 END
             ) AS members
         FROM
-            raymondz_clubs c
+            clubs c
         LEFT JOIN
-            raymondz_club_members cm ON cm.club_id = c.id
+            club_members cm ON cm.club_id = c.club_id
         LEFT JOIN
-            raymondz_users u ON u.id = cm.user_id
+            users u ON u.user_id = cm.user_id
         WHERE
-            c.id = %s
+            c.club_id = %s
         GROUP BY
-            c.id
+            c.club_id
     """, (g.user.user_id, g.user.user_id, club_id))
     club = cursor.fetchone()
     if not club:
@@ -88,7 +88,7 @@ def club():
         SELECT 
             m.*
         FROM 
-            raymondz_meetings m 
+            meetings m 
         WHERE 
             m.club_id = %s
         AND
@@ -98,7 +98,7 @@ def club():
                 (m.is_meeting = 0 AND m.post_time >= DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 1 MONTH))
             )
         GROUP BY 
-            m.id 
+            m.meeting_id 
         ORDER BY
             m.is_meeting DESC,
             CASE WHEN m.is_meeting = 1 THEN m.date END ASC,
@@ -120,34 +120,34 @@ def club():
 @app.route("/joinClub", methods = ["GET", "POST"])
 def joinClub():
     if not g.user.authenticated:
-        session["raymondz_next"] = request.url
+        session["next"] = request.url
         return redirect(url_for("login"))
     
     cursor = mysql.connection.cursor()
     cursor.execute("""                 
         INSERT IGNORE INTO 
-            raymondz_club_members
+            club_members
             (user_id, club_id)
         VALUES
             (%s, %s)
-    """, (g.user.user_id, request.values.get("id")))
-    return redirect(url_for("club", id = request.values.get("id"))) 
+    """, (g.user.user_id, request.values.get("club_id")))
+    return redirect(url_for("club", club_id = request.values.get("club_id"))) 
 
 @app.route("/leaveClub", methods = ["POST"])
 def leaveClub():
     cursor = mysql.connection.cursor()
     cursor.execute("""
         DELETE FROM 
-            raymondz_club_members
+            club_members
         WHERE 
             user_id = %s AND club_id = %s
-    """, (g.user.user_id, request.values.get("id")))
+    """, (g.user.user_id, request.values.get("club_id")))
     return "Success!", 200
 
 @app.route("/fetchMembers", methods = ["POST"])
 @authenticate_leadership
 def fetchMembers():
-    club_id = request.values.get("id")
+    club_id = request.values.get("club_id")
     cursor = mysql.connection.cursor()
 
     cursor.execute("""
@@ -155,9 +155,9 @@ def fetchMembers():
             u.email,
             cm.is_leader
         FROM 
-            raymondz_club_members cm
+            club_members cm
         JOIN 
-            raymondz_users u ON u.id = cm.user_id
+            users u ON u.user_id = cm.user_id
         WHERE 
             cm.club_id = %s
         ORDER BY
@@ -170,7 +170,7 @@ def fetchMembers():
 @app.route("/importUsers", methods = ["POST"])
 @authenticate_leadership
 def importUsers():
-    club_id = request.values.get("id")
+    club_id = request.values.get("club_id")
     cursor = mysql.connection.cursor()
 
     data = request.values.get("data") or ""
@@ -186,7 +186,7 @@ def importUsers():
     # use of placeholders in batch INSERT by ChatGPT
     cursor.execute(f"""
         INSERT IGNORE INTO 
-            raymondz_users (email)
+            users (email)
         VALUES 
             {", ".join(["(%s)"] * len(emails))}
     """, emails)
@@ -195,11 +195,11 @@ def importUsers():
         SELECT 
             *
         FROM 
-            raymondz_users u
+            users u
         LEFT JOIN 
-            raymondz_club_members cm
+            club_members cm
         ON 
-            cm.user_id = u.id AND cm.club_id = %s
+            cm.user_id = u.user_id AND cm.club_id = %s
         WHERE 
             u.email IN ({", ".join(["%s"] * len(emails))}) AND cm.user_id IS NULL
     """, (club_id, *emails))
@@ -209,11 +209,11 @@ def importUsers():
     if new_members:
         cursor.executemany("""
             INSERT INTO 
-                raymondz_club_members 
+                club_members 
                 (user_id, club_id)
             VALUES 
                 (%s, %s)
-        """, [(member["id"], club_id) for member in new_members])
+        """, [(member["user_id"], club_id) for member in new_members])
     macros = app.jinja_env.get_template("macros.html.j2").make_module({"g": g})
     rendered_members = [macros.display_member(member, False) for member in new_members]
 
@@ -231,7 +231,7 @@ def kickMember():
     cursor = mysql.connection.cursor()
     cursor.execute("""
         DELETE FROM 
-            raymondz_club_members
+            club_members
         WHERE
             user_id = %s AND club_id = %s
     """, (user_id, club_id))
@@ -246,7 +246,7 @@ def addLeader():
     cursor = mysql.connection.cursor()
     cursor.execute("""
         UPDATE 
-            raymondz_club_members
+            club_members
         SET 
             is_leader = 1
         WHERE
@@ -266,7 +266,7 @@ def demoteLeader():
     cursor = mysql.connection.cursor()
     cursor.execute("""
         UPDATE 
-            raymondz_club_members
+            club_members
         SET 
             is_leader = 0
         WHERE
@@ -286,23 +286,23 @@ def createTag():
     cursor = mysql.connection.cursor()
     cursor.execute("""
         INSERT INTO 
-            raymondz_tags
+            tags
             (name)
         VALUES
             (%s)
         ON DUPLICATE KEY UPDATE
-            id = LAST_INSERT_ID(id)
+            tag_id = LAST_INSERT_ID(tag_id)
     """, (tag_name,))
     tag_id = cursor.lastrowid
 
     cursor.execute("""
         INSERT IGNORE INTO 
-            raymondz_club_tags
+            club_tags
             (club_id, tag_id)
         VALUES
             (%s, %s)
     """, (club_id, tag_id))
-    return json.dumps({"id": tag_id, "name": tag_name})
+    return json.dumps({"tag_id": tag_id, "name": tag_name})
 
 @app.route("/deleteTag", methods = ["POST"])
 @authenticate_leadership
@@ -313,7 +313,7 @@ def deleteTag():
     cursor = mysql.connection.cursor()
     cursor.execute("""
         DELETE FROM 
-            raymondz_club_tags
+            club_tags
         WHERE
             club_id = %s AND tag_id = %s
     """, (club_id, tag_id))

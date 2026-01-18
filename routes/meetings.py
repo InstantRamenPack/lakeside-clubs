@@ -13,11 +13,11 @@ def meetings():
             c.name AS club_name,
             cm.user_id IS NOT NULL AS is_member
         FROM 
-            raymondz_meetings m
+            meetings m
         JOIN
-            raymondz_clubs c ON c.id = m.club_id
+            clubs c ON c.club_id = m.club_id
         LEFT JOIN
-            raymondz_club_members cm ON cm.club_id = c.id AND cm.user_id = %s
+            club_members cm ON cm.club_id = c.club_id AND cm.user_id = %s
         WHERE
             (m.is_meeting = 1 AND m.date >= DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 1 DAY))
         OR
@@ -72,7 +72,7 @@ def createMeeting():
 @app.route("/deleteMeeting", methods = ["POST"])
 @authenticate_leadership
 def deleteMeeting():
-    meeting_id = request.values.get("id")
+    meeting_id = request.values.get("meeting_id")
     meeting = Meeting.get(meeting_id)
     if not meeting:
         return "Not found", 404

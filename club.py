@@ -7,7 +7,6 @@ from meeting import Meeting
 
 class Club:
     def __init__(self, club_id, name = None, description = None, location = None, time = None, is_salt_group = False):
-        self.id = club_id
         self.club_id = club_id
         self.name = name
         self.description = description
@@ -19,7 +18,7 @@ class Club:
     def get(club_id):
         cursor = mysql.connection.cursor()
         cursor.execute("""
-            SELECT * FROM raymondz_clubs WHERE id = %s
+            SELECT * FROM clubs WHERE club_id = %s
         """, (club_id,))
         club = cursor.fetchone()
         if not club:
@@ -29,7 +28,7 @@ class Club:
     @staticmethod
     def from_dict(club):
         return Club(
-            club_id = club.get("id") or club.get("club_id"),
+            club_id = club.get("club_id"),
             name = club.get("name"),
             description = club.get("description"),
             location = club.get("location"),
@@ -41,7 +40,7 @@ class Club:
     def is_leader(club_id):
         cursor = mysql.connection.cursor()
         cursor.execute("""
-            SELECT club_id FROM raymondz_club_members
+            SELECT club_id FROM club_members
             WHERE user_id = %s AND club_id = %s AND is_leader = 1
         """, (g.user.user_id, club_id))
         return bool(cursor.fetchone())
@@ -62,35 +61,35 @@ class Club:
                     SELECT 
                         COUNT(*)
                     FROM 
-                        raymondz_club_members cm2
+                        club_members cm2
                     WHERE 
-                        cm2.club_id = c.id
+                        cm2.club_id = c.club_id
                 ) AS size,
                 (
                     SELECT 
                         JSON_ARRAYAGG(
                             JSON_OBJECT(
-                                'id', t.id,
+                                'tag_id', t.tag_id,
                                 'name', t.name
                             )
                         )
                     FROM
-                        raymondz_club_tags ct
+                        club_tags ct
                     LEFT JOIN
-                        raymondz_tags t ON t.id = ct.tag_id
+                        tags t ON t.tag_id = ct.tag_id
                     WHERE
-                        ct.club_id = c.id
+                        ct.club_id = c.club_id
                 ) AS tags
             FROM
-                raymondz_clubs c
+                clubs c
             LEFT JOIN
-                raymondz_club_members m
+                club_members m
             ON
-                m.club_id = c.id
+                m.club_id = c.club_id
             AND
                 m.user_id = %s
             WHERE
-                c.id IN ({placeholders})
+                c.club_id IN ({placeholders})
         """, (user_id, *club_ids))
         clubs = []
         for club in cursor.fetchall():
@@ -98,16 +97,14 @@ class Club:
                 club["tags"] = json.loads(club["tags"])
             else:
                 club["tags"] = []
-            club_id = club.get("id")
-            club["club_id"] = club_id
             clubs.append(club)
         return clubs
 
     @staticmethod
     def all_details():
         cursor = mysql.connection.cursor()
-        cursor.execute("SELECT id FROM raymondz_clubs")
-        club_ids = [row["id"] for row in cursor.fetchall()]
+        cursor.execute("SELECT club_id FROM clubs")
+        club_ids = [row["club_id"] for row in cursor.fetchall()]
         return Club.list_details(club_ids)
 
     def add_members(self, user_ids):
@@ -117,11 +114,11 @@ class Club:
         cursor = mysql.connection.cursor()
         cursor.executemany("""
             INSERT IGNORE INTO 
-                raymondz_club_members
+                club_members
                 (user_id, club_id)
             VALUES
                 (%s, %s)
-        """, [(user_id, self.id) for user_id in unique_ids])
+        """, [(user_id, self.club_id) for user_id in unique_ids])
         return cursor.rowcount
 
     def remove_members(self, user_ids):
@@ -132,22 +129,22 @@ class Club:
         cursor = mysql.connection.cursor()
         cursor.execute(f"""
             DELETE FROM 
-                raymondz_club_members
+                club_members
             WHERE
                 club_id = %s AND user_id IN ({placeholders})
-        """, (self.id, *unique_ids))
+        """, (self.club_id, *unique_ids))
         return cursor.rowcount
 
     def add_leader(self, user_id, is_leader):
         cursor = mysql.connection.cursor()
         cursor.execute("""
             UPDATE 
-                raymondz_club_members
+                club_members
             SET 
                 is_leader = %s
             WHERE
                 user_id = %s AND club_id = %s
-        """, (1 if is_leader else 0, user_id, self.id))
+        """, (1 if is_leader else 0, user_id, self.club_id))
         return cursor.rowcount
 
     def demote_leader(self, user_id, is_leader):
@@ -155,12 +152,12 @@ class Club:
         cursor = mysql.connection.cursor()
         cursor.execute("""
             UPDATE 
-                raymondz_club_members
+                club_members
             SET 
                 is_leader = %s
             WHERE
                 user_id = %s AND club_id = %s
-        """, (leader_value, user_id, self.id))
+        """, (leader_value, user_id, self.club_id))
         return cursor.rowcount
 
     def leaders(self):
@@ -169,12 +166,12 @@ class Club:
             SELECT 
                 u.*
             FROM 
-                raymondz_club_members cm
+                club_members cm
             JOIN
-                raymondz_users u ON u.id = cm.user_id
+                users u ON u.user_id = cm.user_id
             WHERE
                 cm.club_id = %s AND cm.is_leader = 1
-        """, (self.id,))
+        """, (self.club_id,))
         self.leaders = cursor.fetchall()
         return self.leaders
 
@@ -184,12 +181,12 @@ class Club:
             SELECT 
                 u.*
             FROM 
-                raymondz_club_members cm
+                club_members cm
             JOIN
-                raymondz_users u ON u.id = cm.user_id
+                users u ON u.user_id = cm.user_id
             WHERE
                 cm.club_id = %s AND cm.is_leader = 0
-        """, (self.id,))
+        """, (self.club_id,))
         self.members = cursor.fetchall()
         return self.members
 
@@ -199,7 +196,7 @@ class Club:
             SELECT 
                 m.*
             FROM 
-                raymondz_meetings m 
+                meetings m 
             WHERE 
                 m.club_id = %s
             AND
@@ -217,7 +214,7 @@ class Club:
                 CASE WHEN m.is_meeting = 1 THEN m.date END ASC,
                 CASE WHEN m.is_meeting = 1 THEN m.start_time END ASC,
                 CASE WHEN m.is_meeting = 0 THEN m.post_time END DESC
-        """, (self.id, 1 if recent else 0))
+        """, (self.club_id, 1 if recent else 0))
         return [Meeting.from_dict(row) for row in cursor.fetchall()]
 
     def import_emails(self, emails):
@@ -230,7 +227,7 @@ class Club:
         cursor = mysql.connection.cursor()
         cursor.execute(f"""
             INSERT IGNORE INTO 
-                raymondz_users (email)
+                users (email)
             VALUES 
                 {", ".join(["(%s)"] * len(normalized))}
         """, normalized)
@@ -238,17 +235,17 @@ class Club:
             SELECT 
                 u.*
             FROM 
-                raymondz_users u
+                users u
             LEFT JOIN 
-                raymondz_club_members cm
+                club_members cm
             ON 
-                cm.user_id = u.id AND cm.club_id = %s
+                cm.user_id = u.user_id AND cm.club_id = %s
             WHERE 
                 u.email IN ({", ".join(["%s"] * len(normalized))}) AND cm.user_id IS NULL
-        """, (self.id, *normalized))
+        """, (self.club_id, *normalized))
         new_members = cursor.fetchall()
         if new_members:
-            self.add_members([member["id"] for member in new_members])
+            self.add_members([member["user_id"] for member in new_members])
         return new_members
   
     @staticmethod
@@ -261,24 +258,24 @@ class Club:
         cursor = mysql.connection.cursor()
         cursor.execute("""
             INSERT INTO 
-                raymondz_tags
+                tags
                 (name)
             VALUES
                 (%s)
             ON DUPLICATE KEY UPDATE
-                id = LAST_INSERT_ID(id)
+                tag_id = LAST_INSERT_ID(tag_id)
         """, (normalized,))
-        return {"id": cursor.lastrowid, "name": normalized}
+        return {"tag_id": cursor.lastrowid, "name": normalized}
 
     def add_tag(self, tag_id):
         cursor = mysql.connection.cursor()
         cursor.execute("""
             INSERT IGNORE INTO 
-                raymondz_club_tags
+                club_tags
                 (club_id, tag_id)
             VALUES
                 (%s, %s)
-        """, (self.id, tag_id))
+        """, (self.club_id, tag_id))
         return cursor.rowcount
 
     def tags(self):
@@ -287,11 +284,11 @@ class Club:
             SELECT 
                 t.*
             FROM
-                raymondz_club_tags ct
+                club_tags ct
             JOIN
-                raymondz_tags t ON t.id = ct.tag_id
+                tags t ON t.tag_id = ct.tag_id
             WHERE
                 ct.club_id = %s
-        """, (self.id,))
+        """, (self.club_id,))
         self.tags = cursor.fetchall()
         return self.tags

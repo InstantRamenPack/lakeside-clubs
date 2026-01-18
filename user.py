@@ -16,12 +16,12 @@ class User:
     @staticmethod
     def get(user_id):
         cursor = mysql.connection.cursor()
-        cursor.execute("SELECT * FROM raymondz_users WHERE id = %s", (user_id,))
+        cursor.execute("SELECT * FROM users WHERE user_id = %s", (user_id,))
         user_data = cursor.fetchone()
 
         if user_data:
             return User(
-                user_id = user_data['id'],
+                user_id = user_data['user_id'],
                 google_id = user_data['google_id'],
                 first_name = user_data['first_name'],
                 last_name = user_data['last_name'],
@@ -35,16 +35,16 @@ class User:
         
     @staticmethod
     def retrieve():
-        if "raymondz_user" in session:
+        if "user" in session:
             return User(
-                user_id = session["raymondz_user"].get("user_id"),
-                google_id = session["raymondz_user"].get("google_id"),
-                first_name = session["raymondz_user"].get("first_name"),
-                last_name = session["raymondz_user"].get("last_name"),
-                name = session["raymondz_user"].get("name"),
-                email = session["raymondz_user"].get("email"),
-                picture = session["raymondz_user"].get("picture"),
-                is_admin = session["raymondz_user"].get("is_admin", False)
+                user_id = session["user"].get("user_id"),
+                google_id = session["user"].get("google_id"),
+                first_name = session["user"].get("first_name"),
+                last_name = session["user"].get("last_name"),
+                name = session["user"].get("name"),
+                email = session["user"].get("email"),
+                picture = session["user"].get("picture"),
+                is_admin = session["user"].get("is_admin", False)
             )  
         else:
             return None 
@@ -53,12 +53,12 @@ class User:
         cursor = mysql.connection.cursor()
         cursor.execute("""
             INSERT INTO 
-                raymondz_users
+                users
                 (google_id, first_name, last_name, name, email, picture)
             VALUES
                 (%s, %s, %s, %s, %s, %s)
             ON DUPLICATE KEY UPDATE
-                id = LAST_INSERT_ID(id),
+                user_id = LAST_INSERT_ID(user_id),
                 google_id = %s,
                 first_name = %s,
                 last_name = %s,
@@ -71,11 +71,11 @@ class User:
         self.user_id = cursor.lastrowid
 
         cursor.execute("""
-            SELECT is_admin FROM raymondz_users WHERE id = %s
+            SELECT is_admin FROM users WHERE user_id = %s
         """, (self.user_id,)) 
         self.is_admin = bool(cursor.fetchone().get("is_admin"))
 
-        session["raymondz_user"] = {
+        session["user"] = {
             "user_id": self.user_id,
             "google_id": self.google_id,
             "first_name": self.first_name,

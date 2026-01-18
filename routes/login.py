@@ -51,7 +51,7 @@ def callback():
         picture = userinfo_response.json()["picture"]
     )
     user.init()
-    return redirect(session.pop("raymondz_next", url_for("index")))
+    return redirect(session.pop("next", url_for("index")))
 
 @app.route("/logout")
 def logout():

@@ -28,11 +28,11 @@ def authenticate_leadership(func):
         if g.user.is_admin:
             return func(*args, **kwargs)
 
-        club_id = request.values.get("club_id") or request.values.get("id")
+        club_id = request.values.get("club_id")
 
         cursor = mysql.connection.cursor()
         cursor.execute("""
-            SELECT club_id FROM raymondz_club_members
+            SELECT club_id FROM club_members
             WHERE user_id = %s AND club_id = %s AND is_leader = 1
         """, (g.user.user_id, club_id))
         club = cursor.fetchone()

@@ -1,6 +1,6 @@
 function joinClub(club_id, authenticated, button) {
     if (!authenticated) {
-        window.location.href = "/joinClub?id=" + club_id;
+        window.location.href = "/joinClub?club_id=" + club_id;
         return;
     }
     const targetButton = button.tagName === 'BUTTON' ? button : button.closest('button');
@@ -10,7 +10,7 @@ function joinClub(club_id, authenticated, button) {
 	const xhttp = new XMLHttpRequest();	
 	xhttp.open("POST", "/joinClub", true);
     xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded"); 
-    xhttp.send("id=" + encodeURIComponent(club_id));
+    xhttp.send("club_id=" + encodeURIComponent(club_id));
 }
 
 function leaveClub(club_id, button) {
@@ -21,7 +21,7 @@ function leaveClub(club_id, button) {
 	const xhttp = new XMLHttpRequest();
 	xhttp.open("POST", "/leaveClub", true);
     xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded"); 
-    xhttp.send("id=" + encodeURIComponent(club_id));
+    xhttp.send("club_id=" + encodeURIComponent(club_id));
 }
 
 function importUsers(club_id) {
@@ -77,7 +77,7 @@ function importUsers(club_id) {
 
     xhttp.open("POST", "/importUsers", true);
     xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    xhttp.send("data=" + encodeURIComponent(textBox.value) + "&id=" + encodeURIComponent(club_id));
+    xhttp.send("data=" + encodeURIComponent(textBox.value) + "&club_id=" + encodeURIComponent(club_id));
 }
 
 function setActionVisibility(entry, actionName, visible) {
@@ -115,7 +115,7 @@ function fetchMembers(club_id) {
 
         xhttp.open("POST", "/fetchMembers", true);
         xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-        xhttp.send("id=" + encodeURIComponent(club_id));
+        xhttp.send("club_id=" + encodeURIComponent(club_id));
     });
 }
 
@@ -163,7 +163,7 @@ async function emailMeeting(button) {
     window.open(url);
 }
 
-function addLeader(club_id, member_id, button) {
+function addLeader(club_id, user_id, button) {
     const entry = button.closest('li');
     const leaderList = document.getElementById("club-leader-list");
     leaderList.appendChild(entry);
@@ -173,10 +173,10 @@ function addLeader(club_id, member_id, button) {
 	const xhttp = new XMLHttpRequest();
 	xhttp.open("POST", "/addLeader", true);
     xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded"); 
-    xhttp.send("club_id=" + encodeURIComponent(club_id) + "&user_id=" + encodeURIComponent(member_id));
+    xhttp.send("club_id=" + encodeURIComponent(club_id) + "&user_id=" + encodeURIComponent(user_id));
 }
 
-function demoteLeader(club_id, member_id, button) {
+function demoteLeader(club_id, user_id, button) {
     const entry = button.closest('li');
     const memberList = document.getElementById("club-member-list");
     memberList.insertBefore(entry, memberList.children[0]);
@@ -186,16 +186,16 @@ function demoteLeader(club_id, member_id, button) {
 	const xhttp = new XMLHttpRequest();
 	xhttp.open("POST", "/demoteLeader", true);
     xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded"); 
-    xhttp.send("club_id=" + encodeURIComponent(club_id) + "&user_id=" + encodeURIComponent(member_id));
+    xhttp.send("club_id=" + encodeURIComponent(club_id) + "&user_id=" + encodeURIComponent(user_id));
 }
 
-function kickMember(club_id, member_id, button) {
+function kickMember(club_id, user_id, button) {
     button.parentElement.remove()
     
 	const xhttp = new XMLHttpRequest();
 	xhttp.open("POST", "/kickMember", true);
     xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded"); 
-    xhttp.send("club_id=" + encodeURIComponent(club_id) + "&user_id=" + encodeURIComponent(member_id));
+    xhttp.send("club_id=" + encodeURIComponent(club_id) + "&user_id=" + encodeURIComponent(user_id));
 }
 
 function deleteMeeting(meeting_id, club_id, button) {
@@ -208,7 +208,7 @@ function deleteMeeting(meeting_id, club_id, button) {
 	const xhttp = new XMLHttpRequest();
 	xhttp.open("POST", "/deleteMeeting", true);
     xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded"); 
-    xhttp.send("id=" + encodeURIComponent(meeting_id) + "&club_id=" + encodeURIComponent(club_id));
+    xhttp.send("meeting_id=" + encodeURIComponent(meeting_id) + "&club_id=" + encodeURIComponent(club_id));
 }
 
 function parseTimeToMinutes(value) {
@@ -389,10 +389,10 @@ function createTag(control) {
             const template = document.getElementById("club-tag-template");
 
             const copy = template.content.cloneNode(true);
-            copy.querySelector(".club-tag").dataset.tagId = tag.id;
+            copy.querySelector(".club-tag").dataset.tagId = tag.tag_id;
             copy.querySelector(".tag-name").textContent = tag.name;
             const deleteAction = copy.querySelector('[data-action="delete-tag"]');
-            deleteAction.dataset.tagId = tag.id;
+            deleteAction.dataset.tagId = tag.tag_id;
             deleteAction.dataset.clubId = clubId;
 
             const insertionPoint = document.querySelector(".create-tag-control");
@@ -463,17 +463,17 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             case "add-leader": {
                 const listElement = actionTarget.closest('.club-user-list');
-                addLeader(listElement.dataset.clubId, actionTarget.dataset.memberId, actionTarget);
+                addLeader(listElement.dataset.clubId, actionTarget.dataset.userId, actionTarget);
                 break;
             }
             case "kick-member": {
                 const listElement = actionTarget.closest('.club-user-list');
-                kickMember(listElement.dataset.clubId, actionTarget.dataset.memberId, actionTarget);
+                kickMember(listElement.dataset.clubId, actionTarget.dataset.userId, actionTarget);
                 break;
             }
             case "demote-leader": {
                 const listElement = actionTarget.closest('.club-user-list');
-                demoteLeader(listElement.dataset.clubId, actionTarget.dataset.memberId, actionTarget);
+                demoteLeader(listElement.dataset.clubId, actionTarget.dataset.userId, actionTarget);
                 break;
             }
             case "copy-email": {

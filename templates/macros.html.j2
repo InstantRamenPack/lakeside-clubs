@@ -15,9 +15,9 @@
             {% endif %}
         </div>
         <div class = "flex-space"></div>
-        <span class = "membership-action material-symbol" {% if not is_leader or member.id == g.user.user_id %} style = "display: none;"{% endif %} data-action = "demote-leader" data-member-id = "{{member.id}}" data-tooltip = "Demote Leader">remove_moderator</span>
-        <span class = "membership-action material-symbol" {% if is_leader %} style = "display: none;"{% endif %} data-action = "add-leader" data-member-id = "{{member.id}}" data-tooltip = "Add Leader">add_moderator</span>
-        <span class = "membership-action material-symbol" {% if is_leader %} style = "display: none;"{% endif %} data-action = "kick-member" data-member-id = "{{member.id}}" data-tooltip = "Kick Member">person_remove</span>
+        <span class = "membership-action material-symbol" {% if not is_leader or member.user_id == g.user.user_id %} style = "display: none;"{% endif %} data-action = "demote-leader" data-user-id = "{{member.user_id}}" data-tooltip = "Demote Leader">remove_moderator</span>
+        <span class = "membership-action material-symbol" {% if is_leader %} style = "display: none;"{% endif %} data-action = "add-leader" data-user-id = "{{member.user_id}}" data-tooltip = "Add Leader">add_moderator</span>
+        <span class = "membership-action material-symbol" {% if is_leader %} style = "display: none;"{% endif %} data-action = "kick-member" data-user-id = "{{member.user_id}}" data-tooltip = "Kick Member">person_remove</span>
         {% if g.user.authenticated %}
             <span class = "membership-action material-symbol" data-action = "copy-email" data-email = "{{member.email}}" data-tooltip = "{{member.email}}">contact_mail</span>
         {% endif %}
@@ -26,7 +26,7 @@
 
 {% macro render_club_card(club) %}
     <div class = "club-card">
-        <a href = "club?id={{club.club_id}}">
+        <a href = "club?club_id={{club.club_id}}">
             <h2>{{club.name}}</h2>
         </a>
         <p>{{club.description}}</p>
@@ -67,7 +67,7 @@
         {% if is_club_page %}
             <h2>{{meeting.title|e}}</h2>            
         {% else %}
-            <a href = "club?id={{meeting.club_id}}">
+            <a href = "club?club_id={{meeting.club_id}}">
                 <h2>{{meeting.club_name}}</h2>
             </a>
             <h3>{{meeting.title|e}}</h3>
@@ -91,11 +91,11 @@
                 </div>
             {% else %}
                 {% if is_club_page and (is_leader or g.user.is_admin) %}
-                    <button type = "button" data-action = "email-meeting" data-club-id = "{{meeting.club_id}}" data-meeting-id = "{{meeting.id}}" data-meeting-title = "{{meeting.title|e}}" data-meeting-description = "{{meeting.description_plain()|e}}">
+                    <button type = "button" data-action = "email-meeting" data-club-id = "{{meeting.club_id}}" data-meeting-id = "{{meeting.meeting_id}}" data-meeting-title = "{{meeting.title|e}}" data-meeting-description = "{{meeting.description_plain()|e}}">
                         <span class = "button-label">Email Announcement</span>
                         <span class = "material-symbol">mail</span>
                     </button>
-                    <button type = "button" data-action = "delete-meeting" data-meeting-id = "{{meeting.id}}" data-club-id = "{{meeting.club_id}}">
+                    <button type = "button" data-action = "delete-meeting" data-meeting-id = "{{meeting.meeting_id}}" data-club-id = "{{meeting.club_id}}">
                         <span class = "button-label">Delete Announcement</span>
                         <span class = "material-symbol">delete</span>
                     </button>
@@ -104,11 +104,11 @@
             <div class = "flex-space"></div>
             {% if is_meeting %}
                 {% if is_club_page and (is_leader or g.user.is_admin) %}             
-                    <button type = "button" data-action = "email-meeting" data-club-id = "{{meeting.club_id}}" data-meeting-id = "{{meeting.id}}" data-meeting-title = "{{meeting.title|e}}" data-meeting-description = "{{meeting.description_plain()|e}}">
+                    <button type = "button" data-action = "email-meeting" data-club-id = "{{meeting.club_id}}" data-meeting-id = "{{meeting.meeting_id}}" data-meeting-title = "{{meeting.title|e}}" data-meeting-description = "{{meeting.description_plain()|e}}">
                         <span class = "button-label">Email Meeting</span>
                         <span class = "material-symbol">mail</span>
                     </button>
-                    <button type = "button" data-action = "delete-meeting" data-meeting-id = "{{meeting.id}}" data-club-id = "{{meeting.club_id}}">
+                    <button type = "button" data-action = "delete-meeting" data-meeting-id = "{{meeting.meeting_id}}" data-club-id = "{{meeting.club_id}}">
                         <span class = "button-label">Delete Meeting</span>
                         <span class = "material-symbol">delete</span>
                     </button>
