@@ -12,6 +12,10 @@ google_provider_cfg = requests.get(app.config["GOOGLE_DISCOVERY_URL"]).json()
 
 @app.route("/login")
 def login():
+    if "next" not in session:
+        referrer = request.referrer
+        if referrer and referrer.startswith(request.host_url):
+            session["next"] = referrer
     return redirect(client.prepare_request_uri(
         google_provider_cfg["authorization_endpoint"],
         redirect_uri = url_for("callback", _external = True, _scheme = "https"),
@@ -55,5 +59,9 @@ def callback():
 
 @app.route("/logout")
 def logout():
+    redirect_url = url_for("index")
+    referrer = request.referrer
+    if referrer and referrer.startswith(request.host_url):
+        redirect_url = referrer
     session.clear()
-    return redirect(url_for("index"))
+    return redirect(redirect_url)
