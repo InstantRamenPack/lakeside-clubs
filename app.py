@@ -4,7 +4,6 @@ from flask import Flask, g, request
 from openai import OpenAI
 
 import db
-from club import Club
 from user import User
 import config
 
@@ -21,6 +20,7 @@ def load_user():
 
 # https://realpython.com/primer-on-python-decorators/
 def authenticate_leadership(func):
+    from club import Club
     @wraps(func)
     def wrapper(*args, **kwargs):
         if not g.user.authenticated:
