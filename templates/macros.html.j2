@@ -72,7 +72,7 @@
             </a>
             <h3>{{meeting.title|e}}</h3>
         {% endif %}
-        <div class = "meeting-description">{{meeting.description_safe()}}</div>
+        <div class = "meeting-description">{{meeting.html_description}}</div>
         <hr>
         <div class = "card-info">
             {% if is_meeting %}
@@ -91,7 +91,7 @@
                 </div>
             {% else %}
                 {% if is_club_page and (is_leader or g.user.is_admin) %}
-                    <button type = "button" data-action = "email-meeting" data-club-id = "{{meeting.club_id}}" data-meeting-id = "{{meeting.meeting_id}}" data-meeting-title = "{{meeting.title|e}}" data-meeting-description = "{{meeting.description_plain()|e}}">
+                    <button type = "button" data-action = "email-meeting" data-club-id = "{{meeting.club_id}}" data-meeting-id = "{{meeting.meeting_id}}" data-meeting-title = "{{meeting.title|e}}" data-meeting-description = "{{meeting.clean_description|e}}">
                         <span class = "button-label">Email Announcement</span>
                         <span class = "material-symbol">mail</span>
                     </button>
@@ -104,7 +104,7 @@
             <div class = "flex-space"></div>
             {% if is_meeting %}
                 {% if is_club_page and (is_leader or g.user.is_admin) %}             
-                    <button type = "button" data-action = "email-meeting" data-club-id = "{{meeting.club_id}}" data-meeting-id = "{{meeting.meeting_id}}" data-meeting-title = "{{meeting.title|e}}" data-meeting-description = "{{meeting.description_plain()|e}}">
+                    <button type = "button" data-action = "email-meeting" data-club-id = "{{meeting.club_id}}" data-meeting-id = "{{meeting.meeting_id}}" data-meeting-title = "{{meeting.title|e}}" data-meeting-description = "{{meeting.clean_description|e}}">
                         <span class = "button-label">Email Meeting</span>
                         <span class = "material-symbol">mail</span>
                     </button>

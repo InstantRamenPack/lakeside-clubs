@@ -8,11 +8,14 @@ from md_utils import render_markdown_plain, render_markdown_safe
 
 
 class Meeting:
-    def __init__(self, club_id, title, description, start_time = None, end_time = None, date = None, location = None, is_meeting = True, is_leader = False, meeting_id = None, post_time = None):
+    def __init__(self, club_id, title, description, html_description = None, clean_description = None, embedding = None, start_time = None, end_time = None, date = None, location = None, is_meeting = True, is_leader = False, meeting_id = None, post_time = None):
         self.meeting_id = meeting_id
         self.club_id = club_id
         self.title = title
         self.description = description
+        self.html_description = html_description
+        self.clean_description = clean_description
+        self.embedding = embedding
         self.start_time = self._parse_time(start_time)
         self.end_time = self._parse_time(end_time)
         self.date = self._parse_date(date)
@@ -60,45 +63,40 @@ class Meeting:
                 return None
         return None
 
-    def description_safe(self):
-        return render_markdown_safe(self.description or "")
-
-    def description_plain(self):
-        return render_markdown_plain(self.description or "")
-
     def as_embedding(self):
         response = client.embeddings.create(
             model = "text-embedding-3-small",
-            input = self.title + "\n" + self.description_plain(),
+            input = self.title + "\n" + self.clean_description,
             dimensions = 1536,
         )
         return response.data[0].embedding
 
     def create(self):
-        embedding = json.dumps(self.as_embedding())
+        self.html_description = render_markdown_safe(self.description or "")
+        self.clean_description = render_markdown_plain(self.description or "")
+        self.embedding = self.as_embedding()
+
         cursor = mysql.connection.cursor()
         if self.is_meeting:
             cursor.execute("""
                 INSERT INTO 
                     meetings
-                    (club_id, title, description, start_time, end_time, date, location, is_meeting, embedding)
+                    (club_id, title, description, html_description, clean_description, start_time, end_time, date, location, is_meeting, embedding)
                 VALUES 
-                    (%s, %s, %s, %s, %s, %s, %s, 1, CAST(%s AS VECTOR))
-            """, (self.club_id, self.title, self.description, self.start_time, self.end_time, self.date, self.location, embedding))
+                    (%s, %s, %s, %s, %s, %s, %s, %s, %s, 1, CAST(%s AS VECTOR))
+            """, (self.club_id, self.title, self.description, self.html_description, self.clean_description, self.start_time, self.end_time, self.date, self.location, json.dumps(self.embedding)))
         else:
             cursor.execute("""
                 INSERT INTO 
                     meetings
-                    (club_id, title, description, is_meeting, embedding)
+                    (club_id, title, description, html_description, clean_description, is_meeting, embedding)
                 VALUES 
-                    (%s, %s, %s, 0, CAST(%s AS VECTOR))
-            """, (self.club_id, self.title, self.description, embedding))
+                    (%s, %s, %s, %s, %s, 0, CAST(%s AS VECTOR))
+            """, (self.club_id, self.title, self.description, self.html_description, self.clean_description, json.dumps(self.embedding)))
         self.meeting_id = cursor.lastrowid
         created = Meeting.get(self.meeting_id)
-        if created:
-            created.is_leader = self.is_leader
-            return created
-        return self
+        created.is_leader = self.is_leader
+        return created
 
     @staticmethod
     def all_meetings(recent = True):
@@ -163,6 +161,9 @@ class Meeting:
             club_id = meeting.get("club_id"),
             title = meeting.get("title"),
             description = meeting.get("description"),
+            html_description = meeting.get("html_description"),
+            clean_description = meeting.get("clean_description"),
+            embedding = meeting.get("embedding"),
             start_time = meeting.get("start_time"),
             end_time = meeting.get("end_time"),
             date = meeting.get("date"),
@@ -178,6 +179,9 @@ class Meeting:
             "club_id": self.club_id,
             "title": self.title,
             "description": self.description,
+            "html_description": self.html_description,
+            "clean_description": self.clean_description,
+            "embedding": self.embedding,
             "start_time": self.start_time,
             "end_time": self.end_time,
             "date": self.date,
