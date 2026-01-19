@@ -64,9 +64,22 @@ class Meeting:
         return None
 
     def as_embedding(self):
+        from club import Club
+
+        club = Club(self.club_id, True)
+        input_fields = [
+            club.name,
+            club.description,
+            " ".join([tag["name"] for tag in club.tags]),
+            self.title,
+            self.clean_description
+        ]
+
+        print("\n\n".join(input_fields))
+
         response = client.embeddings.create(
             model = "text-embedding-3-small",
-            input = self.title + "\n" + self.clean_description,
+            input = "\n\n".join(input_fields),
             dimensions = 1536,
         )
         return response.data[0].embedding
@@ -131,6 +144,28 @@ class Meeting:
             m.is_member = bool(meeting.get("is_member"))
             meeting_objects.append(m)
         return meeting_objects
+
+    @staticmethod
+    def recompute_embeddings():
+        cursor = mysql.connection.cursor()
+        cursor.execute("SELECT * FROM meetings")
+        meetings = cursor.fetchall()
+
+        for row in meetings:
+            meeting = Meeting.from_dict(row)
+            if not meeting.clean_description:
+                meeting.clean_description = render_markdown_plain(meeting.description or "")
+            meeting.embedding = meeting.as_embedding()
+
+            cursor.execute("""
+                UPDATE
+                    meetings
+                SET
+                    clean_description = %s,
+                    embedding = CAST(%s AS VECTOR)
+                WHERE
+                    meeting_id = %s
+            """, (meeting.clean_description, json.dumps(meeting.embedding), meeting.meeting_id))
 
     @staticmethod
     def delete(meeting_id):

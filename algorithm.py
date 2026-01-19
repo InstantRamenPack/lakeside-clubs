@@ -99,19 +99,35 @@ def search_clubs(query, rrf_k = 20):
     Search clubs using embeddings and BM25 keyword search. 
     """
 
-    # embedding search
     cursor = mysql.connection.cursor()
     cursor.execute("""
         SELECT
-            meeting_id,
-            club_id,
-            clean_description,
-            embedding
+            m.meeting_id,
+            m.club_id,
+            m.title,
+            m.clean_description,
+            m.embedding,
+            c.*,
+            (
+                SELECT 
+                    JSON_ARRAYAGG(
+                        t.name
+                    )
+                FROM
+                    club_tags ct
+                LEFT JOIN
+                    tags t ON t.tag_id = ct.tag_id
+                WHERE
+                    ct.club_id = c.club_id
+            ) AS tags
         FROM
-            meetings
+            meetings m
+        JOIN
+            clubs c ON c.club_id = m.club_id
     """)
     meeting_rows = cursor.fetchall()
 
+    # embedding search
     query_embedding = client.embeddings.create(
         model = "text-embedding-3-small",
         input = query,
@@ -128,7 +144,14 @@ def search_clubs(query, rrf_k = 20):
     query_tokens = re.findall(r"[a-z0-9]+", query.lower())
     meeting_tokens = []
     for row in meeting_rows:
-        meeting_tokens.append(re.findall(r"[a-z0-9]+", row.get("clean_description").lower()))
+        query_fields = [
+            row.get("name"),
+            row.get("description"),
+            " ".join(8 * json.loads(row.get("tags"))),
+            row.get("title"),
+            row.get("clean_description")
+        ]
+        meeting_tokens.append(re.findall(r"[a-z0-9]+", " ".join(query_fields).lower()))
 
     bm25_scores = BM25Okapi(meeting_tokens).get_scores(query_tokens)
     bm25_rank = []

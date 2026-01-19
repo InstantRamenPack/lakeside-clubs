@@ -46,3 +46,10 @@ def deleteMeeting():
         return "Not found", 404
     Meeting.delete(meeting_id)
     return "Success!", 200
+
+@app.route("/recompute_embeddings", methods = ["GET"])
+def recompute_embeddings():
+    if not g.user.is_admin:
+        return "Forbidden", 403
+    Meeting.recompute_embeddings()
+    return "Success!", 200
