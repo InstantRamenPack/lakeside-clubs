@@ -62,6 +62,13 @@
     </div>
 {% endmacro %}
 
+{% macro render_search_result(club) %}
+    <a class = "search-result" href = "club?club_id={{club.club_id}}">
+        <h3>{{club.name}}</h3>
+        <p>{{club.description}}</p>
+    </a>
+{% endmacro %}
+
 {% macro render_meeting_card(meeting, is_leader, is_meeting, is_club_page) %}
     <div class = "meeting-card">
         {% if is_club_page %}

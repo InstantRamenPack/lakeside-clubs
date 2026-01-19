@@ -1,4 +1,6 @@
-from flask import g, render_template
+import json
+
+from flask import g, render_template, request
 
 import algorithm
 from app import app
@@ -38,3 +40,12 @@ def index():
         joined_order = joined_order, 
         other_order = other_order
     )
+
+@app.route("/search", methods = ["GET"])
+def search():
+    query = request.values.get("query").strip()
+    clubs = Club.list_details(algorithm.search_clubs(query)[:5])
+    macros = app.jinja_env.get_template("macros.html.j2").make_module({"g": g})
+    rendered = [macros.render_search_result(club) for club in clubs]
+
+    return json.dumps({"rendered": rendered})

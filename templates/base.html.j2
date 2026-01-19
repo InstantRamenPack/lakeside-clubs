@@ -20,20 +20,35 @@
 
     <body>
         <nav id = "navbar">
-            <a href = ".">
-                <img src = "static/favicon.png" height = 30 alt = "Lakeside student government logo.">
-            </a>
-            <div class = "flex-space"></div>           
-            <a href = "meetings">Meetings</a>
-            {% if g.user.authenticated %}
-                <a href = "logout">Logout</a>
+            <div class = "nav-left">
                 <a href = ".">
-                    <img id = "profile-picture" src = "{{g.user.picture}}" height = 30 alt = "User image.">
-                </a>   
-            {% else %}
-                <a href = "login">Login</a>
-            {% endif %}
-        </nav> 
+                    <img src = "static/favicon.png" height = 30 alt = "">
+                </a>
+            </div>
+            <div class = "nav-center">
+                <div id = "search-area">
+                    <div id = "search-bar">
+                        <span id = "search-icon" class = "material-symbol">search</span>
+                        <input id = "club-search" type = "text" placeholder = "Search clubs..." autocomplete = "off" aria-label = "Search clubs">
+                    </div>
+                    <div id = "search-results" hidden>
+                        <div class = "search-placeholder">Search to find new clubs!</div>
+                    </div>
+                </div>
+            </div>
+            <div class = "nav-right">
+                <a href = "meetings">Meetings</a>
+                {% if g.user.authenticated %}
+                    <a href = "logout">Logout</a>
+                    <a href = ".">
+                        <img id = "profile-picture" src = "{{g.user.picture}}" height = 30 alt = "User image.">
+                    </a>
+                {% else %}
+                    <a href = "login">Login</a>
+                {% endif %}
+            </div>
+        </nav>
+        <div id = "search-overlay"></div>
         {% block body %} {% endblock %}
         <script>
             window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };

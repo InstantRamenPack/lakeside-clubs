@@ -237,6 +237,143 @@ function updateButton(text, element, icon) {
     }
 }
 
+function setupSearchBar() {
+    const searchInput = document.getElementById('club-search');
+    const searchResults = document.getElementById('search-results');
+    const searchIcon = document.getElementById('search-icon');
+    const overlay = document.getElementById('search-overlay');
+
+    if (!searchInput || !searchResults || !searchIcon) {
+        return;
+    }
+
+    const emptyHtml = '<div class="search-placeholder">Search to find new clubs!</div>';
+    let debounceHandle;
+    let blurHandle;
+    let requestId = 0;
+    let cachedResultsHtml = searchResults.innerHTML;
+    let lastQuery = '';
+
+    const setActive = (active) => {
+        document.body.classList.toggle('search-active', active);
+        searchResults.hidden = !active;
+    };
+
+    const updateIcon = () => {
+        const hasText = searchInput.value.trim().length > 0;
+        const focused = document.activeElement === searchInput;
+        if (focused && hasText) {
+            searchIcon.textContent = 'cancel';
+            searchIcon.dataset.action = 'clear-search';
+        } else {
+            searchIcon.textContent = 'search';
+            delete searchIcon.dataset.action;
+        }
+    };
+
+    const renderEmpty = () => {
+        searchResults.innerHTML = emptyHtml;
+        cachedResultsHtml = searchResults.innerHTML;
+    };
+
+    const renderLoading = () => {
+        searchResults.innerHTML = '<div class="search-loading"><span class="material-symbol spin">progress_activity</span></div>';
+    };
+
+    const scheduleSearch = () => {
+        const query = searchInput.value.trim();
+        window.clearTimeout(debounceHandle);
+        debounceHandle = window.setTimeout(() => {
+            if (!query) {
+                requestId += 1;
+                lastQuery = '';
+                renderEmpty();
+                return;
+            }
+
+            if (query === lastQuery && cachedResultsHtml && cachedResultsHtml !== emptyHtml) {
+                return;
+            }
+
+            const currentId = ++requestId;
+            const previousResults = cachedResultsHtml;
+            renderLoading();
+
+            fetch(`/search?query=${encodeURIComponent(query)}`)
+                .then((response) => (response.ok ? response.json() : null))
+                .then((payload) => {
+                    if (currentId !== requestId || !payload) {
+                        return;
+                    }
+                    const rendered = payload.rendered || [];
+                    searchResults.innerHTML = rendered.join('');
+                    cachedResultsHtml = searchResults.innerHTML;
+                    lastQuery = query;
+                })
+                .catch(() => {
+                    if (currentId !== requestId) {
+                        return;
+                    }
+                    searchResults.innerHTML = previousResults || '';
+                    cachedResultsHtml = searchResults.innerHTML;
+                });
+        }, 250);
+    };
+
+    searchInput.addEventListener('focus', () => {
+        if (blurHandle) {
+            window.clearTimeout(blurHandle);
+        }
+        setActive(true);
+        updateIcon();
+        if (!searchInput.value.trim()) {
+            renderEmpty();
+        } else if (searchInput.value.trim() !== lastQuery) {
+            scheduleSearch();
+        }
+    });
+
+    searchInput.addEventListener('blur', () => {
+        updateIcon();
+        blurHandle = window.setTimeout(() => {
+            setActive(false);
+            updateIcon();
+        }, 150);
+    });
+
+    searchInput.addEventListener('input', () => {
+        updateIcon();
+        scheduleSearch();
+    });
+
+    searchResults.addEventListener('mousedown', () => {
+        if (blurHandle) {
+            window.clearTimeout(blurHandle);
+        }
+    });
+
+    searchIcon.addEventListener('click', () => {
+        if (searchIcon.dataset.action !== 'clear-search') {
+            return;
+        }
+        requestId += 1;
+        searchInput.value = '';
+        renderEmpty();
+        searchInput.focus();
+        updateIcon();
+    });
+
+    if (overlay) {
+        overlay.addEventListener('click', () => {
+            searchInput.blur();
+        });
+    }
+
+    renderEmpty();
+    setActive(false);
+    updateIcon();
+}
+
 // attach UI utilities
 document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('textarea').forEach((textarea) => {
@@ -246,6 +383,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     attachTooltips();
     setupTabs();
+    setupSearchBar();
 
     window.addEventListener('scroll', scheduleOverlayUpdate, { passive: true, capture: true });
     window.addEventListener('resize', scheduleOverlayUpdate, { passive: true });
