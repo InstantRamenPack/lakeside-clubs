@@ -1,4 +1,7 @@
 import json
+import re
+
+from rank_bm25 import BM25Okapi
 
 from app import client
 from db import mysql
@@ -91,38 +94,74 @@ def recommend_club_ids(user_id, user_weight_factor = 4, tag_weight_factor = 1, l
 
     return [club_id for _, _, club_id in weights]
 
-def search_clubs(query, n = 5):
-    response = client.embeddings.create(
+def search_clubs(query, n = 5, rrf_k = 20):
+    # embedding search
+    cursor = mysql.connection.cursor()
+    cursor.execute("""
+        SELECT
+            meeting_id,
+            club_id,
+            clean_description,
+            embedding
+        FROM
+            meetings
+    """)
+    meeting_rows = cursor.fetchall()
+
+    query_embedding = client.embeddings.create(
         model = "text-embedding-3-small",
         input = query,
         dimensions = 1536,
-    )
+    ).data[0].embedding
 
-    cursor = mysql.connection.cursor()
-    cursor.execute("""
-        SELECT 
-            club_id,
-            vec_cosine_distance(embedding, CAST(%s AS VECTOR)) AS distance
-        FROM 
-            meetings
-        WHERE
-            embedding IS NOT NULL
-        ORDER BY
-            distance ASC
-        LIMIT %s
-    """, (json.dumps(response.data[0].embedding), 10 * n))
+    embedding_rank = []
+    for row in meeting_rows:
+        similarity = sum(x * y for x, y in zip(query_embedding, json.loads(row.get("embedding"))))
+        embedding_rank.append((row.get("meeting_id"), row.get("club_id"), similarity))
+    embedding_rank.sort(key = lambda item: item[2], reverse = True)
 
-    club_similarities = {}
-    for row in cursor.fetchall():
-        similarity = 1.0 - float(row.get("distance"))
-        club_id = row.get("club_id")
-        club_similarities[club_id] = club_similarities.get(club_id, 0.0) + similarity
+    # BM25 search
+    query_tokens = re.findall(r"[a-z0-9]+", query.lower())
+    meeting_tokens = []
+    for row in meeting_rows:
+        meeting_tokens.append(re.findall(r"[a-z0-9]+", row.get("clean_description").lower()))
 
-    if not club_similarities:
-        return []
+    bm25_scores = BM25Okapi(meeting_tokens).get_scores(query_tokens)
+    bm25_rank = []
+    for row, score in zip(meeting_rows, bm25_scores):
+        bm25_rank.append((row.get("meeting_id"), row.get("club_id"), score))
+    bm25_rank.sort(key = lambda item: item[2], reverse = True)
+
+    # RRF to merge embedding and BM25 ranks
+    rrf_scores = {}
+
+    for rank, row in enumerate(embedding_rank, start = 1):
+        meeting_id = row[0]
+        if meeting_id is None:
+            continue
+        rrf_scores.setdefault(meeting_id, {"club_id": row[1], "score": 0.0})
+        rrf_scores[meeting_id]["score"] += 1.0 / (rrf_k + rank)
+
+    for rank, row in enumerate(bm25_rank, start = 1):
+        meeting_id = row[0]
+        if meeting_id is None:
+            continue
+        rrf_scores.setdefault(meeting_id, {"club_id": row[1], "score": 0.0})
+        rrf_scores[meeting_id]["score"] += 1.0 / (rrf_k + rank)
+
+    club_scores = {}
+    club_counts = {}
+    for entry in rrf_scores.values():
+        club_id = entry["club_id"]
+        club_scores[club_id] = club_scores.get(club_id, 0.0) + entry["score"]
+        club_counts[club_id] = club_counts.get(club_id, 0) + 1
+
+    for club_id, score in list(club_scores.items()):
+        # change aggregating algorithm as necessary
+        club_scores[club_id] = score / (club_counts.get(club_id, 1))
 
     club_rankings = sorted(
-        club_similarities.items(),
+        club_scores.items(),
         key = lambda item: (-item[1], item[0])
     )
 
