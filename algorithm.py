@@ -20,32 +20,20 @@ def recommend_club_ids(user_id, user_weight_factor = 4, tag_weight_factor = 1, l
 
     cursor = mysql.connection.cursor()
 
-    # collect members and tags per club without cross-joining members x tags
+    # collect members and tags per club
     cursor.execute("""
-        SELECT
+        SELECT 
             c.club_id AS club_id,
-            m.members AS members,
-            t.tags AS tags
-        FROM
+            JSON_ARRAYAGG(cm.user_id) AS members,
+            JSON_ARRAYAGG(ct.tag_id) AS tags
+        FROM 
             clubs c
-        LEFT JOIN (
-            SELECT
-                club_id,
-                JSON_ARRAYAGG(DISTINCT user_id) AS members
-            FROM
-                club_members
-            GROUP BY
-                club_id
-        ) m ON m.club_id = c.club_id
-        LEFT JOIN (
-            SELECT
-                club_id,
-                JSON_ARRAYAGG(DISTINCT tag_id) AS tags
-            FROM
-                club_tags
-            GROUP BY
-                club_id
-        ) t ON t.club_id = c.club_id
+        LEFT JOIN 
+            club_members cm ON cm.club_id = c.club_id
+        LEFT JOIN 
+            club_tags ct ON ct.club_id = c.club_id
+        GROUP BY 
+            c.club_id
     """)
 
     club_ids = []
@@ -59,6 +47,8 @@ def recommend_club_ids(user_id, user_weight_factor = 4, tag_weight_factor = 1, l
 
         members = [m for m in json.loads(row["members"] or "[]") if m is not None]
         tags = [t for t in json.loads(row["tags"] or "[]") if t is not None]
+        members = list(set(members))
+        tags = list(set(tags))
 
         club_members[cid] = members
         club_tags[cid] = tags
